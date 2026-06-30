@@ -1,0 +1,37 @@
+name: Actualisation REB RUN
+
+on:
+  schedule:
+    # 02:00 UTC = 06:00 à La Réunion (UTC+4)
+    - cron: '0 2 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Préparer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Lancer le moteur d'actualisation
+        run: node moteur/update-engine.mjs
+
+      - name: Publier les changements (si chiffres modifiés)
+        run: |
+          git config user.name "REB RUN — moteur automatique"
+          git config user.email "moteur@reb-run.local"
+          git add donnees.json
+          if git diff --cached --quiet; then
+            echo "Aucun changement à publier."
+          else
+            git commit -m "Actualisation automatique REB RUN ($(date -u +%Y-%m-%d))"
+            git push
+          fi
