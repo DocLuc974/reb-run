@@ -563,46 +563,15 @@
     }
   ],
   "sources": [
-    {
-      "name": "OMS — Disease Outbreak News",
-      "scope": "Toutes pathologies · alertes internationales",
-      "last": "27/06/2026"
-    },
-    {
-      "name": "ECDC — Communicable Disease Threats Report",
-      "scope": "Europe & international · MAJ hebdomadaire",
-      "last": "26/06/2026"
-    },
-    {
-      "name": "CDC — Outbreaks & Situation Summaries",
-      "scope": "Ebola, Mpox, choléra…",
-      "last": "25/06/2026"
-    },
-    {
-      "name": "Africa CDC",
-      "scope": "Afrique · épidémies continentales",
-      "last": "24/06/2026"
-    },
-    {
-      "name": "Santé publique France",
-      "scope": "France · bulletins nationaux",
-      "last": "27/06/2026"
-    },
-    {
-      "name": "ARS Océan Indien",
-      "scope": "La Réunion & Mayotte · arboviroses, leptospirose",
-      "last": "27/06/2026"
-    },
-    {
-      "name": "Ministères de la Santé (Madagascar, RDC, Comores)",
-      "scope": "Bilans nationaux des foyers actifs",
-      "last": "20/06/2026"
-    },
-    {
-      "name": "ProMED",
-      "scope": "Signaux précoces · veille informelle",
-      "last": "28/06/2026"
-    }
+    {"name": "CDC — Situation Summary", "scope": "Ebola Bundibugyo · page unique toujours à jour", "last": "27/06/2026", "auto": true},
+    {"name": "OMS — Disease Outbreak News", "scope": "Bulletins DON · toutes pathologies REB", "last": "27/06/2026", "auto": true},
+    {"name": "ECDC — page de suivi Ebola RDC/Ouganda", "scope": "Europe & international · MAJ ~2×/semaine", "last": "26/06/2026", "auto": true},
+    {"name": "Africa CDC", "scope": "Afrique · épidémies continentales", "last": "24/06/2026", "auto": true},
+    {"name": "ESCMID Epi Alert", "scope": "Bulletin scientifique (ESCMID + Amsterdam UMC)", "last": "27/06/2026", "auto": true},
+    {"name": "Santé publique France", "scope": "France · doctrine & conduite à tenir (pas de comptage chiffré)", "last": "22/05/2026", "auto": false},
+    {"name": "ARS Océan Indien", "scope": "La Réunion & Mayotte · arboviroses, leptospirose", "last": "27/06/2026", "auto": false},
+    {"name": "Ministères de la Santé (Madagascar, RDC, Comores)", "scope": "Bilans nationaux des foyers actifs", "last": "20/06/2026", "auto": false},
+    {"name": "ProMED", "scope": "Signaux précoces · veille informelle", "last": "28/06/2026", "auto": false}}
   ],
   "updates": [
     {
