@@ -1,6 +1,11 @@
 {
   "_mode_emploi": "Ce fichier contient TOUS les chiffres de l'outil REB RUN. Pour mettre à jour : modifiez les valeurs ci-dessous puis enregistrez. L'outil relit ce fichier à chaque chargement. Ne touchez pas aux noms de clés (à gauche des deux-points), seulement aux valeurs. Niveaux d'alerte : 0=aucun signal, 1=surveillance, 2=veille renforcée, 3=alerte, 4=urgence.",
 
+  "meta": {
+    "who_last_don": 600,
+    "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
+  },
+
   "regional": {
     "ebola_bdb": {"RDC": 4, "Ouganda": 4, "La Réunion": 2, "Mayotte": 2},
     "mpox": {"RDC": 3, "Ouganda": 2, "Madagascar": 3},
