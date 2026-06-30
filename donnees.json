@@ -571,7 +571,7 @@
     {"name": "Santé publique France", "scope": "France · doctrine & conduite à tenir (pas de comptage chiffré)", "last": "22/05/2026", "auto": false},
     {"name": "ARS Océan Indien", "scope": "La Réunion & Mayotte · arboviroses, leptospirose", "last": "27/06/2026", "auto": false},
     {"name": "Ministères de la Santé (Madagascar, RDC, Comores)", "scope": "Bilans nationaux des foyers actifs", "last": "20/06/2026", "auto": false},
-    {"name": "ProMED", "scope": "Signaux précoces · veille informelle", "last": "28/06/2026", "auto": false}}
+    {"name": "ProMED", "scope": "Signaux précoces · veille informelle", "last": "28/06/2026", "auto": false}
   ],
   "updates": [
     {
