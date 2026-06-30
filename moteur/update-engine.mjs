@@ -1,5 +1,5 @@
-// REB RUN — Moteur d'actualisation (V1 + extensions OMS, ECDC, Africa CDC)
-// Quatre sources désormais automatisées pour Ebola Bundibugyo :
+// REB RUN — Moteur d'actualisation (V1 + extensions OMS, ECDC, Africa CDC, ESCMID)
+// Cinq sources désormais automatisées pour Ebola Bundibugyo :
 //   1. CDC — Situation Summary (page unique, toujours "à jour")
 //   2. OMS — Disease Outbreak News (bulletins numérotés ; la liste OMS n'est pas
 //      lisible directement — son contenu est chargé en JavaScript après coup —
@@ -11,6 +11,8 @@
 //      l'autre. Garde-fou explicite : si la phrase mélange cas confirmés et décès
 //      "suspected"/"probable", l'extraction est REJETÉE plutôt que publiée — on
 //      préfère "pas de mise à jour" à "mise à jour avec la mauvaise statistique".
+//   5. ESCMID Epi Alert — bulletin scientifique (ESCMID + Centre de médecine
+//      tropicale d'Amsterdam), phrasé structuré et fiable.
 //
 // Important : ce script tourne CÔTÉ SERVEUR (Node, via la tâche planifiée GitHub
 // Actions). Le blocage CORS rencontré dans le prototype navigateur (ECDC, Africa
@@ -205,6 +207,30 @@ async function checkAfricaCDC(data) {
   }
 }
 
+// ── Source 5 : ESCMID Epi Alert — bulletin scientifique structuré
+// "X confirmed cases and Y deaths reported ... as of DATE" — la date arrive APRÈS
+// les chiffres (contrairement aux autres sources), d'où un motif dédié.
+async function checkESCMID(data) {
+  const url = 'https://www.escmid.org/science-research/emerging-infections/epi-alert/';
+  try {
+    const r = await fetchWithTimeout(url, TIMEOUT_MS);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const text = stripTags(await r.text());
+    const m = text.match(/(\d{1,8})\s+confirmed cases and\s+(\d{1,8})\s+deaths reported[\s\S]{0,80}?as of\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})/i);
+    if (!m) return { source: 'ESCMID', auto: true, what: `Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.` };
+
+    const cas = m[1].replace(/[^\d]/g, '');
+    const dec = m[2].replace(/[^\d]/g, '');
+    const d = parseEnDate(m[3]);
+    const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, cas, dec, `ESCMID Epi Alert (auto) — ${m[3]}`) : false;
+    return { source: 'ESCMID', auto: true, what: applied
+      ? `Ebola Bundibugyo / RDC mis à jour via ESCMID Epi Alert : ${cas} cas, ${dec} décès (${m[3]}).`
+      : `ESCMID Epi Alert vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.` };
+  } catch (err) {
+    return { source: 'ESCMID', auto: true, what: `Échec de connexion à ESCMID Epi Alert (${err.message || err}).` };
+  }
+}
+
 async function main() {
   const raw = await readFile(DATA_PATH, 'utf8');
   const data = JSON.parse(raw);
@@ -227,8 +253,13 @@ async function main() {
   const acdcLog = await checkAfricaCDC(data);
   console.log('[REB RUN]', acdcLog.what);
 
+  console.log('[REB RUN] Vérification ESCMID Epi Alert…');
+  const escmidLog = await checkESCMID(data);
+  console.log('[REB RUN]', escmidLog.what);
+
   const stamp = nowStampFR();
   data.updates = [
+    { date: stamp, auto: true, what: escmidLog.what, src: 'ESCMID' },
     { date: stamp, auto: true, what: acdcLog.what, src: 'Africa CDC' },
     { date: stamp, auto: true, what: ecdcLog.what, src: 'ECDC' },
     { date: stamp, auto: true, what: whoLog.what, src: 'OMS' },
