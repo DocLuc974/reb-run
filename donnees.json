@@ -1,119 +1,657 @@
 {
   "_mode_emploi": "Ce fichier contient TOUS les chiffres de l'outil REB RUN. Pour mettre à jour : modifiez les valeurs ci-dessous puis enregistrez. L'outil relit ce fichier à chaque chargement. Ne touchez pas aux noms de clés (à gauche des deux-points), seulement aux valeurs. Niveaux d'alerte : 0=aucun signal, 1=surveillance, 2=veille renforcée, 3=alerte, 4=urgence.",
-
   "meta": {
-    "who_last_don": 600,
+    "who_last_don": 610,
     "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
   },
-
   "regional": {
-    "ebola_bdb": {"RDC": 4, "Ouganda": 4, "La Réunion": 2, "Mayotte": 2},
-    "mpox": {"RDC": 3, "Ouganda": 2, "Madagascar": 3},
-    "cholera": {"Comores": 2, "Mozambique": 2, "Tanzanie": 1, "Madagascar": 1},
-    "dengue": {"La Réunion": 2, "Mayotte": 2, "Madagascar": 2, "Comores": 1, "Maurice": 1},
-    "chikv": {"La Réunion": 1, "Mayotte": 1},
-    "lepto": {"La Réunion": 2, "Mayotte": 1, "Madagascar": 1},
-    "plague": {"Madagascar": 2},
-    "rvf": {"Mozambique": 1, "Tanzanie": 1}
+    "ebola_bdb": {
+      "RDC": 4,
+      "Ouganda": 4,
+      "La Réunion": 2,
+      "Mayotte": 2
+    },
+    "mpox": {
+      "RDC": 3,
+      "Ouganda": 2,
+      "Madagascar": 3
+    },
+    "cholera": {
+      "Comores": 2,
+      "Mozambique": 2,
+      "Tanzanie": 1,
+      "Madagascar": 1
+    },
+    "dengue": {
+      "La Réunion": 2,
+      "Mayotte": 2,
+      "Madagascar": 2,
+      "Comores": 1,
+      "Maurice": 1
+    },
+    "chikv": {
+      "La Réunion": 1,
+      "Mayotte": 1
+    },
+    "lepto": {
+      "La Réunion": 2,
+      "Mayotte": 1,
+      "Madagascar": 1
+    },
+    "plague": {
+      "Madagascar": 2
+    },
+    "rvf": {
+      "Mozambique": 1,
+      "Tanzanie": 1
+    }
   },
-
   "world": {
-    "ebola_bdb": {"Dem. Rep. Congo": 4, "Uganda": 2, "France": 1, "Germany": 1},
-    "mpox": {"Dem. Rep. Congo": 3, "Uganda": 2, "Madagascar": 2, "Burundi": 2, "Rwanda": 1, "Central African Rep.": 1, "Congo": 1, "Nigeria": 1, "Cameroon": 1},
-    "cholera": {"Dem. Rep. Congo": 2, "Mozambique": 2, "Malawi": 2, "Zambia": 1, "Zimbabwe": 2, "Nigeria": 2, "Ethiopia": 2, "Somalia": 2, "Sudan": 2, "S. Sudan": 2, "Yemen": 3, "Afghanistan": 2, "Bangladesh": 2, "Haiti": 2, "Tanzania": 1, "Syria": 2},
-    "dengue": {"Brazil": 3, "Argentina": 2, "Bolivia": 2, "Peru": 2, "Colombia": 2, "Mexico": 2, "India": 3, "Bangladesh": 3, "Indonesia": 3, "Philippines": 3, "Vietnam": 3, "Thailand": 3, "Malaysia": 2, "Sri Lanka": 2, "Pakistan": 2, "Madagascar": 1, "Nigeria": 1, "Australia": 1},
-    "chikv": {"India": 2, "Brazil": 2, "Indonesia": 2, "Thailand": 2, "Madagascar": 1, "Kenya": 1, "Pakistan": 1, "Paraguay": 2, "Argentina": 1},
+    "ebola_bdb": {
+      "Dem. Rep. Congo": 4,
+      "Uganda": 2,
+      "France": 1,
+      "Germany": 1
+    },
+    "mpox": {
+      "Dem. Rep. Congo": 3,
+      "Uganda": 2,
+      "Madagascar": 2,
+      "Burundi": 2,
+      "Rwanda": 1,
+      "Central African Rep.": 1,
+      "Congo": 1,
+      "Nigeria": 1,
+      "Cameroon": 1
+    },
+    "cholera": {
+      "Dem. Rep. Congo": 2,
+      "Mozambique": 2,
+      "Malawi": 2,
+      "Zambia": 1,
+      "Zimbabwe": 2,
+      "Nigeria": 2,
+      "Ethiopia": 2,
+      "Somalia": 2,
+      "Sudan": 2,
+      "S. Sudan": 2,
+      "Yemen": 3,
+      "Afghanistan": 2,
+      "Bangladesh": 2,
+      "Haiti": 2,
+      "Tanzania": 1,
+      "Syria": 2
+    },
+    "dengue": {
+      "Brazil": 3,
+      "Argentina": 2,
+      "Bolivia": 2,
+      "Peru": 2,
+      "Colombia": 2,
+      "Mexico": 2,
+      "India": 3,
+      "Bangladesh": 3,
+      "Indonesia": 3,
+      "Philippines": 3,
+      "Vietnam": 3,
+      "Thailand": 3,
+      "Malaysia": 2,
+      "Sri Lanka": 2,
+      "Pakistan": 2,
+      "Madagascar": 1,
+      "Nigeria": 1,
+      "Australia": 1
+    },
+    "chikv": {
+      "India": 2,
+      "Brazil": 2,
+      "Indonesia": 2,
+      "Thailand": 2,
+      "Madagascar": 1,
+      "Kenya": 1,
+      "Pakistan": 1,
+      "Paraguay": 2,
+      "Argentina": 1
+    },
     "marburg": {},
-    "lassa": {"Nigeria": 3, "Liberia": 2, "Sierra Leone": 2, "Guinea": 1, "Benin": 1, "Ghana": 1, "Togo": 1},
-    "cchf": {"Afghanistan": 2, "Pakistan": 2, "Iran": 2, "Iraq": 1, "Turkey": 2, "Russia": 1, "India": 1, "South Africa": 1, "Namibia": 1, "Mauritania": 1, "Senegal": 1, "Sudan": 1, "Uganda": 1, "Kazakhstan": 1},
-    "rvf": {"Kenya": 2, "Tanzania": 1, "Mozambique": 1, "Sudan": 1, "Mauritania": 1, "Uganda": 1},
-    "plague": {"Madagascar": 3, "Dem. Rep. Congo": 2, "Peru": 1, "United States of America": 1},
-    "mers": {"Saudi Arabia": 3, "United Arab Emirates": 1, "Oman": 1, "Qatar": 1, "Jordan": 1}
+    "lassa": {
+      "Nigeria": 3,
+      "Liberia": 2,
+      "Sierra Leone": 2,
+      "Guinea": 1,
+      "Benin": 1,
+      "Ghana": 1,
+      "Togo": 1
+    },
+    "cchf": {
+      "Afghanistan": 2,
+      "Pakistan": 2,
+      "Iran": 2,
+      "Iraq": 1,
+      "Turkey": 2,
+      "Russia": 1,
+      "India": 1,
+      "South Africa": 1,
+      "Namibia": 1,
+      "Mauritania": 1,
+      "Senegal": 1,
+      "Sudan": 1,
+      "Uganda": 1,
+      "Kazakhstan": 1
+    },
+    "rvf": {
+      "Kenya": 2,
+      "Tanzania": 1,
+      "Mozambique": 1,
+      "Sudan": 1,
+      "Mauritania": 1,
+      "Uganda": 1
+    },
+    "plague": {
+      "Madagascar": 3,
+      "Dem. Rep. Congo": 2,
+      "Peru": 1,
+      "United States of America": 1
+    },
+    "mers": {
+      "Saudi Arabia": 3,
+      "United Arab Emirates": 1,
+      "Oman": 1,
+      "Qatar": 1,
+      "Jordan": 1
+    }
   },
-
   "cases": {
-    "ebola_bdb|Dem. Rep. Congo": {"cas": "1 155", "dec": "304", "date": "24/06/2026", "source": "ECDC / MoH RDC"},
-    "ebola_bdb|Uganda": {"cas": "19", "dec": "2", "date": "24/06/2026", "source": "ECDC"},
-    "ebola_bdb|France": {"imported": "1", "date": "24/06/2026", "source": "Santé publique France"},
-    "ebola_bdb|Germany": {"imported": "1", "date": "19/05/2026", "source": "RKI / ECDC (évacuation sanitaire)"},
-    "mpox|Madagascar": {"cas": "2 049", "dec": "7", "date": "12/06/2026", "source": "MoH Madagascar"},
-    "mpox|Dem. Rep. Congo": {"cas": "≈ 22 000", "dec": "≈ 700", "date": "2026", "source": "OMS / Africa CDC"},
-    "cholera|Comoros": {"cas": "105", "dec": "6", "date": "21/02/2026", "source": "MoH Comores / OMS"},
-    "lassa|Nigeria": {"cas": "≈ 9 000", "dec": "≈ 170", "date": "saison 2026", "source": "NCDC Nigéria"},
-    "dengue|Brazil": {"cas": "≈ 6 M", "dec": "≈ 3 000", "date": "2026", "source": "OPS"},
-    "plague|Madagascar": {"cas": "centaines/an", "dec": "variable", "date": "saison 2026", "source": "OMS"}
+    "ebola_bdb|Dem. Rep. Congo": {
+      "cas": "1274",
+      "dec": "360",
+      "date": "28/06/2026",
+      "source": "ECDC (auto) — \"28 June\""
+    },
+    "ebola_bdb|Uganda": {
+      "cas": "19",
+      "dec": "2",
+      "date": "24/06/2026",
+      "source": "ECDC"
+    },
+    "ebola_bdb|France": {
+      "imported": "1",
+      "date": "24/06/2026",
+      "source": "Santé publique France"
+    },
+    "ebola_bdb|Germany": {
+      "imported": "1",
+      "date": "19/05/2026",
+      "source": "RKI / ECDC (évacuation sanitaire)"
+    },
+    "mpox|Madagascar": {
+      "cas": "2 049",
+      "dec": "7",
+      "date": "12/06/2026",
+      "source": "MoH Madagascar"
+    },
+    "mpox|Dem. Rep. Congo": {
+      "cas": "≈ 22 000",
+      "dec": "≈ 700",
+      "date": "2026",
+      "source": "OMS / Africa CDC"
+    },
+    "cholera|Comoros": {
+      "cas": "105",
+      "dec": "6",
+      "date": "21/02/2026",
+      "source": "MoH Comores / OMS"
+    },
+    "lassa|Nigeria": {
+      "cas": "≈ 9 000",
+      "dec": "≈ 170",
+      "date": "saison 2026",
+      "source": "NCDC Nigéria"
+    },
+    "dengue|Brazil": {
+      "cas": "≈ 6 M",
+      "dec": "≈ 3 000",
+      "date": "2026",
+      "source": "OPS"
+    },
+    "plague|Madagascar": {
+      "cas": "centaines/an",
+      "dec": "variable",
+      "date": "saison 2026",
+      "source": "OMS"
+    }
   },
-
   "alerts": [
-    {"name": "Ebola Bundibugyo", "group": "Fièvre hémorragique virale", "lvl": 4, "period": "cumul depuis le début de l’épidémie (déclarée 17/05) · arrêté au 24/06/2026",
-      "zones": [{"zone": "RDC", "l": 4, "cas": 1155, "dec": 304}, {"zone": "Ouganda", "l": 4, "cas": 19, "dec": 2}]},
-    {"name": "Mpox (clade Ib)", "group": "Orthopoxvirose", "lvl": 3, "period": "cumul depuis le début de l’épidémie · arrêté au 12/06/2026",
-      "zones": [{"zone": "Madagascar", "l": 3, "cas": 2049, "dec": 7}]},
-    {"name": "Choléra", "group": "Maladie entérique", "lvl": 2, "period": "cumul depuis le début de l’épisode · arrêté au 21/02/2026",
-      "zones": [{"zone": "Comores", "l": 2, "cas": 105, "dec": 6}]},
-    {"name": "Dengue", "group": "Arbovirose", "lvl": 2, "period": "saison 2026 · circulation en cours (pas de comptage cumulé)",
-      "zones": [{"zone": "La Réunion", "l": 2, "cas": null}, {"zone": "Mayotte", "l": 2, "cas": null}, {"zone": "Madagascar", "l": 2, "cas": null}]},
-    {"name": "Leptospirose", "group": "Zoonose", "lvl": 2, "period": "endémique · pic saisonnier janv.–avr. 2026",
-      "zones": [{"zone": "La Réunion", "l": 2, "cas": null}]},
-    {"name": "Peste", "group": "Zoonose", "lvl": 2, "period": "endémique · cas sporadiques saison 2026",
-      "zones": [{"zone": "Madagascar", "l": 2, "cas": null}]},
-    {"name": "Chikungunya", "group": "Arbovirose", "lvl": 1, "period": "endémique Océan Indien · surveillance vectorielle continue",
-      "zones": [{"zone": "La Réunion", "l": 1, "cas": null}, {"zone": "Mayotte", "l": 1, "cas": null}]}
+    {
+      "name": "Ebola Bundibugyo",
+      "group": "Fièvre hémorragique virale",
+      "lvl": 4,
+      "period": "cumul depuis le début de l’épidémie (déclarée 17/05) · arrêté au 24/06/2026",
+      "zones": [
+        {
+          "zone": "RDC",
+          "l": 4,
+          "cas": 1155,
+          "dec": 304
+        },
+        {
+          "zone": "Ouganda",
+          "l": 4,
+          "cas": 19,
+          "dec": 2
+        }
+      ]
+    },
+    {
+      "name": "Mpox (clade Ib)",
+      "group": "Orthopoxvirose",
+      "lvl": 3,
+      "period": "cumul depuis le début de l’épidémie · arrêté au 12/06/2026",
+      "zones": [
+        {
+          "zone": "Madagascar",
+          "l": 3,
+          "cas": 2049,
+          "dec": 7
+        }
+      ]
+    },
+    {
+      "name": "Choléra",
+      "group": "Maladie entérique",
+      "lvl": 2,
+      "period": "cumul depuis le début de l’épisode · arrêté au 21/02/2026",
+      "zones": [
+        {
+          "zone": "Comores",
+          "l": 2,
+          "cas": 105,
+          "dec": 6
+        }
+      ]
+    },
+    {
+      "name": "Dengue",
+      "group": "Arbovirose",
+      "lvl": 2,
+      "period": "saison 2026 · circulation en cours (pas de comptage cumulé)",
+      "zones": [
+        {
+          "zone": "La Réunion",
+          "l": 2,
+          "cas": null
+        },
+        {
+          "zone": "Mayotte",
+          "l": 2,
+          "cas": null
+        },
+        {
+          "zone": "Madagascar",
+          "l": 2,
+          "cas": null
+        }
+      ]
+    },
+    {
+      "name": "Leptospirose",
+      "group": "Zoonose",
+      "lvl": 2,
+      "period": "endémique · pic saisonnier janv.–avr. 2026",
+      "zones": [
+        {
+          "zone": "La Réunion",
+          "l": 2,
+          "cas": null
+        }
+      ]
+    },
+    {
+      "name": "Peste",
+      "group": "Zoonose",
+      "lvl": 2,
+      "period": "endémique · cas sporadiques saison 2026",
+      "zones": [
+        {
+          "zone": "Madagascar",
+          "l": 2,
+          "cas": null
+        }
+      ]
+    },
+    {
+      "name": "Chikungunya",
+      "group": "Arbovirose",
+      "lvl": 1,
+      "period": "endémique Océan Indien · surveillance vectorielle continue",
+      "zones": [
+        {
+          "zone": "La Réunion",
+          "l": 1,
+          "cas": null
+        },
+        {
+          "zone": "Mayotte",
+          "l": 1,
+          "cas": null
+        }
+      ]
+    }
   ],
-
   "synth": [
-    {"name": "Ebola Bundibugyo", "lvl": 4, "source": "ECDC / MoH RDC", "date": "24/06/2026", "period": "cumul depuis le 17/05/2026",
+    {
+      "name": "Ebola Bundibugyo",
+      "lvl": 4,
+      "source": "ECDC / MoH RDC",
+      "date": "24/06/2026",
+      "period": "cumul depuis le 17/05/2026",
       "rows": [
-        {"zone": "RDC", "conf": 1155, "dec": 304, "susp": null},
-        {"zone": "Ouganda", "conf": 19, "dec": 2, "susp": null},
-        {"zone": "TOTAL", "conf": 1174, "dec": 306, "susp": null, "total": true}
-      ]},
-    {"name": "Mpox (clade Ib)", "lvl": 3, "source": "MoH Madagascar", "date": "12/06/2026", "period": "cumul 2026",
+        {
+          "zone": "RDC",
+          "conf": 1155,
+          "dec": 304,
+          "susp": null
+        },
+        {
+          "zone": "Ouganda",
+          "conf": 19,
+          "dec": 2,
+          "susp": null
+        },
+        {
+          "zone": "TOTAL",
+          "conf": 1174,
+          "dec": 306,
+          "susp": null,
+          "total": true
+        }
+      ]
+    },
+    {
+      "name": "Mpox (clade Ib)",
+      "lvl": 3,
+      "source": "MoH Madagascar",
+      "date": "12/06/2026",
+      "period": "cumul 2026",
       "rows": [
-        {"zone": "Madagascar", "conf": 2049, "dec": 7, "susp": 1320}
-      ]},
-    {"name": "Choléra", "lvl": 2, "source": "MoH Comores / OMS", "date": "21/02/2026", "period": "cumul depuis 02/2026",
+        {
+          "zone": "Madagascar",
+          "conf": 2049,
+          "dec": 7,
+          "susp": 1320
+        }
+      ]
+    },
+    {
+      "name": "Choléra",
+      "lvl": 2,
+      "source": "MoH Comores / OMS",
+      "date": "21/02/2026",
+      "period": "cumul depuis 02/2026",
       "rows": [
-        {"zone": "Comores", "conf": 105, "dec": 6, "susp": null}
-      ]}
+        {
+          "zone": "Comores",
+          "conf": 105,
+          "dec": 6,
+          "susp": null
+        }
+      ]
+    }
   ],
-
   "globalTable": [
-    {"id": "ebola_bdb", "name": "Ebola Bundibugyo", "lvl": 4, "regions": "Afrique centrale (RDC, Ouganda) + cas importé en France", "countries": 3, "cas": "1 174", "dec": "306", "trend": "up", "source": "OMS / ECDC · 24/06/2026", "note": "Épidémie unique en cours, centrée sur la RDC. Pas de circulation hors Afrique de l’Est."},
-    {"id": "mpox", "name": "Mpox (clade Ib)", "lvl": 4, "regions": "Afrique sub-saharienne + cas importés (Europe, Asie)", "countries": 18, "cas": "≈ 34 000", "dec": "≈ 900", "trend": "up", "source": "OMS · USPPI maintenue · 06/2026", "note": "Clade Ib en expansion depuis l’Afrique centrale ; cas sporadiques importés sur plusieurs continents."},
-    {"id": "cholera", "name": "Choléra", "lvl": 3, "regions": "Afrique de l’Est & australe, Moyen-Orient, Asie du Sud", "countries": 31, "cas": "≈ 410 000", "dec": "≈ 4 200", "trend": "up", "source": "OMS · tableau de bord choléra · 06/2026", "note": "Multiples foyers liés à l’eau et aux conflits ; pénurie mondiale de vaccin oral."},
-    {"id": "dengue", "name": "Dengue", "lvl": 4, "regions": "Amériques, Asie du Sud-Est, Pacifique, Océan Indien", "countries": 90, "cas": "> 9 millions", "dec": "≈ 5 000", "trend": "up", "source": "OMS / OPS · 2026", "note": "Année record persistante ; expansion géographique vers de nouvelles zones tempérées."},
-    {"id": "chikv", "name": "Chikungunya", "lvl": 2, "regions": "Océan Indien, Asie du Sud, Amériques", "countries": "≈ 40", "cas": "≈ 220 000", "dec": "< 100", "trend": "flat", "source": "ECDC / OMS · 2026", "note": "Flambées localisées ; vigilance sur l’extension du vecteur Aedes albopictus."},
-    {"id": "marburg", "name": "Marburg", "lvl": 0, "regions": "Aucun foyer actif", "countries": 0, "cas": "0", "dec": "0", "trend": "none", "source": "OMS · dernier signal 2023", "note": "Pas d’épidémie déclarée à ce jour. Surveillance des réservoirs (chauves-souris)."},
-    {"id": "lassa", "name": "Lassa", "lvl": 2, "regions": "Afrique de l’Ouest (Nigéria +)", "countries": 6, "cas": "≈ 9 000", "dec": "≈ 170", "trend": "flat", "source": "Africa CDC / NCDC · saison 2026", "note": "Saison endémique annuelle en Afrique de l’Ouest ; risque d’importation par voyageurs."},
-    {"id": "cchf", "name": "FHCC (Crimée-Congo)", "lvl": 1, "regions": "Afrique, Balkans, Moyen-Orient, Asie centrale", "countries": "≈ 30", "cas": "≈ 1 000", "dec": "≈ 200", "trend": "flat", "source": "OMS · 2026", "note": "Distribution large suivant les tiques Hyalomma ; cas humains sporadiques."},
-    {"id": "rvf", "name": "Fièvre de la Vallée du Rift", "lvl": 1, "regions": "Afrique de l’Est & australe", "countries": 4, "cas": "sporadique", "dec": "NA", "trend": "flat", "source": "OMS / WOAH · 2026", "note": "Épizooties précédant les cas humains ; surveillance vétérinaire clé."},
-    {"id": "plague", "name": "Peste", "lvl": 2, "regions": "Madagascar, RDC, Pérou, USA (foyers)", "countries": "≈ 5", "cas": "centaines/an", "dec": "variable", "trend": "flat", "source": "OMS · 2026", "note": "Madagascar = principal foyer mondial, saison épidémique sept.–avr."},
-    {"id": "mers", "name": "MERS-CoV", "lvl": 1, "regions": "Péninsule arabique (+ cas exportés)", "countries": "≈ 3", "cas": "sporadique", "dec": "~35 %", "trend": "flat", "source": "OMS · 2026", "note": "Transmission liée aux dromadaires ; clusters nosocomiaux occasionnels."}
+    {
+      "id": "ebola_bdb",
+      "name": "Ebola Bundibugyo",
+      "lvl": 4,
+      "regions": "Afrique centrale (RDC, Ouganda) + cas importé en France",
+      "countries": 3,
+      "cas": "1 174",
+      "dec": "306",
+      "trend": "up",
+      "source": "OMS / ECDC · 24/06/2026",
+      "note": "Épidémie unique en cours, centrée sur la RDC. Pas de circulation hors Afrique de l’Est."
+    },
+    {
+      "id": "mpox",
+      "name": "Mpox (clade Ib)",
+      "lvl": 4,
+      "regions": "Afrique sub-saharienne + cas importés (Europe, Asie)",
+      "countries": 18,
+      "cas": "≈ 34 000",
+      "dec": "≈ 900",
+      "trend": "up",
+      "source": "OMS · USPPI maintenue · 06/2026",
+      "note": "Clade Ib en expansion depuis l’Afrique centrale ; cas sporadiques importés sur plusieurs continents."
+    },
+    {
+      "id": "cholera",
+      "name": "Choléra",
+      "lvl": 3,
+      "regions": "Afrique de l’Est & australe, Moyen-Orient, Asie du Sud",
+      "countries": 31,
+      "cas": "≈ 410 000",
+      "dec": "≈ 4 200",
+      "trend": "up",
+      "source": "OMS · tableau de bord choléra · 06/2026",
+      "note": "Multiples foyers liés à l’eau et aux conflits ; pénurie mondiale de vaccin oral."
+    },
+    {
+      "id": "dengue",
+      "name": "Dengue",
+      "lvl": 4,
+      "regions": "Amériques, Asie du Sud-Est, Pacifique, Océan Indien",
+      "countries": 90,
+      "cas": "> 9 millions",
+      "dec": "≈ 5 000",
+      "trend": "up",
+      "source": "OMS / OPS · 2026",
+      "note": "Année record persistante ; expansion géographique vers de nouvelles zones tempérées."
+    },
+    {
+      "id": "chikv",
+      "name": "Chikungunya",
+      "lvl": 2,
+      "regions": "Océan Indien, Asie du Sud, Amériques",
+      "countries": "≈ 40",
+      "cas": "≈ 220 000",
+      "dec": "< 100",
+      "trend": "flat",
+      "source": "ECDC / OMS · 2026",
+      "note": "Flambées localisées ; vigilance sur l’extension du vecteur Aedes albopictus."
+    },
+    {
+      "id": "marburg",
+      "name": "Marburg",
+      "lvl": 0,
+      "regions": "Aucun foyer actif",
+      "countries": 0,
+      "cas": "0",
+      "dec": "0",
+      "trend": "none",
+      "source": "OMS · dernier signal 2023",
+      "note": "Pas d’épidémie déclarée à ce jour. Surveillance des réservoirs (chauves-souris)."
+    },
+    {
+      "id": "lassa",
+      "name": "Lassa",
+      "lvl": 2,
+      "regions": "Afrique de l’Ouest (Nigéria +)",
+      "countries": 6,
+      "cas": "≈ 9 000",
+      "dec": "≈ 170",
+      "trend": "flat",
+      "source": "Africa CDC / NCDC · saison 2026",
+      "note": "Saison endémique annuelle en Afrique de l’Ouest ; risque d’importation par voyageurs."
+    },
+    {
+      "id": "cchf",
+      "name": "FHCC (Crimée-Congo)",
+      "lvl": 1,
+      "regions": "Afrique, Balkans, Moyen-Orient, Asie centrale",
+      "countries": "≈ 30",
+      "cas": "≈ 1 000",
+      "dec": "≈ 200",
+      "trend": "flat",
+      "source": "OMS · 2026",
+      "note": "Distribution large suivant les tiques Hyalomma ; cas humains sporadiques."
+    },
+    {
+      "id": "rvf",
+      "name": "Fièvre de la Vallée du Rift",
+      "lvl": 1,
+      "regions": "Afrique de l’Est & australe",
+      "countries": 4,
+      "cas": "sporadique",
+      "dec": "NA",
+      "trend": "flat",
+      "source": "OMS / WOAH · 2026",
+      "note": "Épizooties précédant les cas humains ; surveillance vétérinaire clé."
+    },
+    {
+      "id": "plague",
+      "name": "Peste",
+      "lvl": 2,
+      "regions": "Madagascar, RDC, Pérou, USA (foyers)",
+      "countries": "≈ 5",
+      "cas": "centaines/an",
+      "dec": "variable",
+      "trend": "flat",
+      "source": "OMS · 2026",
+      "note": "Madagascar = principal foyer mondial, saison épidémique sept.–avr."
+    },
+    {
+      "id": "mers",
+      "name": "MERS-CoV",
+      "lvl": 1,
+      "regions": "Péninsule arabique (+ cas exportés)",
+      "countries": "≈ 3",
+      "cas": "sporadique",
+      "dec": "~35 %",
+      "trend": "flat",
+      "source": "OMS · 2026",
+      "note": "Transmission liée aux dromadaires ; clusters nosocomiaux occasionnels."
+    }
   ],
-
   "journal": [
-    {"date": "25/06", "l": 4, "path": "Ebola Bundibugyo", "src": "ECDC", "text": "RDC : 1 155 cas confirmés et 304 décès (Ituri 1 054, Nord-Kivu 98, Sud-Kivu 3). Cas importé confirmé en France le 24/06 (évacuation sanitaire depuis la zone d'épidémie) — vigilance renforcée aux points d'entrée."},
-    {"date": "01/06", "l": 4, "path": "Ebola Bundibugyo", "src": "OMS DON", "text": "Confirmation de l'épidémie en RDC (Nord-Kivu). Transmission transfrontalière vers l'Ouganda confirmée. Préparation activée au CHU."},
-    {"date": "28/05", "l": 3, "path": "Mpox", "src": "ECDC", "text": "Augmentation des cas clade Ib en RDC, extension documentée vers l'Ouganda. Vigilance renforcée aux points d'entrée."},
-    {"date": "22/02", "l": 2, "path": "Choléra", "src": "OMS", "text": "105 cas confirmés aux Comores (6 décès), importés depuis la Tanzanie. Surveillance renforcée à Mayotte."}
+    {
+      "date": "25/06",
+      "l": 4,
+      "path": "Ebola Bundibugyo",
+      "src": "ECDC",
+      "text": "RDC : 1 155 cas confirmés et 304 décès (Ituri 1 054, Nord-Kivu 98, Sud-Kivu 3). Cas importé confirmé en France le 24/06 (évacuation sanitaire depuis la zone d'épidémie) — vigilance renforcée aux points d'entrée."
+    },
+    {
+      "date": "01/06",
+      "l": 4,
+      "path": "Ebola Bundibugyo",
+      "src": "OMS DON",
+      "text": "Confirmation de l'épidémie en RDC (Nord-Kivu). Transmission transfrontalière vers l'Ouganda confirmée. Préparation activée au CHU."
+    },
+    {
+      "date": "28/05",
+      "l": 3,
+      "path": "Mpox",
+      "src": "ECDC",
+      "text": "Augmentation des cas clade Ib en RDC, extension documentée vers l'Ouganda. Vigilance renforcée aux points d'entrée."
+    },
+    {
+      "date": "22/02",
+      "l": 2,
+      "path": "Choléra",
+      "src": "OMS",
+      "text": "105 cas confirmés aux Comores (6 décès), importés depuis la Tanzanie. Surveillance renforcée à Mayotte."
+    }
   ],
-
   "sources": [
-    {"name": "OMS — Disease Outbreak News", "scope": "Toutes pathologies · alertes internationales", "last": "27/06/2026"},
-    {"name": "ECDC — Communicable Disease Threats Report", "scope": "Europe & international · MAJ hebdomadaire", "last": "26/06/2026"},
-    {"name": "CDC — Outbreaks & Situation Summaries", "scope": "Ebola, Mpox, choléra…", "last": "25/06/2026"},
-    {"name": "Africa CDC", "scope": "Afrique · épidémies continentales", "last": "24/06/2026"},
-    {"name": "Santé publique France", "scope": "France · bulletins nationaux", "last": "27/06/2026"},
-    {"name": "ARS Océan Indien", "scope": "La Réunion & Mayotte · arboviroses, leptospirose", "last": "27/06/2026"},
-    {"name": "Ministères de la Santé (Madagascar, RDC, Comores)", "scope": "Bilans nationaux des foyers actifs", "last": "20/06/2026"},
-    {"name": "ProMED", "scope": "Signaux précoces · veille informelle", "last": "28/06/2026"}
+    {
+      "name": "OMS — Disease Outbreak News",
+      "scope": "Toutes pathologies · alertes internationales",
+      "last": "27/06/2026"
+    },
+    {
+      "name": "ECDC — Communicable Disease Threats Report",
+      "scope": "Europe & international · MAJ hebdomadaire",
+      "last": "26/06/2026"
+    },
+    {
+      "name": "CDC — Outbreaks & Situation Summaries",
+      "scope": "Ebola, Mpox, choléra…",
+      "last": "25/06/2026"
+    },
+    {
+      "name": "Africa CDC",
+      "scope": "Afrique · épidémies continentales",
+      "last": "24/06/2026"
+    },
+    {
+      "name": "Santé publique France",
+      "scope": "France · bulletins nationaux",
+      "last": "27/06/2026"
+    },
+    {
+      "name": "ARS Océan Indien",
+      "scope": "La Réunion & Mayotte · arboviroses, leptospirose",
+      "last": "27/06/2026"
+    },
+    {
+      "name": "Ministères de la Santé (Madagascar, RDC, Comores)",
+      "scope": "Bilans nationaux des foyers actifs",
+      "last": "20/06/2026"
+    },
+    {
+      "name": "ProMED",
+      "scope": "Signaux précoces · veille informelle",
+      "last": "28/06/2026"
+    }
   ],
-
   "updates": [
-    {"date": "28/06 · 06:00", "auto": true, "what": "12 pathogènes vérifiés · 3 foyers actifs réactualisés", "src": "OMS, ECDC, Africa CDC"},
-    {"date": "27/06 · 06:00", "auto": true, "what": "Ebola RDC stable · Mpox Madagascar +41 cas", "src": "ECDC, MoH Madagascar"},
-    {"date": "26/06 · 14:20", "auto": false, "what": "Note manuelle ajoutée — Choléra Comores", "src": "REB RUN"},
-    {"date": "26/06 · 06:00", "auto": true, "what": "Aucun nouveau signal sur les FHV surveillées", "src": "OMS DON"}
+    {
+      "date": "30/06 · 19:24",
+      "auto": true,
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "30/06 · 19:24",
+      "auto": true,
+      "what": "Ebola Bundibugyo / RDC mis à jour via ECDC : 1274 cas, 360 décès (28 June).",
+      "src": "ECDC"
+    },
+    {
+      "date": "30/06 · 19:24",
+      "auto": true,
+      "what": "OMS DON608 vérifié (17 June 2026) — valeur déjà publiée toujours la plus récente.",
+      "src": "OMS"
+    },
+    {
+      "date": "30/06 · 19:24",
+      "auto": true,
+      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "CDC"
+    },
+    {
+      "date": "28/06 · 06:00",
+      "auto": true,
+      "what": "12 pathogènes vérifiés · 3 foyers actifs réactualisés",
+      "src": "OMS, ECDC, Africa CDC"
+    },
+    {
+      "date": "27/06 · 06:00",
+      "auto": true,
+      "what": "Ebola RDC stable · Mpox Madagascar +41 cas",
+      "src": "ECDC, MoH Madagascar"
+    },
+    {
+      "date": "26/06 · 14:20",
+      "auto": false,
+      "what": "Note manuelle ajoutée — Choléra Comores",
+      "src": "REB RUN"
+    },
+    {
+      "date": "26/06 · 06:00",
+      "auto": true,
+      "what": "Aucun nouveau signal sur les FHV surveillées",
+      "src": "OMS DON"
+    }
   ]
 }
