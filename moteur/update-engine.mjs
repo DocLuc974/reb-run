@@ -75,6 +75,25 @@ function nowStampFR() {
   return `${dd}/${mm} · ${hh}:${mi}`;
 }
 
+function ddmmFromDate(d) {
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+
+function pushSeriesPoint(data, pathogenId, dateLabel, totalCas, totalDec) {
+  data.epiSeries = data.epiSeries || {};
+  data.epiSeries[pathogenId] = data.epiSeries[pathogenId] || [];
+  const series = data.epiSeries[pathogenId];
+  const existing = series.find(p => p.date === dateLabel);
+  if (existing) {
+    existing.cas = totalCas;
+    existing.dec = totalDec;
+  } else {
+    series.push({ date: dateLabel, cas: totalCas, dec: totalDec });
+  }
+  // Garde un historique raisonnable (30 derniers points)
+  if (series.length > 30) data.epiSeries[pathogenId] = series.slice(series.length - 30);
+}
+
 function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sourceLabel) {
   const current = data.cases[key] || {};
   const currentDate = parseFrDate(current.date);
@@ -88,6 +107,18 @@ function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sour
       date: `${dd}/${mm}/${candidateDate.getFullYear()}`,
       source: sourceLabel,
     };
+    // Alimente automatiquement la série temporelle (courbe) du pathogène concerné,
+    // en additionnant les autres zones connues (ex. Ouganda, statique pour l'instant).
+    const [pathogenId, zone] = key.split('|');
+    if (pathogenId === 'ebola_bdb') {
+      const ugandaCas = +(data.cases['ebola_bdb|Uganda']?.cas) || 19;
+      const ugandaDec = +(data.cases['ebola_bdb|Uganda']?.dec) || 2;
+      const casNum = +String(candidateCas).replace(/[^\d]/g, '') || 0;
+      const decNum = +String(data.cases[key].dec).replace(/[^\d]/g, '') || 0;
+      const totalCas = zone === 'Uganda' ? casNum + (+(data.cases['ebola_bdb|Dem. Rep. Congo']?.cas) || 0) : casNum + ugandaCas;
+      const totalDec = zone === 'Uganda' ? decNum + (+(data.cases['ebola_bdb|Dem. Rep. Congo']?.dec) || 0) : decNum + ugandaDec;
+      pushSeriesPoint(data, 'ebola_bdb', ddmmFromDate(candidateDate), totalCas, totalDec);
+    }
   }
   return isNewer;
 }
