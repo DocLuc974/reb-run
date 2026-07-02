@@ -654,6 +654,36 @@
   ],
   "updates": [
     {
+      "date": "02/07 · 11:42",
+      "auto": true,
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "02/07 · 11:42",
+      "auto": true,
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "02/07 · 11:42",
+      "auto": true,
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "02/07 · 11:42",
+      "auto": true,
+      "what": "Aucun nouveau bulletin OMS (DON) sur Ebola Bundibugyo depuis le dernier sondage (jusqu'à DON610).",
+      "src": "OMS"
+    },
+    {
+      "date": "02/07 · 11:42",
+      "auto": true,
+      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "CDC"
+    },
+    {
       "date": "01/07 · 12:21",
       "auto": true,
       "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
