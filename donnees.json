@@ -1,7 +1,7 @@
 {
   "_mode_emploi": "Ce fichier contient TOUS les chiffres de l'outil REB RUN. Pour mettre à jour : modifiez les valeurs ci-dessous puis enregistrez. L'outil relit ce fichier à chaque chargement. Ne touchez pas aux noms de clés (à gauche des deux-points), seulement aux valeurs. Niveaux d'alerte : 0=aucun signal, 1=surveillance, 2=veille renforcée, 3=alerte, 4=urgence.",
   "meta": {
-    "who_last_don": 610,
+    "who_last_don": 611,
     "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
   },
   "regional": {
@@ -653,6 +653,36 @@
     }
   ],
   "updates": [
+    {
+      "date": "03/07 · 11:40",
+      "auto": true,
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "03/07 · 11:40",
+      "auto": true,
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "03/07 · 11:40",
+      "auto": true,
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "03/07 · 11:40",
+      "auto": true,
+      "what": "Aucun nouveau bulletin OMS (DON) sur Ebola Bundibugyo depuis le dernier sondage (jusqu'à DON611).",
+      "src": "OMS"
+    },
+    {
+      "date": "03/07 · 11:40",
+      "auto": true,
+      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "CDC"
+    },
     {
       "date": "02/07 · 15:58",
       "auto": true,
