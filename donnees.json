@@ -1,14 +1,13 @@
 {
   "_mode_emploi": "Ce fichier contient TOUS les chiffres de l'outil REB RUN. Pour mettre à jour : modifiez les valeurs ci-dessous puis enregistrez. L'outil relit ce fichier à chaque chargement. Ne touchez pas aux noms de clés (à gauche des deux-points), seulement aux valeurs. Niveaux d'alerte : 0=aucun signal, 1=surveillance, 2=veille renforcée, 3=alerte, 4=urgence.",
   "meta": {
-    "who_last_don": 600,
+    "who_last_don": 612,
     "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
   },
   "kpi": {
-    "_note": "Recalculé automatiquement par le moteur (deriveDashboard) à chaque run, à partir de alerts. Foyers actifs = zones distinctes au niveau ≥ 3 ; décès = somme des décès des zones en alerte ; pathogènes en alerte = nombre d'entrées alerts ; niveau max = plus haut niveau observé.",
     "foyersActifs": 3,
     "foyersLabel": "RDC · Ouganda · Madagascar",
-    "deces": 414,
+    "deces": 467,
     "pathogenesEnAlerte": 7,
     "pathogenesTotal": 12,
     "niveauMaxLabel": "Urgence",
@@ -203,15 +202,20 @@
         "date": "30/06",
         "cas": 1353,
         "dec": 401
+      },
+      {
+        "date": "01/07",
+        "cas": 1480,
+        "dec": 454
       }
     ]
   },
   "cases": {
     "ebola_bdb|Dem. Rep. Congo": {
-      "cas": "1 333",
-      "dec": "399",
-      "date": "29/06/2026",
-      "source": "COREB / OMS"
+      "cas": "1460",
+      "dec": "452",
+      "date": "01/07/2026",
+      "source": "OMS DON612 (auto) — 1 July 2026"
     },
     "ebola_bdb|Uganda": {
       "cas": "20",
@@ -300,8 +304,8 @@
         {
           "zone": "RDC",
           "l": 4,
-          "cas": 1333,
-          "dec": 399
+          "cas": 1460,
+          "dec": 452
         },
         {
           "zone": "Ouganda",
@@ -348,7 +352,7 @@
         {
           "zone": "La Réunion",
           "l": 2,
-          "cas": null
+          "cas": 306
         },
         {
           "zone": "Mayotte",
@@ -397,7 +401,7 @@
         {
           "zone": "La Réunion",
           "l": 1,
-          "cas": null
+          "cas": 52
         },
         {
           "zone": "Mayotte",
@@ -417,8 +421,8 @@
       "rows": [
         {
           "zone": "RDC",
-          "conf": 1333,
-          "dec": 399,
+          "conf": 1460,
+          "dec": 452,
           "susp": null
         },
         {
@@ -429,8 +433,8 @@
         },
         {
           "zone": "TOTAL",
-          "conf": 1353,
-          "dec": 401,
+          "conf": 1480,
+          "dec": 454,
           "susp": null,
           "total": true
         }
@@ -779,6 +783,62 @@
     }
   ],
   "updates": [
+    {
+      "date": "04/07 · 06:42",
+      "auto": true,
+      "status": "failed",
+      "what": "ReliefWeb inaccessible (ReliefWeb 400: {\"status\":400,\"time\":21,\"error\":{\"type\":\"BadRequestHttpException\",\"message\":\"Missing appname parameter\"}}). Rappel : appname à faire pré-approuver puis à renseigner dans reliefweb.js.",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "04/07 · 06:42",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "04/07 · 06:42",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion à Africa CDC Mpox (HTTP 404).",
+      "src": "Africa CDC (Mpox)"
+    },
+    {
+      "date": "04/07 · 06:42",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "04/07 · 06:42",
+      "auto": true,
+      "status": "failed",
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "04/07 · 06:42",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "04/07 · 06:42",
+      "auto": true,
+      "status": "updated",
+      "what": "Ebola Bundibugyo / RDC mis à jour via OMS DON612 : 1460 cas, 452 décès (1 July 2026).",
+      "src": "OMS"
+    },
+    {
+      "date": "04/07 · 06:42",
+      "auto": true,
+      "status": "checked",
+      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "CDC"
+    },
     {
       "date": "02/07 · 09:00",
       "auto": false,
