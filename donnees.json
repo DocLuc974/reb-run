@@ -784,6 +784,62 @@
   ],
   "updates": [
     {
+      "date": "04/07 · 09:54",
+      "auto": true,
+      "status": "failed",
+      "what": "ReliefWeb inaccessible (ReliefWeb 400: {\"status\":400,\"time\":21,\"error\":{\"type\":\"BadRequestHttpException\",\"message\":\"Missing appname parameter\"}}). Rappel : appname à faire pré-approuver puis à renseigner dans reliefweb.js.",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "04/07 · 09:54",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "04/07 · 09:54",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion à Africa CDC Mpox (HTTP 404).",
+      "src": "Africa CDC (Mpox)"
+    },
+    {
+      "date": "04/07 · 09:54",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "04/07 · 09:54",
+      "auto": true,
+      "status": "failed",
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "04/07 · 09:54",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "04/07 · 09:54",
+      "auto": true,
+      "status": "checked",
+      "what": "OMS DON612 vérifié (1 July 2026) — valeur déjà publiée toujours la plus récente.",
+      "src": "OMS"
+    },
+    {
+      "date": "04/07 · 09:54",
+      "auto": true,
+      "status": "checked",
+      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "CDC"
+    },
+    {
       "date": "04/07 · 06:42",
       "auto": true,
       "status": "failed",
