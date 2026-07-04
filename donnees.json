@@ -784,6 +784,62 @@
   ],
   "updates": [
     {
+      "date": "04/07 · 11:29",
+      "auto": true,
+      "status": "failed",
+      "what": "ReliefWeb inaccessible (ReliefWeb 403: {\"status\":403,\"time\":25,\"error\":{\"type\":\"AccessDeniedHttpException\",\"message\":\"You are not using an approved appname. Kindly request an appname from ReliefWeb here: https:\\/\\/apidoc.reliefweb.int\\/parameters#appname\"}}). Rappel : appname à faire pré-approuver puis à renseigner dans reliefweb.js.",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "04/07 · 11:29",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "04/07 · 11:29",
+      "auto": true,
+      "status": "updated",
+      "what": "Nouveau bulletin hebdomadaire SpF Océan Indien détecté (26/06/2026) — reporter les indicateurs Réunion (leptospirose, mpox local, grippe, bronchiolite).",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "04/07 · 11:29",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "04/07 · 11:29",
+      "auto": true,
+      "status": "failed",
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "04/07 · 11:29",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "04/07 · 11:29",
+      "auto": true,
+      "status": "checked",
+      "what": "OMS DON612 vérifié (1 July 2026) — valeur déjà publiée toujours la plus récente.",
+      "src": "OMS"
+    },
+    {
+      "date": "04/07 · 11:29",
+      "auto": true,
+      "status": "checked",
+      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "CDC"
+    },
+    {
       "date": "04/07 · 09:54",
       "auto": true,
       "status": "failed",
@@ -926,5 +982,10 @@
       "what": "Aucun nouveau signal sur les FHV surveillées",
       "src": "OMS DON"
     }
-  ]
+  ],
+  "reunionBulletin": {
+    "date": "26/06/2026",
+    "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-26-juin-2026",
+    "fetchedAt": "04/07 · 11:29"
+  }
 }
