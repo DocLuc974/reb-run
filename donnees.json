@@ -1,8 +1,18 @@
 {
   "_mode_emploi": "Ce fichier contient TOUS les chiffres de l'outil REB RUN. Pour mettre à jour : modifiez les valeurs ci-dessous puis enregistrez. L'outil relit ce fichier à chaque chargement. Ne touchez pas aux noms de clés (à gauche des deux-points), seulement aux valeurs. Niveaux d'alerte : 0=aucun signal, 1=surveillance, 2=veille renforcée, 3=alerte, 4=urgence.",
   "meta": {
-    "who_last_don": 611,
+    "who_last_don": 600,
     "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
+  },
+  "kpi": {
+    "_note": "Recalculé automatiquement par le moteur (deriveDashboard) à chaque run, à partir de alerts. Foyers actifs = zones distinctes au niveau ≥ 3 ; décès = somme des décès des zones en alerte ; pathogènes en alerte = nombre d'entrées alerts ; niveau max = plus haut niveau observé.",
+    "foyersActifs": 3,
+    "foyersLabel": "RDC · Ouganda · Madagascar",
+    "deces": 414,
+    "pathogenesEnAlerte": 7,
+    "pathogenesTotal": 12,
+    "niveauMaxLabel": "Urgence",
+    "niveauMaxWhat": "Ebola Bundibugyo · RDC"
   },
   "regional": {
     "ebola_bdb": {
@@ -14,7 +24,8 @@
     "mpox": {
       "RDC": 3,
       "Ouganda": 2,
-      "Madagascar": 3
+      "Madagascar": 3,
+      "La Réunion": 1
     },
     "cholera": {
       "Comores": 2,
@@ -189,24 +200,24 @@
         "dec": 306
       },
       {
-        "date": "28/06",
-        "cas": 1293,
-        "dec": 362
+        "date": "30/06",
+        "cas": 1353,
+        "dec": 401
       }
     ]
   },
   "cases": {
     "ebola_bdb|Dem. Rep. Congo": {
-      "cas": "1274",
-      "dec": "360",
-      "date": "28/06/2026",
-      "source": "ECDC (auto) — \"28 June\""
+      "cas": "1 333",
+      "dec": "399",
+      "date": "29/06/2026",
+      "source": "COREB / OMS"
     },
     "ebola_bdb|Uganda": {
-      "cas": "19",
+      "cas": "20",
       "dec": "2",
-      "date": "24/06/2026",
-      "source": "ECDC"
+      "date": "30/06/2026",
+      "source": "COREB / OMS"
     },
     "ebola_bdb|France": {
       "imported": "1",
@@ -253,6 +264,30 @@
       "dec": "variable",
       "date": "saison 2026",
       "source": "OMS"
+    },
+    "dengue|La Réunion": {
+      "cas": "306",
+      "dec": null,
+      "date": "26/06/2026",
+      "source": "SpF — Bulletin Océan Indien"
+    },
+    "chikv|La Réunion": {
+      "cas": "52",
+      "dec": null,
+      "date": "26/06/2026",
+      "source": "SpF — Bulletin Océan Indien"
+    },
+    "lepto|La Réunion": {
+      "cas": "207",
+      "dec": null,
+      "date": "26/06/2026",
+      "source": "SpF — Bulletin Océan Indien"
+    },
+    "mpox|La Réunion": {
+      "cas": "20",
+      "dec": null,
+      "date": "26/06/2026",
+      "source": "SpF — Bulletin Océan Indien (dont 15 importés)"
     }
   },
   "alerts": [
@@ -260,18 +295,18 @@
       "name": "Ebola Bundibugyo",
       "group": "Fièvre hémorragique virale",
       "lvl": 4,
-      "period": "cumul depuis le début de l’épidémie (déclarée 17/05) · arrêté au 24/06/2026",
+      "period": "cumul depuis le début de l’épidémie (déclarée 17/05) · arrêté au 30/06/2026",
       "zones": [
         {
           "zone": "RDC",
           "l": 4,
-          "cas": 1155,
-          "dec": 304
+          "cas": 1333,
+          "dec": 399
         },
         {
           "zone": "Ouganda",
           "l": 4,
-          "cas": 19,
+          "cas": 20,
           "dec": 2
         }
       ]
@@ -376,26 +411,26 @@
     {
       "name": "Ebola Bundibugyo",
       "lvl": 4,
-      "source": "ECDC / MoH RDC",
-      "date": "24/06/2026",
+      "source": "COREB / OMS",
+      "date": "30/06/2026",
       "period": "cumul depuis le 17/05/2026",
       "rows": [
         {
           "zone": "RDC",
-          "conf": 1155,
-          "dec": 304,
+          "conf": 1333,
+          "dec": 399,
           "susp": null
         },
         {
           "zone": "Ouganda",
-          "conf": 19,
+          "conf": 20,
           "dec": 2,
           "susp": null
         },
         {
           "zone": "TOTAL",
-          "conf": 1174,
-          "dec": 306,
+          "conf": 1353,
+          "dec": 401,
           "susp": null,
           "total": true
         }
@@ -430,6 +465,66 @@
           "susp": null
         }
       ]
+    },
+    {
+      "name": "Dengue (La Réunion)",
+      "lvl": 2,
+      "source": "Santé publique France — Océan Indien",
+      "date": "26/06/2026",
+      "period": "cas autochtones cumulés depuis le 01/01/2026 · hebdo stable",
+      "rows": [
+        {
+          "zone": "La Réunion",
+          "conf": 306,
+          "dec": null,
+          "susp": null
+        }
+      ]
+    },
+    {
+      "name": "Leptospirose (La Réunion)",
+      "lvl": 2,
+      "source": "Santé publique France — Océan Indien",
+      "date": "26/06/2026",
+      "period": "cas autochtones cumulés · pic en mars, en baisse",
+      "rows": [
+        {
+          "zone": "La Réunion",
+          "conf": 207,
+          "dec": null,
+          "susp": null
+        }
+      ]
+    },
+    {
+      "name": "Chikungunya (La Réunion)",
+      "lvl": 1,
+      "source": "Santé publique France — Océan Indien",
+      "date": "26/06/2026",
+      "period": "cas autochtones cumulés depuis le 01/01/2026",
+      "rows": [
+        {
+          "zone": "La Réunion",
+          "conf": 52,
+          "dec": null,
+          "susp": null
+        }
+      ]
+    },
+    {
+      "name": "Mpox (La Réunion)",
+      "lvl": 1,
+      "source": "Santé publique France — Océan Indien",
+      "date": "26/06/2026",
+      "period": "cumul 2026 · 20 cas dont 15 importés (5 de Madagascar en juin)",
+      "rows": [
+        {
+          "zone": "La Réunion",
+          "conf": 20,
+          "dec": null,
+          "susp": null
+        }
+      ]
     }
   ],
   "globalTable": [
@@ -439,10 +534,10 @@
       "lvl": 4,
       "regions": "Afrique centrale (RDC, Ouganda) + cas importé en France",
       "countries": 3,
-      "cas": "1 174",
-      "dec": "306",
+      "cas": "1 353",
+      "dec": "401",
       "trend": "up",
-      "source": "OMS / ECDC · 24/06/2026",
+      "source": "COREB / OMS · 30/06/2026",
       "note": "Épidémie unique en cours, centrée sur la RDC. Pas de circulation hors Afrique de l’Est."
     },
     {
@@ -568,6 +663,13 @@
   ],
   "journal": [
     {
+      "date": "30/06",
+      "l": 4,
+      "path": "Ebola Bundibugyo",
+      "src": "COREB",
+      "text": "Fiche COREB nationale (2/07) : RDC 1 333 cas confirmés / 399 décès (au 29/06, létalité 30 %) ; Ouganda 20 cas / 2 décès (au 30/06, pas de circulation active) ; 1 cas importé en France, état stable."
+    },
+    {
       "date": "25/06",
       "l": 4,
       "path": "Ebola Bundibugyo",
@@ -628,15 +730,39 @@
       "auto": true
     },
     {
+      "name": "Odissé — Santé publique France (API JSON)",
+      "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification",
+      "last": "02/07/2026",
+      "auto": true
+    },
+    {
+      "name": "ReliefWeb (API JSON)",
+      "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname à faire approuver",
+      "last": "02/07/2026",
+      "auto": true
+    },
+    {
+      "name": "COREB — Fiche FHV / Ebola (conduite à tenir)",
+      "scope": "France · doctrine, définition de cas, conduite à tenir (fiche nationale datée)",
+      "last": "02/07/2026",
+      "auto": false
+    },
+    {
       "name": "Santé publique France",
-      "scope": "France · doctrine & conduite à tenir (pas de comptage chiffré)",
-      "last": "22/05/2026",
+      "scope": "France · questionnaire patient, définition de cas, liste des zones à risque",
+      "last": "02/07/2026",
       "auto": false
     },
     {
       "name": "ARS Océan Indien",
       "scope": "La Réunion & Mayotte · arboviroses, leptospirose",
       "last": "27/06/2026",
+      "auto": false
+    },
+    {
+      "name": "Santé publique France — Bulletin Océan Indien (La Réunion)",
+      "scope": "La Réunion · bulletin de surveillance hebdomadaire (dengue, chik, leptospirose, mpox, grippe, bronchiolite)",
+      "last": "26/06/2026",
       "auto": false
     },
     {
@@ -654,124 +780,11 @@
   ],
   "updates": [
     {
-      "date": "03/07 · 11:40",
-      "auto": true,
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "03/07 · 11:40",
-      "auto": true,
-      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "03/07 · 11:40",
-      "auto": true,
-      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ECDC"
-    },
-    {
-      "date": "03/07 · 11:40",
-      "auto": true,
-      "what": "Aucun nouveau bulletin OMS (DON) sur Ebola Bundibugyo depuis le dernier sondage (jusqu'à DON611).",
-      "src": "OMS"
-    },
-    {
-      "date": "03/07 · 11:40",
-      "auto": true,
-      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
-      "src": "CDC"
-    },
-    {
-      "date": "02/07 · 15:58",
-      "auto": true,
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "02/07 · 15:58",
-      "auto": true,
-      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "02/07 · 15:58",
-      "auto": true,
-      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ECDC"
-    },
-    {
-      "date": "02/07 · 15:58",
-      "auto": true,
-      "what": "Aucun nouveau bulletin OMS (DON) sur Ebola Bundibugyo depuis le dernier sondage (jusqu'à DON610).",
-      "src": "OMS"
-    },
-    {
-      "date": "02/07 · 15:58",
-      "auto": true,
-      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
-      "src": "CDC"
-    },
-    {
-      "date": "02/07 · 11:42",
-      "auto": true,
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "02/07 · 11:42",
-      "auto": true,
-      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "02/07 · 11:42",
-      "auto": true,
-      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ECDC"
-    },
-    {
-      "date": "02/07 · 11:42",
-      "auto": true,
-      "what": "Aucun nouveau bulletin OMS (DON) sur Ebola Bundibugyo depuis le dernier sondage (jusqu'à DON610).",
-      "src": "OMS"
-    },
-    {
-      "date": "02/07 · 11:42",
-      "auto": true,
-      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
-      "src": "CDC"
-    },
-    {
-      "date": "01/07 · 12:21",
-      "auto": true,
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "01/07 · 12:21",
-      "auto": true,
-      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "01/07 · 12:21",
-      "auto": true,
-      "what": "Ebola Bundibugyo / RDC mis à jour via ECDC : 1274 cas, 360 décès (28 June).",
-      "src": "ECDC"
-    },
-    {
-      "date": "01/07 · 12:21",
-      "auto": true,
-      "what": "OMS DON608 vérifié (17 June 2026) — valeur déjà publiée toujours la plus récente.",
-      "src": "OMS"
-    },
-    {
-      "date": "01/07 · 12:21",
-      "auto": true,
-      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
-      "src": "CDC"
+      "date": "02/07 · 09:00",
+      "auto": false,
+      "status": "updated",
+      "what": "Chiffres Ebola RDC (1 333 / 399) et Ouganda (20 / 2) mis à jour depuis la fiche COREB nationale du 2/07. Source « doctrine » remplacée par la fiche COREB FHV/Ebola.",
+      "src": "COREB"
     },
     {
       "date": "28/06 · 06:00",
