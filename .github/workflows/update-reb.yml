@@ -19,7 +19,7 @@ jobs:
       - name: Préparer Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Lancer le moteur d'actualisation
         run: node moteur/update-engine.mjs
