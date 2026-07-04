@@ -271,37 +271,48 @@ async function checkESCMID(data) {
   }
 }
 
-// ── Source 6 : Mpox (clade Ib) — Africa CDC, foyer RDC ──────────────────────────
-// Même principe que pour Ebola : on extrait un bilan chiffré daté pour la RDC
-// (épicentre du clade Ib) et on n'applique que s'il est plus récent que la valeur
-// publiée. Garde-fou identique : si la phrase mêle des cas "suspected"/"probable"
-// au décompte de décès, l'extraction est REJETÉE (préférer "pas de MAJ" à une
-// mauvaise statistique). Le motif ci-dessous est calé sur le phrasé courant
-// d'Africa CDC ; comme pour les autres sources, il se peut qu'il doive être ajusté
-// au premier run réel si la page change de formulation (échec tracé, non bloquant).
-async function checkMpox(data) {
-  const url = 'https://africacdc.org/disease-outbreak/mpox-outbreak/';
+// ── Source 6 : Bulletin hebdomadaire SpF Océan Indien (La Réunion) ──────────────
+// Le check Mpox auto a été retiré (fin de l'urgence, plus de flux chiffré fiable).
+// À la place, on détecte le BULLETIN HEBDOMADAIRE le plus récent de Santé publique
+// France Océan Indien (date + lien) : il signale quand un nouveau bulletin paraît
+// afin de garder à jour les indicateurs Réunion saisis à la main (leptospirose,
+// mpox local, grippe, bronchiolite). Les chiffres dengue/chik restent auto via Odissé.
+async function checkBulletinReunion(data) {
+  const MOIS = { janvier:1, 'février':2, fevrier:2, mars:3, avril:4, mai:5, juin:6, juillet:7, 'août':8, aout:8, septembre:9, octobre:10, novembre:11, 'décembre':12, decembre:12 };
+  const listUrls = [
+    'https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional',
+    'https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/publications',
+    'https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien',
+  ];
   try {
-    const r = await fetchWithTimeout(url, TIMEOUT_MS);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const text = stripTags(await r.text());
-    const re = /[Aa]s of\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4}|[A-Za-z]+\s+\d{1,2},?\s+\d{4})[\s\S]{0,150}?([\d,]{3,9})\s+confirmed\s+(?:mpox\s+)?cases([\s\S]{0,90}?)([\d,]{1,7})\s+(?:confirmed\s+)?deaths/i;
-    const m = text.match(re);
-    const between = m ? m[3] : '';
-    if (!m || /suspect|probable/i.test(between)) {
-      return { source: 'Africa CDC (Mpox)', auto: true, status: 'failed', what: m
-        ? `Motif Mpox trouvé sur Africa CDC mais ambigu (cas confirmés / décès suspects mêlés) — rejeté par prudence, vérification manuelle recommandée.`
-        : `Aucun motif Mpox chiffré exploitable sur Africa CDC (format de page variable) — vérification manuelle recommandée.` };
+    let html = '';
+    for (const u of listUrls) {
+      try { const r = await fetchWithTimeout(u, TIMEOUT_MS); if (r.ok) html += await r.text(); } catch (e) {}
     }
-    const cas = m[2].replace(/[^\d]/g, '');
-    const dec = m[4].replace(/[^\d]/g, '');
-    const d = parseEnDate(m[1]);
-    const applied = d ? applyIfNewer(data, 'mpox|Dem. Rep. Congo', d, cas, dec, `Africa CDC Mpox (auto) — ${m[1]}`) : false;
-    return { source: 'Africa CDC (Mpox)', auto: true, status: applied ? 'updated' : 'checked', what: applied
-      ? `Mpox / RDC mis à jour via Africa CDC : ${cas} cas, ${dec} décès (${m[1]}).`
-      : `Africa CDC (Mpox) vérifié pour la RDC — valeur déjà publiée toujours la plus récente.` };
+    if (!html) throw new Error('pages SpF Océan Indien inaccessibles');
+    const re = /href="([^"]*surveillance-sanitaire-a-la-reunion-bulletin-du-(\d{1,2})-([a-zA-Zéûôùàè]+)-(\d{4})[^"]*)"/gi;
+    let m, best = null;
+    while ((m = re.exec(html)) !== null) {
+      const day = +m[2], mon = MOIS[m[3].toLowerCase()], year = +m[4];
+      if (!mon) continue;
+      const d = new Date(year, mon - 1, day);
+      let url = m[1]; if (url.startsWith('/')) url = 'https://www.santepubliquefrance.fr' + url;
+      if (!best || d > best.d) best = { d, url, day, mon, year };
+    }
+    if (!best) {
+      return { source: 'SpF Océan Indien (bulletin)', auto: true, status: 'failed', what: `Aucun bulletin hebdo Réunion détecté sur les pages SpF Océan Indien (mise en page variable) — indicateurs Réunion à vérifier manuellement.` };
+    }
+    const dd = String(best.day).padStart(2,'0'), mm = String(best.mon).padStart(2,'0');
+    const dateFR = `${dd}/${mm}/${best.year}`;
+    const prev = (data.reunionBulletin && data.reunionBulletin.date) || null;
+    const prevD = prev ? parseFrDate(prev) : null;
+    const isNew = !prevD || best.d > prevD;
+    data.reunionBulletin = { date: dateFR, url: best.url, fetchedAt: nowStampFR() };
+    return { source: 'SpF Océan Indien (bulletin)', auto: true, status: isNew ? 'updated' : 'checked', what: isNew
+      ? `Nouveau bulletin hebdomadaire SpF Océan Indien détecté (${dateFR}) — reporter les indicateurs Réunion (leptospirose, mpox local, grippe, bronchiolite).`
+      : `Bulletin SpF Océan Indien vérifié — dernier paru le ${dateFR}, déjà connu.` };
   } catch (err) {
-    return { source: 'Africa CDC (Mpox)', auto: true, status: 'failed', what: `Échec de connexion à Africa CDC Mpox (${err.message || err}).` };
+    return { source: 'SpF Océan Indien (bulletin)', auto: true, status: 'failed', what: `Bulletin SpF Océan Indien inaccessible (${err.message || err}).` };
   }
 }
 
@@ -451,9 +462,9 @@ async function main() {
   const escmidLog = await checkESCMID(data);
   console.log('[REB RUN]', escmidLog.what);
 
-  console.log('[REB RUN] Vérification Mpox (Africa CDC)…');
-  const mpoxLog = await checkMpox(data);
-  console.log('[REB RUN]', mpoxLog.what);
+  console.log('[REB RUN] Vérification bulletin SpF Océan Indien (Réunion)…');
+  const bullLog = await checkBulletinReunion(data);
+  console.log('[REB RUN]', bullLog.what);
 
   console.log('[REB RUN] Vérification arboviroses Réunion (Odissé/SpF)…');
   const arboLog = await checkArboReunion(data);
@@ -467,7 +478,7 @@ async function main() {
   data.updates = [
     { date: stamp, auto: true, status: rwLog.status, what: rwLog.what, src: 'ReliefWeb' },
     { date: stamp, auto: true, status: arboLog.status, what: arboLog.what, src: 'Odissé (SpF)' },
-    { date: stamp, auto: true, status: mpoxLog.status, what: mpoxLog.what, src: 'Africa CDC (Mpox)' },
+    { date: stamp, auto: true, status: bullLog.status, what: bullLog.what, src: 'SpF Océan Indien (bulletin)' },
     { date: stamp, auto: true, status: escmidLog.status, what: escmidLog.what, src: 'ESCMID' },
     { date: stamp, auto: true, status: acdcLog.status, what: acdcLog.what, src: 'Africa CDC' },
     { date: stamp, auto: true, status: ecdcLog.status, what: ecdcLog.what, src: 'ECDC' },

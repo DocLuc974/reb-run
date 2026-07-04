@@ -50,7 +50,7 @@ export async function fetchEpidemics({
     sort: ["date.created:desc"],
   };
 
-  const res = await fetch(`${RELIEFWEB_BASE}/disasters`, {
+  const res = await fetch(`${RELIEFWEB_BASE}/disasters?appname=${encodeURIComponent(appname)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -105,7 +105,7 @@ export async function fetchDiseaseReports({
     sort: ["date.created:desc"],
   };
 
-  const res = await fetch(`${RELIEFWEB_BASE}/reports`, {
+  const res = await fetch(`${RELIEFWEB_BASE}/reports?appname=${encodeURIComponent(appname)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
