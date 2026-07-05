@@ -784,6 +784,62 @@
   ],
   "updates": [
     {
+      "date": "05/07 · 10:00",
+      "auto": true,
+      "status": "failed",
+      "what": "ReliefWeb inaccessible (ReliefWeb 403: {\"status\":403,\"time\":30,\"error\":{\"type\":\"AccessDeniedHttpException\",\"message\":\"You are not using an approved appname. Kindly request an appname from ReliefWeb here: https:\\/\\/apidoc.reliefweb.int\\/parameters#appname\"}}). Rappel : appname à faire pré-approuver puis à renseigner dans reliefweb.js.",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "05/07 · 10:00",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "05/07 · 10:00",
+      "auto": true,
+      "status": "checked",
+      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 26/06/2026, déjà connu.",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "05/07 · 10:00",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "05/07 · 10:00",
+      "auto": true,
+      "status": "failed",
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "05/07 · 10:00",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "05/07 · 10:00",
+      "auto": true,
+      "status": "checked",
+      "what": "OMS DON612 vérifié (1 July 2026) — valeur déjà publiée toujours la plus récente.",
+      "src": "OMS"
+    },
+    {
+      "date": "05/07 · 10:00",
+      "auto": true,
+      "status": "checked",
+      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "CDC"
+    },
+    {
       "date": "04/07 · 11:29",
       "auto": true,
       "status": "failed",
@@ -936,56 +992,11 @@
       "status": "failed",
       "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
       "src": "ECDC"
-    },
-    {
-      "date": "04/07 · 06:42",
-      "auto": true,
-      "status": "updated",
-      "what": "Ebola Bundibugyo / RDC mis à jour via OMS DON612 : 1460 cas, 452 décès (1 July 2026).",
-      "src": "OMS"
-    },
-    {
-      "date": "04/07 · 06:42",
-      "auto": true,
-      "status": "checked",
-      "what": "CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
-      "src": "CDC"
-    },
-    {
-      "date": "02/07 · 09:00",
-      "auto": false,
-      "status": "updated",
-      "what": "Chiffres Ebola RDC (1 333 / 399) et Ouganda (20 / 2) mis à jour depuis la fiche COREB nationale du 2/07. Source « doctrine » remplacée par la fiche COREB FHV/Ebola.",
-      "src": "COREB"
-    },
-    {
-      "date": "28/06 · 06:00",
-      "auto": true,
-      "what": "12 pathogènes vérifiés · 3 foyers actifs réactualisés",
-      "src": "OMS, ECDC, Africa CDC"
-    },
-    {
-      "date": "27/06 · 06:00",
-      "auto": true,
-      "what": "Ebola RDC stable · Mpox Madagascar +41 cas",
-      "src": "ECDC, MoH Madagascar"
-    },
-    {
-      "date": "26/06 · 14:20",
-      "auto": false,
-      "what": "Note manuelle ajoutée — Choléra Comores",
-      "src": "REB RUN"
-    },
-    {
-      "date": "26/06 · 06:00",
-      "auto": true,
-      "what": "Aucun nouveau signal sur les FHV surveillées",
-      "src": "OMS DON"
     }
   ],
   "reunionBulletin": {
     "date": "26/06/2026",
     "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-26-juin-2026",
-    "fetchedAt": "04/07 · 11:29"
+    "fetchedAt": "05/07 · 10:00"
   }
 }
