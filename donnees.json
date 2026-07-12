@@ -789,6 +789,62 @@
   ],
   "updates": [
     {
+      "date": "12/07 · 05:19",
+      "auto": true,
+      "status": "failed",
+      "what": "ReliefWeb inaccessible (ReliefWeb 403: {\"status\":403,\"time\":26,\"error\":{\"type\":\"AccessDeniedHttpException\",\"message\":\"You are not using an approved appname. Kindly request an appname from ReliefWeb here: https:\\/\\/apidoc.reliefweb.int\\/parameters#appname\"}}). Rappel : appname à faire pré-approuver puis à renseigner dans reliefweb.js.",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "12/07 · 05:19",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "12/07 · 05:19",
+      "auto": true,
+      "status": "checked",
+      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 10/07/2026, déjà connu.",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "12/07 · 05:19",
+      "auto": true,
+      "status": "checked",
+      "what": "ESCMID Epi Alert vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "12/07 · 05:19",
+      "auto": true,
+      "status": "failed",
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "12/07 · 05:19",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "12/07 · 05:19",
+      "auto": true,
+      "status": "checked",
+      "what": "OMS DON612 vérifié (1 July 2026) — valeur déjà publiée toujours la plus récente.",
+      "src": "OMS"
+    },
+    {
+      "date": "12/07 · 05:19",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion à CDC (HTTP 403).",
+      "src": "CDC"
+    },
+    {
       "date": "11/07 · 18:46",
       "auto": true,
       "status": "failed",
@@ -941,67 +997,11 @@
       "status": "failed",
       "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
       "src": "ECDC"
-    },
-    {
-      "date": "10/07 · 05:56",
-      "auto": true,
-      "status": "checked",
-      "what": "OMS DON612 vérifié (1 July 2026) — valeur déjà publiée toujours la plus récente.",
-      "src": "OMS"
-    },
-    {
-      "date": "10/07 · 05:56",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec de connexion à CDC (HTTP 403).",
-      "src": "CDC"
-    },
-    {
-      "date": "09/07 · 05:57",
-      "auto": true,
-      "status": "failed",
-      "what": "ReliefWeb inaccessible (ReliefWeb 403: {\"status\":403,\"time\":31,\"error\":{\"type\":\"AccessDeniedHttpException\",\"message\":\"You are not using an approved appname. Kindly request an appname from ReliefWeb here: https:\\/\\/apidoc.reliefweb.int\\/parameters#appname\"}}). Rappel : appname à faire pré-approuver puis à renseigner dans reliefweb.js.",
-      "src": "ReliefWeb"
-    },
-    {
-      "date": "09/07 · 05:57",
-      "auto": true,
-      "status": "checked",
-      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
-      "src": "Odissé (SpF)"
-    },
-    {
-      "date": "09/07 · 05:57",
-      "auto": true,
-      "status": "checked",
-      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 26/06/2026, déjà connu.",
-      "src": "SpF Océan Indien (bulletin)"
-    },
-    {
-      "date": "09/07 · 05:57",
-      "auto": true,
-      "status": "checked",
-      "what": "ESCMID Epi Alert vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "09/07 · 05:57",
-      "auto": true,
-      "status": "failed",
-      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "09/07 · 05:57",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ECDC"
     }
   ],
   "reunionBulletin": {
     "date": "10/07/2026",
     "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-10-juillet-2026",
-    "fetchedAt": "11/07 · 18:46"
+    "fetchedAt": "12/07 · 05:19"
   }
 }
