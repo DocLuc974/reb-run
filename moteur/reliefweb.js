@@ -8,9 +8,8 @@
 
 const RELIEFWEB_BASE = "https://api.reliefweb.int/v2";
 
-// Appname soumis au formulaire ReliefWeb (en attente d'approbation).
-// Dès réception de l'e-mail de validation, garder ce nom s'il est approuvé tel quel.
-export const APPNAME = "chu-reunion-veille-reb-x7q2";
+// Appname approuvé par ReliefWeb (ajusté par eux pour respecter leurs conventions de nommage).
+export const APPNAME = "chu-reunion-veille-reb-x7q2 RuuSzWEdw";
 
 // Pays de la zone de veille. Noms tels que ReliefWeb les taggue.
 export const OCEAN_INDIEN_AFRIQUE_EST = [
