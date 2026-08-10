@@ -297,11 +297,13 @@ async function checkESCMID(data) {
 }
 
 // ── Source 6 : Bulletin hebdomadaire SpF Océan Indien (La Réunion) ──────────────
-// Le check Mpox auto a été retiré (fin de l'urgence, plus de flux chiffré fiable).
-// À la place, on détecte le BULLETIN HEBDOMADAIRE le plus récent de Santé publique
-// France Océan Indien (date + lien) : il signale quand un nouveau bulletin paraît
-// afin de garder à jour les indicateurs Réunion saisis à la main (leptospirose,
-// mpox local, grippe, bronchiolite). Les chiffres dengue/chik restent auto via Odissé.
+// Le check Mpox « auto générique » a été retiré (fin de l'urgence, plus de flux chiffré
+// fiable côté Africa CDC). À la place, on détecte le bulletin hebdomadaire le plus récent
+// de Santé publique France Océan Indien puis on LIT SON CONTENU : leptospirose et Mpox y
+// sont publiés sous forme de chiffres structurés ("### Leptospirose — A ce jour, N cas
+// autochtones ont été déclarés." / "### Variole B (Mpox) — soit un total N cas (dont M
+// importés)") et sont donc extraits automatiquement, comme dengue/chik (Odissé). Grippe et
+// bronchiolite restent en texte qualitatif (pas de chiffre unique stable) → non extraits.
 async function checkBulletinReunion(data) {
   const MOIS = { janvier:1, 'février':2, fevrier:2, mars:3, avril:4, mai:5, juin:6, juillet:7, 'août':8, aout:8, septembre:9, octobre:10, novembre:11, 'décembre':12, decembre:12 };
   const listUrls = [
@@ -333,9 +335,38 @@ async function checkBulletinReunion(data) {
     const prevD = prev ? parseFrDate(prev) : null;
     const isNew = !prevD || best.d > prevD;
     data.reunionBulletin = { date: dateFR, url: best.url, fetchedAt: nowStampFR() };
-    return { source: 'SpF Océan Indien (bulletin)', auto: true, status: isNew ? 'updated' : 'checked', what: isNew
-      ? `Nouveau bulletin hebdomadaire SpF Océan Indien détecté (${dateFR}) — reporter les indicateurs Réunion (leptospirose, mpox local, grippe, bronchiolite).`
-      : `Bulletin SpF Océan Indien vérifié — dernier paru le ${dateFR}, déjà connu.` };
+
+    const extracted = [];
+    if (isNew) {
+      try {
+        const rp = await fetchWithTimeout(best.url, TIMEOUT_MS);
+        if (rp.ok) {
+          const btext = stripTags(await rp.text());
+          // Date officielle de publication (plus fiable que la date dans l'URL, quand présente)
+          const pubM = btext.match(/Publié le\s+(\d{1,2})\s+([a-zA-Zéûôùàè]+)\s+(\d{4})/i);
+          const pubDate = (pubM && MOIS[pubM[2].toLowerCase()])
+            ? new Date(+pubM[3], MOIS[pubM[2].toLowerCase()] - 1, +pubM[1]) : best.d;
+
+          const lepM = btext.match(/Leptospirose[\s\S]{0,120}?(\d{1,5})\s+cas autochtones ont été déclarés/i);
+          if (lepM) {
+            const applied = applyIfNewer(data, 'lepto|La Réunion', pubDate, lepM[1], null, `SpF Bulletin OI (auto) — ${dateFR}`);
+            if (applied) extracted.push(`leptospirose ${lepM[1]} cas`);
+          }
+          const mpxM = btext.match(/Variole B \(Mpox\)[\s\S]{0,250}?total\s+(\d{1,5})\s+cas(?:\s*\(dont\s+(\d{1,4})\s+import[ée]s?\))?/i);
+          if (mpxM) {
+            const src = mpxM[2] ? `SpF Bulletin OI (auto) — ${dateFR} (dont ${mpxM[2]} importés)` : `SpF Bulletin OI (auto) — ${dateFR}`;
+            const applied = applyIfNewer(data, 'mpox|La Réunion', pubDate, mpxM[1], null, src);
+            if (applied) extracted.push(`mpox ${mpxM[1]} cas${mpxM[2] ? ` (dont ${mpxM[2]} importés)` : ''}`);
+          }
+        }
+      } catch (e) { /* lecture du contenu du bulletin best-effort : échec non bloquant */ }
+    }
+
+    return { source: 'SpF Océan Indien (bulletin)', auto: true, status: (isNew && extracted.length) ? 'updated' : (isNew ? 'checked' : 'checked'), what: extracted.length
+      ? `Nouveau bulletin SpF Océan Indien (${dateFR}) — indicateurs mis à jour : ${extracted.join(', ')}.`
+      : isNew
+        ? `Nouveau bulletin hebdomadaire SpF Océan Indien détecté (${dateFR}) — chiffres leptospirose/Mpox non trouvés dans la page (format modifié), à vérifier manuellement.`
+        : `Bulletin SpF Océan Indien vérifié — dernier paru le ${dateFR}, déjà connu.` };
   } catch (err) {
     return { source: 'SpF Océan Indien (bulletin)', auto: true, status: 'failed', what: `Bulletin SpF Océan Indien inaccessible (${err.message || err}).` };
   }
@@ -430,6 +461,8 @@ function deriveDashboard(data, checkLogs = []) {
     'ebola_bdb|Uganda':          { alert: 'Ebola Bundibugyo', synth: 'Ebola Bundibugyo', zone: 'Ouganda' },
     'dengue|La Réunion':         { alert: 'Dengue',           synth: 'Dengue (La Réunion)', zone: 'La Réunion' },
     'chikv|La Réunion':          { alert: 'Chikungunya',      synth: 'Chikungunya (La Réunion)', zone: 'La Réunion' },
+    'lepto|La Réunion':          { alert: 'Leptospirose',     synth: 'Leptospirose (La Réunion)', zone: 'La Réunion' },
+    'mpox|La Réunion':           { alert: 'Mpox (clade Ib)',  synth: 'Mpox (La Réunion)', zone: 'La Réunion' },
   };
   for (const [key, m] of Object.entries(MAP)) {
     const rec = data.cases && data.cases[key];
