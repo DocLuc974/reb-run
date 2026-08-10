@@ -799,6 +799,62 @@
   ],
   "updates": [
     {
+      "date": "10/08 · 13:41",
+      "auto": true,
+      "status": "updated",
+      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "10/08 · 13:41",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "10/08 · 13:41",
+      "auto": true,
+      "status": "checked",
+      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 07/08/2026, déjà connu.",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "10/08 · 13:41",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "10/08 · 13:41",
+      "auto": true,
+      "status": "failed",
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "10/08 · 13:41",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "10/08 · 13:41",
+      "auto": true,
+      "status": "checked",
+      "what": "OMS DON614 vérifié (30 July 2026) — valeur déjà publiée toujours la plus récente.",
+      "src": "OMS"
+    },
+    {
+      "date": "10/08 · 13:41",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion à CDC (HTTP 403).",
+      "src": "CDC"
+    },
+    {
       "date": "10/08 · 03:44",
       "auto": true,
       "status": "failed",
@@ -951,67 +1007,216 @@
       "status": "failed",
       "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
       "src": "ECDC"
-    },
-    {
-      "date": "08/08 · 03:17",
-      "auto": true,
-      "status": "checked",
-      "what": "OMS DON614 vérifié (30 July 2026) — valeur déjà publiée toujours la plus récente.",
-      "src": "OMS"
-    },
-    {
-      "date": "08/08 · 03:17",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec de connexion à CDC (HTTP 403).",
-      "src": "CDC"
-    },
-    {
-      "date": "07/08 · 04:19",
-      "auto": true,
-      "status": "failed",
-      "what": "ReliefWeb inaccessible (ReliefWeb 403: {\"status\":403,\"time\":24,\"error\":{\"type\":\"AccessDeniedHttpException\",\"message\":\"You are not using an approved appname. Kindly request an appname from ReliefWeb here: https:\\/\\/apidoc.reliefweb.int\\/parameters#appname\"}}). Rappel : appname à faire pré-approuver puis à renseigner dans reliefweb.js.",
-      "src": "ReliefWeb"
-    },
-    {
-      "date": "07/08 · 04:19",
-      "auto": true,
-      "status": "checked",
-      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
-      "src": "Odissé (SpF)"
-    },
-    {
-      "date": "07/08 · 04:19",
-      "auto": true,
-      "status": "checked",
-      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 03/08/2026, déjà connu.",
-      "src": "SpF Océan Indien (bulletin)"
-    },
-    {
-      "date": "07/08 · 04:19",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "07/08 · 04:19",
-      "auto": true,
-      "status": "failed",
-      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "07/08 · 04:19",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ECDC"
     }
   ],
   "reunionBulletin": {
     "date": "07/08/2026",
     "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-7-aout-2026",
-    "fetchedAt": "10/08 · 03:44"
+    "fetchedAt": "10/08 · 13:41"
+  },
+  "reliefweb": {
+    "fetchedAt": "10/08 · 13:41",
+    "alerts": [
+      {
+        "id": "52586",
+        "name": "Central/Eastern Africa: Ebola Outbreak - May 2026",
+        "country": "Democratic Republic of the Congo",
+        "iso3": "cod",
+        "type": "Epidemic",
+        "status": "ongoing",
+        "date": "2026-05-18T00:21:50+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/52586"
+      },
+      {
+        "id": "52533",
+        "name": "Zambia: Cholera Outbreak - Feb 2026",
+        "country": "Zambia",
+        "iso3": "zmb",
+        "type": "Epidemic",
+        "status": "ongoing",
+        "date": "2026-03-06T00:50:02+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/52533"
+      },
+      {
+        "id": "52509",
+        "name": "Madagascar: Mpox Outbreak - Dec 2025",
+        "country": "Madagascar",
+        "iso3": "mdg",
+        "type": "Epidemic",
+        "status": "ongoing",
+        "date": "2026-01-28T10:05:44+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/52509"
+      },
+      {
+        "id": "52478",
+        "name": "Ethiopia: Marburg Disease Outbreak - Nov 2025",
+        "country": "Ethiopia",
+        "iso3": "eth",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2025-11-17T14:46:51+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/52478"
+      },
+      {
+        "id": "52433",
+        "name": "DR Congo: Ebola Outbreak - Sep 2025",
+        "country": "Democratic Republic of the Congo",
+        "iso3": "cod",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2025-09-05T00:35:37+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/52433"
+      },
+      {
+        "id": "52281",
+        "name": "Uganda: Ebola Outbreak - Jan 2025",
+        "country": "Uganda",
+        "iso3": "uga",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2025-01-31T13:54:57+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/52281"
+      },
+      {
+        "id": "52271",
+        "name": "Tanzania: Marburg Virus Disease Outbreak - Jan 2025",
+        "country": "United Republic of Tanzania",
+        "iso3": "tza",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2025-01-21T02:02:21+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/52271"
+      },
+      {
+        "id": "52160",
+        "name": "Kenya: Polio Outbreak - Sep 2024",
+        "country": "Kenya",
+        "iso3": "ken",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2024-09-27T01:19:57+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/52160"
+      },
+      {
+        "id": "51899",
+        "name": "Comoros: Cholera Outbreak - Feb 2024",
+        "country": "Comoros",
+        "iso3": "com",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2024-02-21T07:12:13+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51899"
+      },
+      {
+        "id": "51858",
+        "name": "Zambia: Cholera Outbreak - Oct 2023",
+        "country": "Zambia",
+        "iso3": "zmb",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2024-01-15T07:44:40+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51858"
+      },
+      {
+        "id": "51840",
+        "name": "Uganda: Anthrax Outbreak - Nov 2023",
+        "country": "Uganda",
+        "iso3": "uga",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2023-12-15T13:59:02+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51840"
+      },
+      {
+        "id": "51809",
+        "name": "Tanzania: Cholera Outbreak - Jul 2023",
+        "country": "United Republic of Tanzania",
+        "iso3": "tza",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2023-11-15T12:28:37+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51809"
+      },
+      {
+        "id": "51537",
+        "name": "Tanzania: Marburg Virus Disease Outbreak - Mar 2023",
+        "country": "United Republic of Tanzania",
+        "iso3": "tza",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2023-03-30T13:04:08+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51537"
+      },
+      {
+        "id": "51469",
+        "name": "Zambia: Cholera Outbreak - Jan 2023",
+        "country": "Zambia",
+        "iso3": "zmb",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2023-02-03T20:54:19+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51469"
+      },
+      {
+        "id": "51453",
+        "name": "Mozambique: Cholera Outbreak - Dec 2022",
+        "country": "Mozambique",
+        "iso3": "moz",
+        "type": "Epidemic",
+        "status": "ongoing",
+        "date": "2023-01-25T00:48:33+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51453"
+      },
+      {
+        "id": "51402",
+        "name": "Kenya: Cholera Outbreak - Oct 2022",
+        "country": "Kenya",
+        "iso3": "ken",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2022-11-25T11:34:20+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51402"
+      },
+      {
+        "id": "51337",
+        "name": "Ethiopia: Cholera Outbreak - Sep 2022",
+        "country": "Ethiopia",
+        "iso3": "eth",
+        "type": "Epidemic",
+        "status": "ongoing",
+        "date": "2022-10-05T04:09:14+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51337"
+      },
+      {
+        "id": "51321",
+        "name": "Uganda: Ebola Outbreak - Sep 2022",
+        "country": "Uganda",
+        "iso3": "uga",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2022-09-20T13:10:45+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51321"
+      },
+      {
+        "id": "51290",
+        "name": "DR Congo: Ebola Outbreak - Aug 2022",
+        "country": "Democratic Republic of the Congo",
+        "iso3": "cod",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2022-08-23T10:41:42+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51290"
+      },
+      {
+        "id": "51177",
+        "name": "Tanzania: Cholera Outbreak - Apr 2022",
+        "country": "United Republic of Tanzania",
+        "iso3": "tza",
+        "type": "Epidemic",
+        "status": "past",
+        "date": "2022-04-23T00:00:00+00:00",
+        "url": "https://reliefweb.int/taxonomy/term/51177"
+      }
+    ]
   }
 }
