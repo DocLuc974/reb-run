@@ -195,17 +195,21 @@ async function checkECDC(data) {
     const r = await fetchWithTimeout(url, TIMEOUT_MS);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const text = stripTags(await r.text());
-    const m = text.match(/On\s+(\d{1,2}\s+[A-Za-z]+),?\s+the\s+DRC\s+Ministry\s+of\s+Health\s+reported\s+a\s+total\s+of\s+([\d,\s]{3,10})\s+confirmed\s+cases,?\s+including\s+([\d,\s]{2,8})\s+confirmed\s+related\s+deaths/i);
+    // Formulation ECDC (août 2026) : "On <date pub>, the Democratic Republic of the Congo (DRC)
+    // published a situation update reporting a total of <cas> confirmed cases, including <décès>
+    // related deaths (from data up until <date des chiffres>)." La date "up until" (sans année)
+    // est celle des CHIFFRES ; la date "On …" est celle de PUBLICATION — on privilégie la 1ère.
+    const m = text.match(/On\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4}),?\s+the\s+(?:Democratic Republic of the Congo \(DRC\)|DRC)\s+published[\s\S]{0,100}?reporting\s+a\s+total\s+of\s+([\d,\s]{3,12})\s+confirmed\s+cases,?\s+including\s+([\d,\s]{2,10})\s+related\s+deaths(?:\s*\(from\s+data\s+up\s+until\s+(\d{1,2}\s+[A-Za-z]+)\))?/i);
     if (!m) return { source: 'ECDC', auto: true, status: 'failed', what: `Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.` };
 
-    const quote = m[0].trim();
-    const dateRaw = `${m[1]}, 2026`; // ECDC omet l'année dans cette phrase
     const cas = m[2].replace(/[^\d]/g, '');
     const dec = m[3].replace(/[^\d]/g, '');
+    const pubYear = (m[1].match(/\d{4}/) || [])[0] || String(new Date().getFullYear());
+    const dateRaw = m[4] ? `${m[4]} ${pubYear}` : m[1];
     const d = parseEnDate(dateRaw);
-    const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, cas, dec, `ECDC (auto) — "${m[1]}"`) : false;
+    const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, cas, dec, `ECDC (auto) — "${dateRaw}"`) : false;
     return { source: 'ECDC', auto: true, status: applied ? 'updated' : 'checked', what: applied
-      ? `Ebola Bundibugyo / RDC mis à jour via ECDC : ${cas} cas, ${dec} décès (${m[1]}).`
+      ? `Ebola Bundibugyo / RDC mis à jour via ECDC : ${cas} cas, ${dec} décès (${dateRaw}).`
       : `ECDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.` };
   } catch (err) {
     return { source: 'ECDC', auto: true, status: 'failed', what: `Échec de connexion à ECDC (${err.message || err}).` };
@@ -230,9 +234,11 @@ async function checkAfricaCDC(data) {
     // plutôt que de publier une valeur potentiellement fausse.
     const between = m ? m[3] : '';
     if (!m || /suspect|probable/i.test(between)) {
+      // Depuis ~juin 2026, les sitreps quotidiens Africa CDC n'ont plus de texte en page :
+      // les chiffres sont uniquement dans le PDF téléchargeable (non parsable ici).
       return { source: 'Africa CDC', auto: true, status: 'failed', what: m
         ? `Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.`
-        : `Aucun motif numérique exploitable trouvé sur Africa CDC (format de page variable) — vérification manuelle recommandée.` };
+        : `Africa CDC : les derniers sitreps ne publient plus les chiffres en page (uniquement dans le PDF téléchargeable) — non exploitable automatiquement, vérification manuelle recommandée.` };
     }
 
     const cas = m[2].replace(/[^\d]/g, '');
@@ -256,15 +262,18 @@ async function checkESCMID(data) {
     const r = await fetchWithTimeout(url, TIMEOUT_MS);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const text = stripTags(await r.text());
-    const m = text.match(/(\d{1,8})\s+confirmed cases and\s+(\d{1,8})\s+deaths reported[\s\S]{0,80}?as of\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4})/i);
+    // Formulation ESCMID (août 2026) : bloc "Summary: <date>" suivi d'un paragraphe
+    // "The Ebola virus disease outbreak in the Democratic Republic of the Congo has reached
+    // X confirmed cases and Y deaths across NN health zones" (l'ancien motif "as of DATE" a disparu).
+    const m = text.match(/Summary:\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})[\s\S]{0,400}?Ebola virus disease\s+outbreak in the\s+Democratic Republic of the Congo\s+has reached\s+([\d,]{3,10})\s+confirmed cases and\s+([\d,]{2,8})\s+deaths/i);
     if (!m) return { source: 'ESCMID', auto: true, status: 'failed', what: `Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.` };
 
-    const cas = m[1].replace(/[^\d]/g, '');
-    const dec = m[2].replace(/[^\d]/g, '');
-    const d = parseEnDate(m[3]);
-    const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, cas, dec, `ESCMID Epi Alert (auto) — ${m[3]}`) : false;
+    const cas = m[2].replace(/[^\d]/g, '');
+    const dec = m[3].replace(/[^\d]/g, '');
+    const d = parseEnDate(m[1]);
+    const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, cas, dec, `ESCMID Epi Alert (auto) — ${m[1]}`) : false;
     return { source: 'ESCMID', auto: true, status: applied ? 'updated' : 'checked', what: applied
-      ? `Ebola Bundibugyo / RDC mis à jour via ESCMID Epi Alert : ${cas} cas, ${dec} décès (${m[3]}).`
+      ? `Ebola Bundibugyo / RDC mis à jour via ESCMID Epi Alert : ${cas} cas, ${dec} décès (${m[1]}).`
       : `ESCMID Epi Alert vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.` };
   } catch (err) {
     return { source: 'ESCMID', auto: true, status: 'failed', what: `Échec de connexion à ESCMID Epi Alert (${err.message || err}).` };
