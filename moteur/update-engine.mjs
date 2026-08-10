@@ -407,7 +407,22 @@ async function checkReliefWeb(data) {
 // les indicateurs de la page d'accueil (data.kpi). Les NIVEAUX de gravité des cartes
 // (data.regional / data.world) restent éditoriaux : ils ne se déduisent pas d'un simple
 // comptage et ne sont donc pas touchés ici.
-function deriveDashboard(data) {
+// Fait correspondre le nom d'une source dans data.sources[] au libellé renvoyé par son
+// check ; sert à resynchroniser data.sources[].last (jusqu'ici jamais mis à jour) avec la
+// date réelle du dernier passage réussi, pour que les pastilles "à jour / à réactualiser"
+// reflètent l'activité réelle du moteur plutôt qu'une date saisie une fois pour toutes.
+const SOURCE_NAME_MAP = {
+  'CDC': 'CDC — Situation Summary',
+  'OMS': 'OMS — Disease Outbreak News',
+  'ECDC': 'ECDC — page de suivi Ebola RDC/Ouganda',
+  'Africa CDC': 'Africa CDC',
+  'ESCMID': 'ESCMID Epi Alert',
+  'Odissé (SpF)': 'Odissé — Santé publique France (API JSON)',
+  'ReliefWeb': 'ReliefWeb (API JSON)',
+  'SpF Océan Indien (bulletin)': 'Santé publique France — Bulletin Océan Indien (La Réunion)',
+};
+
+function deriveDashboard(data, checkLogs = []) {
   const num = (v) => v == null ? null : (+String(v).replace(/[^\d]/g, '') || 0);
   // caseKey (pathogen|zoneEN) -> ligne à mettre à jour dans alerts et synth
   const MAP = {
@@ -467,6 +482,17 @@ function deriveDashboard(data) {
     niveauMaxLabel: LBL[maxL] || '—',
     niveauMaxWhat: maxWhat || '—',
   };
+
+  // Resynchronise la fraîcheur affichée des sources automatiques (data.sources[].last)
+  // avec la date du jour, pour chaque check qui a réellement abouti (pas en échec).
+  const today = new Date();
+  const todayFR = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
+  for (const log of checkLogs) {
+    if (!log || log.status === 'failed') continue;
+    const srcName = SOURCE_NAME_MAP[log.source];
+    const entry = (data.sources || []).find(s => s.name === srcName);
+    if (entry) { entry.last = todayFR; entry.auto = true; }
+  }
 }
 
 async function main() {
@@ -521,7 +547,7 @@ async function main() {
   ].slice(0, 30);
 
   // Propage les chiffres collectés vers tous les onglets + recalcule les KPI d'accueil
-  deriveDashboard(data);
+  deriveDashboard(data, [cdcLog, whoLog, ecdcLog, acdcLog, escmidLog, bullLog, arboLog, rwLog]);
 
   await writeFile(DATA_PATH, JSON.stringify(data, null, 2) + '\n', 'utf8');
   console.log('[REB RUN] donnees.json mis à jour.');
