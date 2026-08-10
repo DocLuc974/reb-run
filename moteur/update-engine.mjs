@@ -405,7 +405,15 @@ function deriveDashboard(data) {
     if (!rec) continue;
     const cas = num(rec.cas), dec = num(rec.dec);
     const al = (data.alerts || []).find(a => a.name === m.alert);
-    if (al) { const z = (al.zones || []).find(z => z.zone === m.zone); if (z) { if (cas != null) z.cas = cas; if (dec != null) z.dec = dec; } }
+    if (al) {
+      const z = (al.zones || []).find(z => z.zone === m.zone);
+      if (z) { if (cas != null) z.cas = cas; if (dec != null) z.dec = dec; }
+      // Resynchronise la date "arrêté au DD/MM/YYYY" affichée dans les KPI (period)
+      // avec la date réelle du relevé — sinon elle reste figée même quand les chiffres bougent.
+      if (rec.date && /arrêté au\s+\d{1,2}\/\d{1,2}\/\d{2,4}/.test(al.period || '')) {
+        al.period = al.period.replace(/arrêté au\s+\d{1,2}\/\d{1,2}\/\d{2,4}/, `arrêté au ${rec.date}`);
+      }
+    }
     const sy = (data.synth || []).find(s => s.name === m.synth);
     if (sy) {
       const r = (sy.rows || []).find(r => r.zone === m.zone);
