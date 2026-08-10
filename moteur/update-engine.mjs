@@ -35,7 +35,6 @@ import { fetchEpidemics } from './reliefweb.js';
 
 const DATA_PATH = new URL('../donnees.json', import.meta.url);
 const TIMEOUT_MS = 15000;
-const CDC_URL = 'https://www.cdc.gov/ebola/situation-summary/index.html';
 const WHO_DON_PROBE_AHEAD = 20; // nombre de bulletins à sonder après le dernier connu
 
 function stripTags(html) {
@@ -133,23 +132,40 @@ function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sour
 }
 
 // ── Source 1 : CDC ────────────────────────────────────────────────────────────
+// Le tableau de chiffres de la page CDC est injecté par JavaScript (absent du HTML brut) —
+// on lit directement le CSV qui alimente son graphique comparatif, une vraie source
+// structurée et stable. Il ne contient QUE les cas cumulés RDC 2026 (pas de décès) ;
+// "date_updated" est la date de génération du fichier, utilisée comme date du relevé.
+const CDC_CSV_URL = 'https://www.cdc.gov/wcms/vizdata/EBOLA/ebola_100_days.csv';
+
 async function checkCDC(data) {
   try {
-    const r = await fetchWithTimeout(CDC_URL, TIMEOUT_MS);
+    const r = await fetchWithTimeout(CDC_CSV_URL, TIMEOUT_MS);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const text = stripTags(await r.text());
-    const m = text.match(/(?:As of|By)\s+([A-Z][a-z]+ \d{1,2}(?:, \d{4})?)[^.]{0,160}?([\d,]{3,8})\s*(?:confirmed\s+)?cases[^.]{0,80}/i);
-    if (!m) return { source: 'CDC', auto: true, status: 'failed', what: `Échec d'extraction sur CDC (Ebola Bundibugyo) — motif non trouvé.` };
-
-    const quote = m[0].trim();
-    const dateRaw = m[1].includes(',') ? m[1] : `${m[1]}, 2026`;
-    const d = parseEnDate(dateRaw);
-    const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, m[2], null, `CDC Situation Summary (auto) — "${m[1]}"`) : false;
+    const csv = await r.text();
+    const lines = csv.trim().split('\n').map(l => l.split(','));
+    const header = lines[0].map(h => h.trim());
+    const casIdx = header.indexOf('DRC (2026)');
+    const dateIdx = header.indexOf('date_updated');
+    if (casIdx === -1 || dateIdx === -1) {
+      return { source: 'CDC', auto: true, status: 'failed', what: `CDC : colonnes attendues introuvables dans le CSV (format modifié) — vérification manuelle recommandée.` };
+    }
+    let lastCas = null, lastDate = null;
+    for (let i = 1; i < lines.length; i++) {
+      const row = lines[i];
+      const v = (row[casIdx] || '').trim();
+      if (v !== '') { lastCas = v; lastDate = (row[dateIdx] || '').trim(); }
+    }
+    if (lastCas == null || !lastDate) {
+      return { source: 'CDC', auto: true, status: 'failed', what: `CDC : aucune valeur exploitable dans le CSV (colonne DRC 2026 vide) — vérification manuelle recommandée.` };
+    }
+    const d = parseEnDate(lastDate); // format ISO "YYYY-MM-DD", géré par parseEnDate
+    const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, lastCas, null, `CDC — ebola_100_days.csv (auto) — ${lastDate}`) : false;
     return { source: 'CDC', auto: true, status: applied ? 'updated' : 'checked', what: applied
-      ? `Ebola Bundibugyo / RDC mis à jour via CDC : ≈ ${m[2]} cas (${m[1]}).`
-      : `CDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.` };
+      ? `Ebola Bundibugyo / RDC mis à jour via le CSV CDC : ${lastCas} cas cumulés (${lastDate}).`
+      : `CDC (CSV) vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.` };
   } catch (err) {
-    return { source: 'CDC', auto: true, status: 'failed', what: `Échec de connexion à CDC (${err.message || err}).` };
+    return { source: 'CDC', auto: true, status: 'failed', what: `Échec de connexion au CSV CDC (${err.message || err}).` };
   }
 }
 
