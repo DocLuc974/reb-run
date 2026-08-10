@@ -339,7 +339,7 @@
       "name": "Mpox (clade Ib)",
       "group": "Orthopoxvirose",
       "lvl": 3,
-      "period": "cumul depuis le début de l’épidémie · arrêté au 12/06/2026",
+      "period": "cumul depuis le début de l’épidémie · arrêté au 26/06/2026",
       "zones": [
         {
           "zone": "Madagascar",
@@ -395,7 +395,7 @@
         {
           "zone": "La Réunion",
           "l": 2,
-          "cas": null
+          "cas": 207
         }
       ]
     },
@@ -732,7 +732,7 @@
     {
       "name": "OMS — Disease Outbreak News",
       "scope": "Bulletins DON · toutes pathologies REB",
-      "last": "27/06/2026",
+      "last": "10/08/2026",
       "auto": true
     },
     {
@@ -750,19 +750,19 @@
     {
       "name": "ESCMID Epi Alert",
       "scope": "Bulletin scientifique (ESCMID + Amsterdam UMC)",
-      "last": "27/06/2026",
+      "last": "10/08/2026",
       "auto": true
     },
     {
       "name": "Odissé — Santé publique France (API JSON)",
       "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification",
-      "last": "02/07/2026",
+      "last": "10/08/2026",
       "auto": true
     },
     {
       "name": "ReliefWeb (API JSON)",
       "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname à faire approuver",
-      "last": "02/07/2026",
+      "last": "10/08/2026",
       "auto": true
     },
     {
@@ -786,8 +786,8 @@
     {
       "name": "Santé publique France — Bulletin Océan Indien (La Réunion)",
       "scope": "La Réunion · bulletin de surveillance hebdomadaire (dengue, chik, leptospirose, mpox, grippe, bronchiolite)",
-      "last": "26/06/2026",
-      "auto": false
+      "last": "10/08/2026",
+      "auto": true
     },
     {
       "name": "Ministères de la Santé (Madagascar, RDC, Comores)",
@@ -803,6 +803,62 @@
     }
   ],
   "updates": [
+    {
+      "date": "10/08 · 15:14",
+      "auto": true,
+      "status": "updated",
+      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "10/08 · 15:14",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "10/08 · 15:14",
+      "auto": true,
+      "status": "checked",
+      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 07/08/2026, déjà connu.",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "10/08 · 15:14",
+      "auto": true,
+      "status": "checked",
+      "what": "ESCMID Epi Alert vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "10/08 · 15:14",
+      "auto": true,
+      "status": "failed",
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "10/08 · 15:14",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "10/08 · 15:14",
+      "auto": true,
+      "status": "checked",
+      "what": "OMS DON614 vérifié (30 July 2026) — valeur déjà publiée toujours la plus récente.",
+      "src": "OMS"
+    },
+    {
+      "date": "10/08 · 15:14",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion au CSV CDC (HTTP 403).",
+      "src": "CDC"
+    },
     {
       "date": "10/08 · 14:31",
       "auto": true,
@@ -956,71 +1012,15 @@
       "status": "failed",
       "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
       "src": "ECDC"
-    },
-    {
-      "date": "10/08 · 03:44",
-      "auto": true,
-      "status": "checked",
-      "what": "OMS DON614 vérifié (30 July 2026) — valeur déjà publiée toujours la plus récente.",
-      "src": "OMS"
-    },
-    {
-      "date": "10/08 · 03:44",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec de connexion à CDC (HTTP 403).",
-      "src": "CDC"
-    },
-    {
-      "date": "09/08 · 03:25",
-      "auto": true,
-      "status": "failed",
-      "what": "ReliefWeb inaccessible (ReliefWeb 403: {\"status\":403,\"time\":3932,\"error\":{\"type\":\"AccessDeniedHttpException\",\"message\":\"You are not using an approved appname. Kindly request an appname from ReliefWeb here: https:\\/\\/apidoc.reliefweb.int\\/parameters#appname\"}}). Rappel : appname à faire pré-approuver puis à renseigner dans reliefweb.js.",
-      "src": "ReliefWeb"
-    },
-    {
-      "date": "09/08 · 03:25",
-      "auto": true,
-      "status": "checked",
-      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
-      "src": "Odissé (SpF)"
-    },
-    {
-      "date": "09/08 · 03:25",
-      "auto": true,
-      "status": "checked",
-      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 07/08/2026, déjà connu.",
-      "src": "SpF Océan Indien (bulletin)"
-    },
-    {
-      "date": "09/08 · 03:25",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "09/08 · 03:25",
-      "auto": true,
-      "status": "failed",
-      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "09/08 · 03:25",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ECDC"
     }
   ],
   "reunionBulletin": {
     "date": "07/08/2026",
     "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-7-aout-2026",
-    "fetchedAt": "10/08 · 14:31"
+    "fetchedAt": "10/08 · 15:14"
   },
   "reliefweb": {
-    "fetchedAt": "10/08 · 14:31",
+    "fetchedAt": "10/08 · 15:14",
     "alerts": [
       {
         "id": "52586",
