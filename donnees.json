@@ -1,13 +1,13 @@
 {
   "_mode_emploi": "Ce fichier contient TOUS les chiffres de l'outil REB RUN. Pour mettre à jour : modifiez les valeurs ci-dessous puis enregistrez. L'outil relit ce fichier à chaque chargement. Ne touchez pas aux noms de clés (à gauche des deux-points), seulement aux valeurs. Niveaux d'alerte : 0=aucun signal, 1=surveillance, 2=veille renforcée, 3=alerte, 4=urgence.",
   "meta": {
-    "who_last_don": 614,
+    "who_last_don": 615,
     "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
   },
   "kpi": {
     "foyersActifs": 3,
     "foyersLabel": "RDC · Ouganda · Madagascar",
-    "deces": 2143,
+    "deces": 2199,
     "pathogenesEnAlerte": 7,
     "pathogenesTotal": 12,
     "niveauMaxLabel": "Urgence",
@@ -232,15 +232,20 @@
         "date": "11/08",
         "cas": 4586,
         "dec": 2130
+      },
+      {
+        "date": "12/08",
+        "cas": 4685,
+        "dec": 2186
       }
     ]
   },
   "cases": {
     "ebola_bdb|Dem. Rep. Congo": {
-      "cas": "4566",
-      "dec": "2128",
-      "date": "11/08/2026",
-      "source": "ECDC (auto) — \"11 August 2026\""
+      "cas": "4665",
+      "dec": "2184",
+      "date": "12/08/2026",
+      "source": "OMS DON615 (auto) — 12 August 2026"
     },
     "ebola_bdb|Uganda": {
       "cas": "20",
@@ -329,8 +334,8 @@
         {
           "zone": "RDC",
           "l": 4,
-          "cas": 4566,
-          "dec": 2128
+          "cas": 4665,
+          "dec": 2184
         },
         {
           "zone": "Ouganda",
@@ -446,8 +451,8 @@
       "rows": [
         {
           "zone": "RDC",
-          "conf": 4566,
-          "dec": 2128,
+          "conf": 4665,
+          "dec": 2184,
           "susp": null
         },
         {
@@ -458,8 +463,8 @@
         },
         {
           "zone": "TOTAL",
-          "conf": 4586,
-          "dec": 2130,
+          "conf": 4685,
+          "dec": 2186,
           "susp": null,
           "total": true
         }
@@ -737,7 +742,7 @@
     {
       "name": "OMS — Disease Outbreak News",
       "scope": "Bulletins DON · toutes pathologies REB",
-      "last": "14/08/2026",
+      "last": "15/08/2026",
       "auto": true
     },
     {
@@ -761,13 +766,13 @@
     {
       "name": "Odissé — Santé publique France (API JSON)",
       "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification",
-      "last": "14/08/2026",
+      "last": "15/08/2026",
       "auto": true
     },
     {
       "name": "ReliefWeb (API JSON)",
       "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname à faire approuver",
-      "last": "14/08/2026",
+      "last": "15/08/2026",
       "auto": true
     },
     {
@@ -791,7 +796,7 @@
     {
       "name": "Santé publique France — Bulletin Océan Indien (La Réunion)",
       "scope": "La Réunion · bulletin de surveillance hebdomadaire (dengue, chik, leptospirose, mpox, grippe, bronchiolite)",
-      "last": "14/08/2026",
+      "last": "15/08/2026",
       "auto": true
     },
     {
@@ -808,6 +813,62 @@
     }
   ],
   "updates": [
+    {
+      "date": "15/08 · 02:44",
+      "auto": true,
+      "status": "updated",
+      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "15/08 · 02:44",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "15/08 · 02:44",
+      "auto": true,
+      "status": "checked",
+      "what": "Nouveau bulletin hebdomadaire SpF Océan Indien détecté (14/08/2026) — chiffres leptospirose/Mpox non trouvés dans la page (format modifié), à vérifier manuellement.",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "15/08 · 02:44",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "15/08 · 02:44",
+      "auto": true,
+      "status": "failed",
+      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "15/08 · 02:44",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "15/08 · 02:44",
+      "auto": true,
+      "status": "updated",
+      "what": "Ebola Bundibugyo / RDC mis à jour via OMS DON615 : 4665 cas, 2184 décès (12 August 2026).",
+      "src": "OMS"
+    },
+    {
+      "date": "15/08 · 02:44",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion au CSV CDC (HTTP 403).",
+      "src": "CDC"
+    },
     {
       "date": "14/08 · 03:57",
       "auto": true,
@@ -961,71 +1022,15 @@
       "status": "failed",
       "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
       "src": "ECDC"
-    },
-    {
-      "date": "12/08 · 03:57",
-      "auto": true,
-      "status": "checked",
-      "what": "OMS DON614 vérifié (30 July 2026) — valeur déjà publiée toujours la plus récente.",
-      "src": "OMS"
-    },
-    {
-      "date": "12/08 · 03:57",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec de connexion au CSV CDC (HTTP 403).",
-      "src": "CDC"
-    },
-    {
-      "date": "11/08 · 03:26",
-      "auto": true,
-      "status": "updated",
-      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
-      "src": "ReliefWeb"
-    },
-    {
-      "date": "11/08 · 03:26",
-      "auto": true,
-      "status": "checked",
-      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
-      "src": "Odissé (SpF)"
-    },
-    {
-      "date": "11/08 · 03:26",
-      "auto": true,
-      "status": "checked",
-      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 07/08/2026, déjà connu.",
-      "src": "SpF Océan Indien (bulletin)"
-    },
-    {
-      "date": "11/08 · 03:26",
-      "auto": true,
-      "status": "checked",
-      "what": "ESCMID Epi Alert vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "11/08 · 03:26",
-      "auto": true,
-      "status": "failed",
-      "what": "Motif trouvé sur Africa CDC mais ambigu (mélange cas confirmés / décès suspects dans la phrase) — rejeté par prudence, vérification manuelle recommandée.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "11/08 · 03:26",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ECDC"
     }
   ],
   "reunionBulletin": {
-    "date": "07/08/2026",
-    "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-7-aout-2026",
-    "fetchedAt": "14/08 · 03:57"
+    "date": "14/08/2026",
+    "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-14-aout-2026",
+    "fetchedAt": "15/08 · 02:44"
   },
   "reliefweb": {
-    "fetchedAt": "14/08 · 03:57",
+    "fetchedAt": "15/08 · 02:44",
     "alerts": [
       {
         "id": "52586",
