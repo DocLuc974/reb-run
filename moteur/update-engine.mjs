@@ -354,11 +354,15 @@ async function checkBulletinReunion(data) {
     const dateFR = `${dd}/${mm}/${best.year}`;
     const prev = (data.reunionBulletin && data.reunionBulletin.date) || null;
     const prevD = prev ? parseFrDate(prev) : null;
+    const prevOk = !!(data.reunionBulletin && data.reunionBulletin.extractOk);
     const isNew = !prevD || best.d > prevD;
-    data.reunionBulletin = { date: dateFR, url: best.url, fetchedAt: nowStampFR() };
+    // On retente l'extraction tant qu'elle n'a jamais réussi sur CE bulletin, même si on
+    // l'a déjà "vu" — sinon un échec de motif la première fois bloque la MAJ pour toujours.
+    const shouldExtract = isNew || !prevOk;
 
     const extracted = [];
-    if (isNew) {
+    let extractOk = prevOk;
+    if (shouldExtract) {
       try {
         const rp = await fetchWithTimeout(best.url, TIMEOUT_MS);
         if (rp.ok) {
@@ -368,26 +372,33 @@ async function checkBulletinReunion(data) {
           const pubDate = (pubM && MOIS[pubM[2].toLowerCase()])
             ? new Date(+pubM[3], MOIS[pubM[2].toLowerCase()] - 1, +pubM[1]) : best.d;
 
-          const lepM = btext.match(/Leptospirose[\s\S]{0,120}?(\d{1,5})\s+cas autochtones ont été déclarés/i);
+          // Leptospirose : cumul annuel donné en en-tête de section, ex. "Leptospirose (n=335)"
+          const lepM = btext.match(/Leptospirose\s*\(\s*n\s*=\s*(\d{1,5})\s*\)/i);
           if (lepM) {
             const applied = applyIfNewer(data, 'lepto|La Réunion', pubDate, lepM[1], null, `SpF Bulletin OI (auto) — ${dateFR}`);
             if (applied) extracted.push(`leptospirose ${lepM[1]} cas`);
+            extractOk = true;
           }
-          const mpxM = btext.match(/Variole B \(Mpox\)[\s\S]{0,250}?total\s+(\d{1,5})\s+cas(?:\s*\(dont\s+(\d{1,4})\s+import[ée]s?\))?/i);
-          if (mpxM) {
-            const src = mpxM[2] ? `SpF Bulletin OI (auto) — ${dateFR} (dont ${mpxM[2]} importés)` : `SpF Bulletin OI (auto) — ${dateFR}`;
-            const applied = applyIfNewer(data, 'mpox|La Réunion', pubDate, mpxM[1], null, src);
-            if (applied) extracted.push(`mpox ${mpxM[1]} cas${mpxM[2] ? ` (dont ${mpxM[2]} importés)` : ''}`);
+          // Mpox : "Le bilan à date est de 28 cas de clade Ib... Il s'agissait de 23 cas
+          // importés et de 5 cas autochtones" — total et détail cherchés séparément.
+          const mpxTotalM = btext.match(/(\d{1,5})\s+cas de clade\s*Ib\s+identifi[ée]s/i);
+          const mpxDetailM = btext.match(/(\d{1,4})\s+cas import[ée]s?\s+et\s+de?\s*(\d{1,4})\s+cas autochtones/i);
+          if (mpxTotalM) {
+            const src = mpxDetailM ? `SpF Bulletin OI (auto) — ${dateFR} (dont ${mpxDetailM[1]} importés, ${mpxDetailM[2]} autochtones)` : `SpF Bulletin OI (auto) — ${dateFR}`;
+            const applied = applyIfNewer(data, 'mpox|La Réunion', pubDate, mpxTotalM[1], null, src);
+            if (applied) extracted.push(`mpox ${mpxTotalM[1]} cas${mpxDetailM ? ` (dont ${mpxDetailM[1]} importés, ${mpxDetailM[2]} autochtones)` : ''}`);
+            extractOk = true;
           }
         }
       } catch (e) { /* lecture du contenu du bulletin best-effort : échec non bloquant */ }
     }
+    data.reunionBulletin = { date: dateFR, url: best.url, fetchedAt: nowStampFR(), extractOk };
 
-    return { source: 'SpF Océan Indien (bulletin)', auto: true, status: (isNew && extracted.length) ? 'updated' : (isNew ? 'checked' : 'checked'), what: extracted.length
-      ? `Nouveau bulletin SpF Océan Indien (${dateFR}) — indicateurs mis à jour : ${extracted.join(', ')}.`
-      : isNew
-        ? `Nouveau bulletin hebdomadaire SpF Océan Indien détecté (${dateFR}) — chiffres leptospirose/Mpox non trouvés dans la page (format modifié), à vérifier manuellement.`
-        : `Bulletin SpF Océan Indien vérifié — dernier paru le ${dateFR}, déjà connu.` };
+    return { source: 'SpF Océan Indien (bulletin)', auto: true, status: extracted.length ? 'updated' : (shouldExtract ? 'failed' : 'checked'), what: extracted.length
+      ? `Bulletin SpF Océan Indien (${dateFR}) — indicateurs mis à jour : ${extracted.join(', ')}.`
+      : shouldExtract
+        ? `Bulletin SpF Océan Indien (${dateFR}) détecté mais chiffres leptospirose/Mpox non trouvés dans la page (format modifié) — à vérifier manuellement.`
+        : `Bulletin SpF Océan Indien vérifié — dernier paru le ${dateFR}, déjà extrait.` };
   } catch (err) {
     return { source: 'SpF Océan Indien (bulletin)', auto: true, status: 'failed', what: `Bulletin SpF Océan Indien inaccessible (${err.message || err}).` };
   }
