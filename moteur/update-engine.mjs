@@ -185,38 +185,40 @@ async function checkCDC(data) {
   }
 }
 
-// ── Source 2 : OMS — sonde les bulletins DON suivants, retient ceux sur Bundibugyo
+// ── Source 2 : OMS — API JSON officielle (remplace le sondage de pages HTML numérotées :
+// plus robuste, une seule requête au lieu de ~20, et la date de publication vient du champ
+// structuré PublicationDate au lieu d'être extraite du texte). On liste les items "outbreaks"
+// les plus récents et on retient celui sur Ebola Bundibugyo RDC ; les chiffres eux-mêmes
+// restent dans le champ texte libre "Summary" (l'API n'a pas de colonne cas/décès dédiée),
+// donc encore extraits par motif — mais on gagne en fiabilité de DÉTECTION du bulletin.
 async function checkWHO(data) {
-  const startFrom = (data.meta && data.meta.who_last_don) || 600;
-  let lastChecked = startFrom;
-  let bestMatch = null;
+  const apiUrl = 'https://www.who.int/api/news/outbreaks?%24orderby=PublicationDate%20desc&%24top=20&%24format=json';
+  try {
+    const r = await fetchWithTimeout(apiUrl, TIMEOUT_MS);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const items = await r.json();
+    if (!Array.isArray(items)) throw new Error('réponse API inattendue (pas un tableau)');
 
-  for (let n = startFrom; n <= startFrom + WHO_DON_PROBE_AHEAD; n++) {
-    const url = `https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON${n}`;
-    try {
-      const r = await fetchWithTimeout(url, TIMEOUT_MS);
-      if (!r.ok) continue; // bulletin pas encore publié
-      lastChecked = n;
-      const text = stripTags(await r.text());
-      if (!/Bundibugyo/i.test(text)) continue; // bulletin sur un autre pathogène
-      const m = text.match(/As of\s+(\d{1,2}\s+\w+\s+\d{4}),?\s+a total of\s+([\d,]{2,8})\s+confirmed cases(?:[^.]*?including\s+([\d,]{2,8})\s+deaths)?/i);
-      if (m) bestMatch = { n, quote: m[0].trim(), date: m[1], cas: m[2], dec: m[3] || null, url };
-    } catch (e) { /* timeout ou réseau : on continue le sondage */ }
+    const hit = items.find(it => /ebola/i.test(it.Title || '') && /(bundibugyo|congo|drc|uganda)/i.test(`${it.Title} ${it.Summary}`));
+    if (!hit) {
+      return { source: 'OMS', auto: true, status: 'checked', what: `Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.` };
+    }
+    const summary = `${hit.Title || ''}. ${hit.Summary || ''}. ${hit.Highlight || ''}`;
+    const m = summary.match(/([\d,]{2,8})\s+confirmed cases[^.]{0,80}?(?:including\s+)?([\d,]{2,8})?\s*(?:related\s+)?deaths?/i);
+    const pubDate = hit.PublicationDate ? new Date(hit.PublicationDate) : null;
+    if (!m || !pubDate) {
+      return { source: 'OMS', auto: true, status: 'failed', what: `Bulletin OMS Ebola détecté via l'API ("${hit.Title}") mais chiffres non extraits du résumé — vérification manuelle recommandée.` };
+    }
+    const cas = m[1].replace(/[^\d]/g, '');
+    const dec = m[2] ? m[2].replace(/[^\d]/g, '') : null;
+    const dateFR = pubDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    const applied = applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', pubDate, cas, dec, `OMS API outbreaks (auto) — ${dateFR}`);
+    return { source: 'OMS', auto: true, status: applied ? 'updated' : 'checked', what: applied
+      ? `Ebola Bundibugyo / RDC mis à jour via l'API OMS : ${cas} cas${dec ? `, ${dec} décès` : ''} (${dateFR}).`
+      : `OMS (API) vérifié — valeur déjà publiée toujours la plus récente.` };
+  } catch (err) {
+    return { source: 'OMS', auto: true, status: 'failed', what: `API OMS inaccessible (${err.message || err}).` };
   }
-
-  // Mémorise jusqu'où on a sondé, pour repartir de là la prochaine fois
-  data.meta = data.meta || {};
-  data.meta.who_last_don = lastChecked;
-
-  if (!bestMatch) {
-    return { source: 'OMS', auto: true, status: 'checked', what: `Aucun nouveau bulletin OMS (DON) sur Ebola Bundibugyo depuis le dernier sondage (jusqu'à DON${lastChecked}).` };
-  }
-
-  const d = parseEnDate(bestMatch.date);
-  const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, bestMatch.cas, bestMatch.dec, `OMS DON${bestMatch.n} (auto) — ${bestMatch.date}`) : false;
-  return { source: 'OMS', auto: true, status: applied ? 'updated' : 'checked', what: applied
-    ? `Ebola Bundibugyo / RDC mis à jour via OMS DON${bestMatch.n} : ${bestMatch.cas} cas${bestMatch.dec ? `, ${bestMatch.dec} décès` : ''} (${bestMatch.date}).`
-    : `OMS DON${bestMatch.n} vérifié (${bestMatch.date}) — valeur déjà publiée toujours la plus récente.` };
 }
 
 // ── Source 3 : ECDC — page de suivi dédiée, mise à jour hebdomadaire (~chaque mardi/jeudi)
