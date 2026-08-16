@@ -62,7 +62,9 @@ async function fetchWithTimeout(url, ms) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
-    return await fetch(url, { signal: ctrl.signal });
+    // Un User-Agent de navigateur réel : certains sites (dont le CSV CDC) renvoient 403
+    // aux requêtes sans en-tête "navigateur" identifiable.
+    return await fetch(url, { signal: ctrl.signal, headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' } });
   } finally {
     clearTimeout(t);
   }
@@ -101,6 +103,20 @@ function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sour
   const currentDate = parseFrDate(current.date);
   const isNewer = !currentDate || (candidateDate && candidateDate > currentDate);
   if (isNewer) {
+    // Garde-fou anti-valeur aberrante : un cumul de cas ne peut normalement pas RETOMBER
+    // (compteur cumulatif) ni être divisé/multiplié par un facteur énorme — signe probable
+    // d'un motif mal calé (ex. il a attrapé un sous-total au lieu du total). On rejette et
+    // on remonte l'anomalie plutôt que de publier une valeur suspecte.
+    const prevCas = +String(current.cas || '').replace(/[^\d]/g, '') || 0;
+    const newCas = +String(candidateCas || '').replace(/[^\d]/g, '') || 0;
+    if (prevCas > 0 && newCas > 0) {
+      const ratio = newCas / prevCas;
+      if (ratio < 0.5 || ratio > 20) {
+        data._anomalies = data._anomalies || [];
+        data._anomalies.push(`${sourceLabel} : valeur rejetée (${newCas} vs ${prevCas} précédemment, écart × ${ratio.toFixed(2)}) — motif probablement mal calé, vérification manuelle recommandée.`);
+        return false;
+      }
+    }
     const dd = String(candidateDate.getDate()).padStart(2, '0');
     const mm = String(candidateDate.getMonth() + 1).padStart(2, '0');
     data.cases[key] = {
@@ -211,11 +227,11 @@ async function checkECDC(data) {
     const r = await fetchWithTimeout(url, TIMEOUT_MS);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const text = stripTags(await r.text());
-    // Formulation ECDC (août 2026) : "On <date pub>, the Democratic Republic of the Congo (DRC)
-    // published a situation update reporting a total of <cas> confirmed cases, including <décès>
-    // related deaths (from data up until <date des chiffres>)." La date "up until" (sans année)
-    // est celle des CHIFFRES ; la date "On …" est celle de PUBLICATION — on privilégie la 1ère.
-    const m = text.match(/On\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4}),?\s+the\s+(?:Democratic Republic of the Congo \(DRC\)|DRC)\s+published[\s\S]{0,100}?reporting\s+a\s+total\s+of\s+([\d,\s]{3,12})\s+confirmed\s+cases,?\s+including\s+([\d,\s]{2,10})\s+related\s+deaths(?:\s*\(from\s+data\s+up\s+until\s+(\d{1,2}\s+[A-Za-z]+)\))?/i);
+    // Formulation ECDC (août 2026) : "On <date>, the Democratic Republic of the Congo (DRC)
+    // reported a total of <cas> confirmed cases, including <décès> related deaths (from data
+    // up until <date des chiffres>)." La date "up until" (sans année) qualifie les CHIFFRES ;
+    // on la préfère à la date "On …" qui n'est que celle de publication.
+    const m = text.match(/On\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4}),?\s+the\s+(?:Democratic Republic of the Congo \(DRC\)|DRC)\s+reported\s+a\s+total\s+of\s+([\d,\s]{3,12})\s+confirmed\s+cases,?\s+including\s+([\d,\s]{2,10})\s+related\s+deaths(?:\s*\(from\s+data\s+up\s+until\s+(\d{1,2}\s+[A-Za-z]+)\))?/i);
     if (!m) return { source: 'ECDC', auto: true, status: 'failed', what: `Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.` };
 
     const cas = m[2].replace(/[^\d]/g, '');
@@ -232,12 +248,17 @@ async function checkECDC(data) {
   }
 }
 
-// ── Source 4 : Africa CDC — page de référence (texte moins structuré, motif souple)
-// Avertissement assumé : les rapports Africa CDC sont publiés sur des URLs datées
-// au format peu cohérent (fautes de frappe observées dans leurs propres liens) —
-// on se limite donc à leur page de référence fixe, avec repli silencieux si le
-// motif n'est pas trouvé (pas d'erreur bloquante).
+// ── Source 4 : Africa CDC — DÉSACTIVÉ ────────────────────────────────────────────
+// L'URL de référence utilisée jusqu'ici pointe en fait sur le rapport n°1 (18 mai 2026),
+// jamais mis à jour depuis : ce n'est pas un problème de motif, la page elle-même est figée.
+// Les rapports récents sont publiés sur khub.africacdc.org avec une URL différente à chaque
+// parution (pas d'URL fixe exploitable automatiquement) — check désactivé plutôt que laissé
+// à échouer pour de mauvaises raisons. Vérification manuelle occasionnelle recommandée.
 async function checkAfricaCDC(data) {
+  return { source: 'Africa CDC', auto: true, status: 'checked', what: `Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.` };
+}
+
+async function _unused_checkAfricaCDC(data) {
   const url = 'https://africacdc.org/download/situation-report-bundibugyo-virus-disease-outbreak-in-the-drc-and-uganda/';
   try {
     const r = await fetchWithTimeout(url, TIMEOUT_MS);
@@ -567,7 +588,35 @@ async function main() {
   console.log('[REB RUN]', rwLog.what);
 
   const stamp = nowStampFR();
+  const checkList = [
+    { log: cdcLog,    src: 'CDC' },
+    { log: whoLog,    src: 'OMS' },
+    { log: ecdcLog,   src: 'ECDC' },
+    { log: acdcLog,   src: 'Africa CDC' },
+    { log: escmidLog, src: 'ESCMID' },
+    { log: bullLog,   src: 'SpF Océan Indien (bulletin)' },
+    { log: arboLog,   src: 'Odissé (SpF)' },
+    { log: rwLog,     src: 'ReliefWeb' },
+  ];
+  // Suivi des échecs consécutifs par source : au 3e échec d'affilée, on ajoute une entrée
+  // de journal distincte et bien visible (statut 'stale') pour signaler qu'un motif est
+  // probablement cassé — plutôt que de laisser l'échec se noyer, jour après jour, parmi
+  // les entrées normales du journal.
+  data._failStreak = data._failStreak || {};
+  const staleAlerts = [];
+  for (const { log, src } of checkList) {
+    const failed = log.status === 'failed';
+    data._failStreak[src] = failed ? (data._failStreak[src] || 0) + 1 : 0;
+    if (failed && data._failStreak[src] === 3) {
+      staleAlerts.push({ date: stamp, auto: true, status: 'stale', what: `⚠ ${src} échoue depuis 3 relevés consécutifs — le motif d'extraction est probablement cassé (page source modifiée) et doit être révisé.`, src });
+    }
+  }
+  const anomalyEntries = (data._anomalies || []).map(a => ({ date: stamp, auto: true, status: 'anomaly', what: `⚠ Anomalie rejetée — ${a}`, src: 'Garde-fou anti-valeur aberrante' }));
+  delete data._anomalies;
+
   data.updates = [
+    ...staleAlerts,
+    ...anomalyEntries,
     { date: stamp, auto: true, status: rwLog.status, what: rwLog.what, src: 'ReliefWeb' },
     { date: stamp, auto: true, status: arboLog.status, what: arboLog.what, src: 'Odissé (SpF)' },
     { date: stamp, auto: true, status: bullLog.status, what: bullLog.what, src: 'SpF Océan Indien (bulletin)' },
