@@ -299,16 +299,18 @@ async function checkESCMID(data) {
     const r = await fetchWithTimeout(url, TIMEOUT_MS);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const text = stripTags(await r.text());
-    // Formulation ESCMID (août 2026) : bloc "Summary: <date>" suivi d'un paragraphe
-    // "The Ebola virus disease outbreak in the Democratic Republic of the Congo has reached
-    // X confirmed cases and Y deaths across NN health zones" (l'ancien motif "as of DATE" a disparu).
-    const m = text.match(/Summary:\s*(\d{1,2}\s+[A-Za-z]+\s+\d{4})[\s\S]{0,400}?Ebola virus disease\s+outbreak in the\s+Democratic Republic of the Congo\s+has reached\s+([\d,]{3,10})\s+confirmed cases and\s+([\d,]{2,8})\s+deaths/i);
+    // Formulation ESCMID (août 2026, section "Highlights") : "As of DATE, the D.R. Congo
+    // has reported X confirmed cases and Y deaths from Ebola disease caused by Bundibugyo
+    // virus". Motif volontairement tolérant (accepte "reported"/"reached" et ponctuation
+    // variable) car ESCMID reformule régulièrement d'une semaine à l'autre.
+    const m = text.match(/As of\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4}),?\s+the\s+D\.?R\.?\s*Congo\s+has\s+(?:reported|reached)\s+([\d,]{3,10})\s+confirmed cases and\s+([\d,]{2,8})\s+deaths/i);
     if (!m) return { source: 'ESCMID', auto: true, status: 'failed', what: `Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.` };
 
     const cas = m[2].replace(/[^\d]/g, '');
     const dec = m[3].replace(/[^\d]/g, '');
     const d = parseEnDate(m[1]);
     const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, cas, dec, `ESCMID Epi Alert (auto) — ${m[1]}`) : false;
+
     return { source: 'ESCMID', auto: true, status: applied ? 'updated' : 'checked', what: applied
       ? `Ebola Bundibugyo / RDC mis à jour via ESCMID Epi Alert : ${cas} cas, ${dec} décès (${m[1]}).`
       : `ESCMID Epi Alert vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.` };
