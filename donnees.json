@@ -697,6 +697,20 @@
   ],
   "journal": [
     {
+      "date": "12/08",
+      "l": 4,
+      "path": "Ebola Bundibugyo",
+      "src": "OMS DON615",
+      "text": "RDC : 4 665 cas confirmés et 2 184 décès (létalité ≈ 47 %) — poursuite de la hausse depuis fin juin. Ituri et Nord-Kivu restent les provinces les plus touchées. Ouganda : foyer clos (voir entrée du 28/07)."
+    },
+    {
+      "date": "28/07",
+      "l": 2,
+      "path": "Ebola Bundibugyo",
+      "src": "ECDC / MoH Ouganda",
+      "text": "L'Ouganda déclare la fin de son épidémie (20 cas / 2 décès au total, dernier cas le 21/06, 12 jours sans nouveau cas après la sortie du dernier patient). Le foyer RDC reste actif."
+    },
+    {
       "date": "30/06",
       "l": 4,
       "path": "Ebola Bundibugyo",
