@@ -196,8 +196,10 @@ async function checkWHO(data) {
   try {
     const r = await fetchWithTimeout(apiUrl, TIMEOUT_MS);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const items = await r.json();
-    if (!Array.isArray(items)) throw new Error('réponse API inattendue (pas un tableau)');
+    const payload = await r.json();
+    // L'API OData renvoie {"@odata.context":..., "value":[...]}, pas un tableau nu.
+    const items = Array.isArray(payload) ? payload : (Array.isArray(payload && payload.value) ? payload.value : null);
+    if (!items) throw new Error('réponse API inattendue (pas de champ "value" exploitable)');
 
     const hit = items.find(it => /ebola/i.test(it.Title || '') && /(bundibugyo|congo|drc|uganda)/i.test(`${it.Title} ${it.Summary}`));
     if (!hit) {
@@ -233,7 +235,9 @@ async function checkECDC(data) {
     // reported a total of <cas> confirmed cases, including <décès> related deaths (from data
     // up until <date des chiffres>)." La date "up until" (sans année) qualifie les CHIFFRES ;
     // on la préfère à la date "On …" qui n'est que celle de publication.
-    const m = text.match(/On\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4}),?\s+the\s+(?:Democratic Republic of the Congo \(DRC\)|DRC)\s+reported\s+a\s+total\s+of\s+([\d,\s]{3,12})\s+confirmed\s+cases,?\s+including\s+([\d,\s]{2,10})\s+related\s+deaths(?:\s*\(from\s+data\s+up\s+until\s+(\d{1,2}\s+[A-Za-z]+)\))?/i);
+    // Motif assoupli : "the"/"(DRC)" optionnels, "reported"/"has reported", séparateurs
+    // milliers en espace normal/insécable/virgule, et "up until" avec ou sans année.
+    const m = text.match(/(?:On|As of)\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4}),?\s+(?:the\s+)?(?:Democratic Republic of the Congo(?:\s*\(DRC\))?|DRC)\s+(?:has\s+)?reported\s+a\s+total\s+of\s+([\d,.\s]{3,14})\s+confirmed\s+cases,?\s+including\s+([\d,.\s]{2,12})\s+(?:related\s+)?deaths(?:[^.]{0,40}?up\s+until\s+(\d{1,2}\s+[A-Za-z]+(?:\s+\d{4})?))?/i);
     if (!m) return { source: 'ECDC', auto: true, status: 'failed', what: `Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.` };
 
     const cas = m[2].replace(/[^\d]/g, '');
@@ -376,33 +380,40 @@ async function checkBulletinReunion(data) {
           const pubDate = (pubM && MOIS[pubM[2].toLowerCase()])
             ? new Date(+pubM[3], MOIS[pubM[2].toLowerCase()] - 1, +pubM[1]) : best.d;
 
-          // Leptospirose : cumul annuel donné en en-tête de section, ex. "Leptospirose (n=335)"
-          const lepM = btext.match(/Leptospirose\s*\(\s*n\s*=\s*(\d{1,5})\s*\)/i);
+          // Leptospirose : cumul annuel donné en en-tête de section (ex. "Leptospirose (n=335)"),
+          // format vu jusqu'à juillet 2026. Depuis août 2026 la section peut être purement
+          // qualitative ("Période inter-saisonnière, niveau de transmission bas") SANS chiffre
+          // cette semaine-là : l'absence de motif n'est alors PAS un échec d'extraction.
+          const lepM = btext.match(/Leptospirose\s*\(\s*n\s*=\s*(\d{1,5})\s*\)/i)
+            || btext.match(/Leptospirose[\s\S]{0,20}?(\d{1,5})\s+cas\s+autochtones?\s+(?:ont\s+été\s+|ont\s+ete\s+)?d[ée]clar[ée]s/i);
           if (lepM) {
             const applied = applyIfNewer(data, 'lepto|La Réunion', pubDate, lepM[1], null, `SpF Bulletin OI (auto) — ${dateFR}`);
             if (applied) extracted.push(`leptospirose ${lepM[1]} cas`);
-            extractOk = true;
           }
-          // Mpox : "Le bilan à date est de 28 cas de clade Ib... Il s'agissait de 23 cas
-          // importés et de 5 cas autochtones" — total et détail cherchés séparément.
+          // Mpox : ancien format "Le bilan à date est de N cas de clade Ib... M importés et P
+          // autochtones" ; nouveau format (depuis août 2026) "N cas importés en provenance de
+          // X et P cas autochtones" (pas de total explicite — total = importés + autochtones).
           const mpxTotalM = btext.match(/(\d{1,5})\s+cas de clade\s*Ib\s+identifi[ée]s/i);
-          const mpxDetailM = btext.match(/(\d{1,4})\s+cas import[ée]s?\s+et\s+de?\s*(\d{1,4})\s+cas autochtones/i);
-          if (mpxTotalM) {
+          const mpxDetailM = btext.match(/(\d{1,4})\s+cas import[ée]s?\s+(?:en\s+provenance\s+de\s+[^.,]+?\s*)?et\s+(\d{1,4})\s+cas autochtones/i);
+          if (mpxTotalM || mpxDetailM) {
+            const total = mpxTotalM ? mpxTotalM[1] : String((+mpxDetailM[1] || 0) + (+mpxDetailM[2] || 0));
             const src = mpxDetailM ? `SpF Bulletin OI (auto) — ${dateFR} (dont ${mpxDetailM[1]} importés, ${mpxDetailM[2]} autochtones)` : `SpF Bulletin OI (auto) — ${dateFR}`;
-            const applied = applyIfNewer(data, 'mpox|La Réunion', pubDate, mpxTotalM[1], null, src);
-            if (applied) extracted.push(`mpox ${mpxTotalM[1]} cas${mpxDetailM ? ` (dont ${mpxDetailM[1]} importés, ${mpxDetailM[2]} autochtones)` : ''}`);
-            extractOk = true;
+            const applied = applyIfNewer(data, 'mpox|La Réunion', pubDate, total, null, src);
+            if (applied) extracted.push(`mpox ${total} cas${mpxDetailM ? ` (dont ${mpxDetailM[1]} importés, ${mpxDetailM[2]} autochtones)` : ''}`);
           }
+          // Le bulletin a bien été lu (que des chiffres exploitables aient été trouvés ou non) —
+          // seule une erreur réseau/HTTP (catch ci-dessous) constitue un vrai échec.
+          extractOk = true;
         }
       } catch (e) { /* lecture du contenu du bulletin best-effort : échec non bloquant */ }
     }
     data.reunionBulletin = { date: dateFR, url: best.url, fetchedAt: nowStampFR(), extractOk };
 
-    return { source: 'SpF Océan Indien (bulletin)', auto: true, status: extracted.length ? 'updated' : (shouldExtract ? 'failed' : 'checked'), what: extracted.length
+    return { source: 'SpF Océan Indien (bulletin)', auto: true, status: extracted.length ? 'updated' : (extractOk ? 'checked' : 'failed'), what: extracted.length
       ? `Bulletin SpF Océan Indien (${dateFR}) — indicateurs mis à jour : ${extracted.join(', ')}.`
-      : shouldExtract
-        ? `Bulletin SpF Océan Indien (${dateFR}) détecté mais chiffres leptospirose/Mpox non trouvés dans la page (format modifié) — à vérifier manuellement.`
-        : `Bulletin SpF Océan Indien vérifié — dernier paru le ${dateFR}, déjà extrait.` };
+      : extractOk
+        ? `Bulletin SpF Océan Indien (${dateFR}) vérifié — aucun chiffre nouveau cette semaine (rubriques qualitatives ou valeurs inchangées).`
+        : `Bulletin SpF Océan Indien (${dateFR}) détecté mais page non lisible — à vérifier manuellement.` };
   } catch (err) {
     return { source: 'SpF Océan Indien (bulletin)', auto: true, status: 'failed', what: `Bulletin SpF Océan Indien inaccessible (${err.message || err}).` };
   }
