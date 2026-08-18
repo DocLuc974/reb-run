@@ -521,7 +521,12 @@ function deriveDashboard(data, checkLogs = []) {
       if (z) { if (cas != null) z.cas = cas; if (dec != null) z.dec = dec; }
       // Resynchronise la date "arrêté au DD/MM/YYYY" affichée dans les KPI (period)
       // avec la date réelle du relevé — sinon elle reste figée même quand les chiffres bougent.
-      if (rec.date && /arrêté au\s+\d{1,2}\/\d{1,2}\/\d{2,4}/.test(al.period || '')) {
+      // ⚠️ Plusieurs zones (ex. RDC + Ouganda) partagent la même alerte/period : on ne
+      // remplace QUE si la date du relevé est plus récente que celle déjà affichée, sinon
+      // la zone la moins à jour écraserait la date fraîche d'une autre zone au passage suivant.
+      const periodM = (al.period || '').match(/arrêté au\s+(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+      const periodDate = periodM ? new Date(+periodM[3], +periodM[2] - 1, +periodM[1]) : null;
+      if (rec.date && periodM && (!periodDate || parseFrDate(rec.date) > periodDate)) {
         al.period = al.period.replace(/arrêté au\s+\d{1,2}\/\d{1,2}\/\d{2,4}/, `arrêté au ${rec.date}`);
       }
     }
