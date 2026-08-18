@@ -754,25 +754,25 @@
     {
       "name": "Africa CDC",
       "scope": "Afrique · épidémies continentales",
-      "last": "17/08/2026",
+      "last": "18/08/2026",
       "auto": true
     },
     {
       "name": "ESCMID Epi Alert",
       "scope": "Bulletin scientifique (ESCMID + Amsterdam UMC)",
-      "last": "17/08/2026",
+      "last": "18/08/2026",
       "auto": true
     },
     {
       "name": "Odissé — Santé publique France (API JSON)",
       "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification",
-      "last": "17/08/2026",
+      "last": "18/08/2026",
       "auto": true
     },
     {
       "name": "ReliefWeb (API JSON)",
       "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname à faire approuver",
-      "last": "17/08/2026",
+      "last": "18/08/2026",
       "auto": true
     },
     {
@@ -813,6 +813,69 @@
     }
   ],
   "updates": [
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "stale",
+      "what": "⚠ SpF Océan Indien (bulletin) échoue depuis 3 relevés consécutifs — le motif d'extraction est probablement cassé (page source modifiée) et doit être révisé.",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "updated",
+      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "failed",
+      "what": "Bulletin SpF Océan Indien (14/08/2026) détecté mais chiffres leptospirose/Mpox non trouvés dans la page (format modifié) — à vérifier manuellement.",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "checked",
+      "what": "ESCMID Epi Alert vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "checked",
+      "what": "Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "failed",
+      "what": "API OMS inaccessible (réponse API inattendue (pas un tableau)).",
+      "src": "OMS"
+    },
+    {
+      "date": "18/08 · 02:48",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion au CSV CDC (HTTP 403).",
+      "src": "CDC"
+    },
     {
       "date": "17/08 · 02:52",
       "auto": true,
@@ -959,79 +1022,16 @@
       "status": "checked",
       "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 14/08/2026, déjà connu.",
       "src": "SpF Océan Indien (bulletin)"
-    },
-    {
-      "date": "16/08 · 16:04",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "16/08 · 16:04",
-      "auto": true,
-      "status": "checked",
-      "what": "Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "16/08 · 16:04",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ECDC"
-    },
-    {
-      "date": "16/08 · 16:04",
-      "auto": true,
-      "status": "checked",
-      "what": "OMS DON615 vérifié (12 August 2026) — valeur déjà publiée toujours la plus récente.",
-      "src": "OMS"
-    },
-    {
-      "date": "16/08 · 16:04",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec de connexion au CSV CDC (HTTP 403).",
-      "src": "CDC"
-    },
-    {
-      "date": "16/08 · 02:52",
-      "auto": true,
-      "status": "updated",
-      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
-      "src": "ReliefWeb"
-    },
-    {
-      "date": "16/08 · 02:52",
-      "auto": true,
-      "status": "checked",
-      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
-      "src": "Odissé (SpF)"
-    },
-    {
-      "date": "16/08 · 02:52",
-      "auto": true,
-      "status": "checked",
-      "what": "Bulletin SpF Océan Indien vérifié — dernier paru le 14/08/2026, déjà connu.",
-      "src": "SpF Océan Indien (bulletin)"
-    },
-    {
-      "date": "16/08 · 02:52",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
     }
   ],
   "reunionBulletin": {
     "date": "14/08/2026",
     "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-14-aout-2026",
-    "fetchedAt": "17/08 · 02:52",
+    "fetchedAt": "18/08 · 02:48",
     "extractOk": false
   },
   "reliefweb": {
-    "fetchedAt": "17/08 · 02:52",
+    "fetchedAt": "18/08 · 02:48",
     "alerts": [
       {
         "id": "52586",
@@ -1236,12 +1236,12 @@
     ]
   },
   "_failStreak": {
-    "CDC": 3,
-    "OMS": 1,
-    "ECDC": 3,
+    "CDC": 4,
+    "OMS": 2,
+    "ECDC": 4,
     "Africa CDC": 0,
     "ESCMID": 0,
-    "SpF Océan Indien (bulletin)": 2,
+    "SpF Océan Indien (bulletin)": 3,
     "Odissé (SpF)": 0,
     "ReliefWeb": 0
   }
