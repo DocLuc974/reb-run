@@ -30,6 +30,7 @@
 // publiée, et appliquer la règle retenue au cadrage : "le bilan le plus récent gagne".
 
 import { readFile, writeFile } from 'node:fs/promises';
+import { inflateSync, inflateRawSync, gunzipSync } from 'node:zlib';
 import { fetchArboviroses } from './odisse.js';
 import { fetchEpidemics } from './reliefweb.js';
 
@@ -344,6 +345,60 @@ async function checkESCMID(data) {
   }
 }
 
+// ── Lecture du texte d'un PDF, sans dépendance externe ──────────────────────────
+// Nécessaire depuis août 2026 : Santé publique France ne publie plus les chiffres
+// (mpox, leptospirose) dans la page web du bulletin — la page ne porte qu'un chapô,
+// et les indicateurs ne vivent que dans le PDF joint. Sans ce lecteur, le moteur
+// détectait bien le nouveau bulletin mais n'y trouvait jamais aucun chiffre.
+//
+// Principe : un PDF est une suite d'objets dont les flux de contenu sont presque
+// toujours compressés en Flate. On dézippe chaque flux, puis on récupère les chaînes
+// affichées par les opérateurs de texte (entre parenthèses, avant Tj/TJ). C'est
+// volontairement approximatif — on ne cherche pas à reconstituer la mise en page,
+// seulement un texte continu où retrouver "23 cas importés … et 5 cas autochtones".
+function pdfToText(buf) {
+  const chunks = [];
+  // Découpage sur les flux : "stream\r?\n … endstream"
+  let idx = 0;
+  while (true) {
+    const s = buf.indexOf('stream', idx);
+    if (s === -1) break;
+    const e = buf.indexOf('endstream', s);
+    if (e === -1) break;
+    let start = s + 6;
+    if (buf[start] === 0x0d) start++;
+    if (buf[start] === 0x0a) start++;
+    const raw = buf.subarray(start, e);
+    idx = e + 9;
+    for (const fn of [inflateSync, inflateRawSync, gunzipSync]) {
+      try { chunks.push(fn(raw).toString('latin1')); break; } catch { /* flux non Flate (image, police…) → ignoré */ }
+    }
+  }
+  const out = [];
+  for (const c of chunks) {
+    if (!/\bT[jJ]\b/.test(c)) continue; // flux sans opérateur de texte → pas du contenu lisible
+    // Chaînes littérales PDF : (…) avec échappements \( \) \\
+    for (const m of c.matchAll(/\((?:\\.|[^\\()])*\)/g)) {
+      out.push(m[0].slice(1, -1)
+        .replace(/\\([()\\])/g, '$1')
+        .replace(/\\n/g, ' ').replace(/\\r/g, ' ').replace(/\\t/g, ' ')
+        .replace(/\\(\d{1,3})/g, (_, o) => String.fromCharCode(parseInt(o, 8))));
+    }
+  }
+  // Les PDF SpF coupent les mots en fragments successifs : on recolle tout, puis on
+  // normalise les espaces (y compris insécables) comme pour les sources HTML.
+  return out.join('')
+    .replace(/[\u00a0\u2007\u2009\u202f]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+async function fetchPdfText(url) {
+  const r = await fetchWithTimeout(url, TIMEOUT_MS);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return pdfToText(Buffer.from(await r.arrayBuffer()));
+}
+
 // ── Source 6 : Bulletin hebdomadaire SpF Océan Indien (La Réunion) ──────────────
 // Le check Mpox « auto générique » a été retiré (fin de l'urgence, plus de flux chiffré
 // fiable côté Africa CDC). À la place, on détecte le bulletin hebdomadaire le plus récent
@@ -393,7 +448,17 @@ async function checkBulletinReunion(data) {
       try {
         const rp = await fetchWithTimeout(best.url, TIMEOUT_MS);
         if (rp.ok) {
-          const btext = stripTags(await rp.text());
+          const rawHtml = await rp.text();
+          let btext = stripTags(rawHtml);
+          // Depuis août 2026, la page ne contient plus que les "points clés" : les chiffres
+          // sont dans le PDF joint. On lit donc systématiquement le PDF quand on le trouve,
+          // et on CONCATÈNE son texte à celui de la page (les deux formulations restent
+          // ainsi exploitables, sans avoir à deviner laquelle la source utilise ce mois-ci).
+          const pdfM = rawHtml.match(/href="([^"]*bullreg[^"]*\.pdf)"/i) || rawHtml.match(/href="([^"]*\.pdf)"/i);
+          if (pdfM) {
+            const pdfUrl = new URL(pdfM[1], best.url).href;
+            try { btext += ' ' + await fetchPdfText(pdfUrl); } catch { /* PDF illisible → on garde le texte de la page */ }
+          }
           // Date officielle de publication (plus fiable que la date dans l'URL, quand présente)
           const pubM = btext.match(/Publié le\s+(\d{1,2})\s+([a-zA-Zéûôùàè]+)\s+(\d{4})/i);
           const pubDate = (pubM && MOIS[pubM[2].toLowerCase()])
@@ -404,7 +469,10 @@ async function checkBulletinReunion(data) {
           // qualitative ("Période inter-saisonnière, niveau de transmission bas") SANS chiffre
           // cette semaine-là : l'absence de motif n'est alors PAS un échec d'extraction.
           const lepM = btext.match(/Leptospirose\s*\(\s*n\s*=\s*(\d{1,5})\s*\)/i)
-            || btext.match(/Leptospirose[\s\S]{0,20}?(\d{1,5})\s+cas\s+autochtones?\s+(?:ont\s+été\s+|ont\s+ete\s+)?d[ée]clar[ée]s/i);
+            || btext.match(/Leptospirose[\s\S]{0,20}?(\d{1,5})\s+cas\s+autochtones?\s+(?:ont\s+été\s+|ont\s+ete\s+)?d[ée]clar[ée]s/i)
+            // Formulation PDF (août 2026) : "A ce jour, 235 cas autochtones ont été déclarés
+            // à l'ARS" — le mot "Leptospirose" peut être loin devant (titre de section).
+            || btext.match(/Leptospirose[\s\S]{0,600}?A\s+ce\s+jour,?\s+(\d{1,5})\s+cas\s+autochtones/i);
           if (lepM) {
             const applied = applyIfNewer(data, 'lepto|La Réunion', pubDate, lepM[1], null, `SpF Bulletin OI (auto) — ${dateFR}`);
             if (applied) extracted.push(`leptospirose ${lepM[1]} cas`);
@@ -412,13 +480,23 @@ async function checkBulletinReunion(data) {
           // Mpox : ancien format "Le bilan à date est de N cas de clade Ib... M importés et P
           // autochtones" ; nouveau format (depuis août 2026) "N cas importés en provenance de
           // X et P cas autochtones" (pas de total explicite — total = importés + autochtones).
-          const mpxTotalM = btext.match(/(\d{1,5})\s+cas de clade\s*Ib\s+identifi[ée]s/i);
+          const mpxTotalM = btext.match(/(\d{1,5})\s+cas de clade\s*Ib\s+identifi[ée]s/i)
+            // "En 2026, ce sont 28 cas de Mpox qui ont été rapportés à la Réunion…" /
+            // "28 cas de Mpox sont recensés…" — formulations vues sur la page et à l'ARS.
+            || btext.match(/(\d{1,5})\s+cas\s+de\s+[Mm]pox\s+(?:qui\s+)?(?:ont\s+été\s+rapport[ée]s|sont\s+recens[ée]s|ont\s+été\s+recens[ée]s|identifi[ée]s)/i);
           const mpxDetailM = btext.match(/(\d{1,4})\s+cas import[ée]s?\s+(?:en\s+provenance\s+de\s+[^.,]+?\s*)?et\s+(\d{1,4})\s+cas autochtones/i);
-          if (mpxTotalM || mpxDetailM) {
-            const total = mpxTotalM ? mpxTotalM[1] : String((+mpxDetailM[1] || 0) + (+mpxDetailM[2] || 0));
-            const src = mpxDetailM ? `SpF Bulletin OI (auto) — ${dateFR} (dont ${mpxDetailM[1]} importés, ${mpxDetailM[2]} autochtones)` : `SpF Bulletin OI (auto) — ${dateFR}`;
+          // Variante "N cas de Mpox … dont M cas autochtones" : ici N est le TOTAL (et non
+          // les cas importés) — à ne surtout pas additionner, d'où un motif séparé.
+          const mpxDontM = btext.match(/(\d{1,4})\s+cas\s+de\s+[Mm]pox[^.]{0,80}?dont\s+(\d{1,4})\s+cas\s+autochtones/i);
+          if (mpxTotalM || mpxDetailM || mpxDontM) {
+            const total = mpxTotalM ? mpxTotalM[1]
+              : mpxDontM ? mpxDontM[1]
+              : String((+mpxDetailM[1] || 0) + (+mpxDetailM[2] || 0));
+            const detail = mpxDetailM ? `dont ${mpxDetailM[1]} importés, ${mpxDetailM[2]} autochtones`
+              : mpxDontM ? `dont ${mpxDontM[2]} autochtones` : '';
+            const src = detail ? `SpF Bulletin OI (auto) — ${dateFR} (${detail})` : `SpF Bulletin OI (auto) — ${dateFR}`;
             const applied = applyIfNewer(data, 'mpox|La Réunion', pubDate, total, null, src);
-            if (applied) extracted.push(`mpox ${total} cas${mpxDetailM ? ` (dont ${mpxDetailM[1]} importés, ${mpxDetailM[2]} autochtones)` : ''}`);
+            if (applied) extracted.push(`mpox ${total} cas${detail ? ` (${detail})` : ''}`);
           }
           // Le bulletin a bien été lu (que des chiffres exploitables aient été trouvés ou non) —
           // seule une erreur réseau/HTTP (catch ci-dessous) constitue un vrai échec.
@@ -444,6 +522,39 @@ async function checkBulletinReunion(data) {
 // Bien plus robuste que le scraping du bulletin hebdomadaire (PDF à URL datée).
 // odisse.js auto-détecte les colonnes ; si la détection échoue, on trace un échec
 // non bloquant plutôt que de publier des valeurs douteuses.
+// ── Source 7 : ARS La Réunion — page mpox (repli du bulletin SpF) ────────────────
+// Le bulletin SpF est hebdomadaire et son format bouge ; l'ARS maintient en parallèle
+// une page mpox à URL stable qui porte le cumul réunionnais en une phrase. Elle sert de
+// repli : si le bulletin n'a rien donné, ce chiffre-là évite de rester figué des semaines.
+// Prudence assumée : sans date de mise à jour lisible sur la page, on ne publie PAS
+// (une valeur mal datée casse la règle "le bilan le plus récent gagne") — on se contente
+// de tracer le chiffre lu dans le journal, pour vérification humaine.
+async function checkArsMpoxReunion(data) {
+  const url = 'https://www.lareunion.ars.sante.fr/variole-b-mpox-situation-la-reunion-vigilance-aux-voyageurs';
+  const MOIS = { janvier:1, 'février':2, fevrier:2, mars:3, avril:4, mai:5, juin:6, juillet:7, 'août':8, aout:8, septembre:9, octobre:10, novembre:11, 'décembre':12, decembre:12 };
+  try {
+    const r = await fetchWithTimeout(url, TIMEOUT_MS);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const text = stripTags(await r.text());
+    // "28 cas de Mpox sont recensés depuis 2026" (l'ARS écrit parfois "recencés")
+    const m = text.match(/(\d{1,5})\s+cas\s+de\s+[Mm]pox\s+(?:sont|ont\s+été)\s+recen[cçs][ée]s/i)
+      || text.match(/(\d{1,5})\s+cas\s+de\s+[Mm]pox\s+(?:ont\s+été\s+)?(?:rapport[ée]s|identifi[ée]s|confirm[ée]s)/i);
+    if (!m) return { source: 'ARS La Réunion (mpox)', auto: true, status: 'failed', what: `Échec d'extraction sur la page mpox de l'ARS La Réunion — motif non trouvé.` };
+
+    const dM = text.match(/[Mm]is\s+à\s+jour\s+le\s+(\d{1,2})\s+([a-zéûôùàè]+)\s+(\d{4})/i)
+      || text.match(/[Pp]ublié\s+le\s+(\d{1,2})\s+([a-zéûôùàè]+)\s+(\d{4})/i);
+    const d = (dM && MOIS[dM[2].toLowerCase()]) ? new Date(+dM[3], MOIS[dM[2].toLowerCase()] - 1, +dM[1]) : null;
+    if (!d) return { source: 'ARS La Réunion (mpox)', auto: true, status: 'checked', what: `ARS La Réunion : ${m[1]} cas de mpox lus sur la page, mais aucune date de mise à jour lisible — chiffre non publié (vérification manuelle).` };
+
+    const applied = applyIfNewer(data, 'mpox|La Réunion', d, m[1], null, `ARS La Réunion (auto) — ${dM[0].replace(/^.*?le\s+/i, '')}`);
+    return { source: 'ARS La Réunion (mpox)', auto: true, status: applied ? 'updated' : 'checked', what: applied
+      ? `Mpox / La Réunion mis à jour via l'ARS : ${m[1]} cas cumulés.`
+      : `ARS La Réunion vérifiée pour le mpox — valeur déjà publiée toujours la plus récente.` };
+  } catch (err) {
+    return { source: 'ARS La Réunion (mpox)', auto: true, status: 'failed', what: `Échec de connexion à l'ARS La Réunion (${err.message || err}).` };
+  }
+}
+
 async function checkArboReunion(data) {
   const year = new Date().getFullYear();
   try {
@@ -629,6 +740,10 @@ async function main() {
   const bullLog = await checkBulletinReunion(data);
   console.log('[REB RUN]', bullLog.what);
 
+  console.log('[REB RUN] Vérification mpox Réunion (ARS, repli)…');
+  const arsLog = await checkArsMpoxReunion(data);
+  console.log('[REB RUN]', arsLog.what);
+
   console.log('[REB RUN] Vérification arboviroses Réunion (Odissé/SpF)…');
   const arboLog = await checkArboReunion(data);
   console.log('[REB RUN]', arboLog.what);
@@ -645,6 +760,7 @@ async function main() {
     { log: acdcLog,   src: 'Africa CDC' },
     { log: escmidLog, src: 'ESCMID' },
     { log: bullLog,   src: 'SpF Océan Indien (bulletin)' },
+    { log: arsLog,    src: 'ARS La Réunion (mpox)' },
     { log: arboLog,   src: 'Odissé (SpF)' },
     { log: rwLog,     src: 'ReliefWeb' },
   ];
