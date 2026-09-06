@@ -37,11 +37,30 @@ const DATA_PATH = new URL('../donnees.json', import.meta.url);
 const TIMEOUT_MS = 15000;
 const WHO_DON_PROBE_AHEAD = 20; // nombre de bulletins à sonder après le dernier connu
 
+// Décode les entités HTML AVANT toute extraction par motif.
+// ⚠️ Bug historique (chiffres figés au 12/08/2026) : l'ECDC — comme beaucoup de sites
+// institutionnels — écrit les séparateurs de milliers en espace insécable encodée
+// ("6&nbsp;342 confirmed cases"). Sans décodage, le texte contient littéralement
+// "6&nbsp;342" et AUCUN motif numérique ne peut correspondre : la source remontait
+// "motif non trouvé" chaque jour alors que la page était parfaitement à jour.
+function decodeEntities(s) {
+  const NAMED = { nbsp: '\u00a0', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", '#39': "'",
+    thinsp: '\u2009', ensp: '\u2002', emsp: '\u2003', ndash: '\u2013', mdash: '\u2014',
+    rsquo: '\u2019', lsquo: '\u2018', ldquo: '\u201c', rdquo: '\u201d', hellip: '\u2026', deg: '\u00b0' };
+  return s
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
+    .replace(/&([a-z][a-z0-9]*);/gi, (m0, n) => NAMED[n.toLowerCase()] ?? m0);
+}
+
 function stripTags(html) {
-  return html
+  return decodeEntities(html
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
+    .replace(/<[^>]+>/g, ' '))
+    // Espaces insécables/fines ramenées à l'espace normal : les motifs peuvent alors
+    // utiliser \s sans se soucier de la variante typographique employée par la source.
+    .replace(/[\u00a0\u2007\u2009\u202f]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
