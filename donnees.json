@@ -328,10 +328,10 @@
       "source": "SpF — Bulletin Océan Indien"
     },
     "mpox|La Réunion": {
-      "cas": "20",
+      "cas": "28",
       "dec": null,
-      "date": "26/06/2026",
-      "source": "SpF — Bulletin Océan Indien (dont 15 importés)"
+      "date": "14/08/2026",
+      "source": "SpF Bulletin OI — 14/08/2026 (dont 23 importés de Madagascar, 5 autochtones)"
     }
   },
   "alerts": [
@@ -559,12 +559,12 @@
       "name": "Mpox (La Réunion)",
       "lvl": 1,
       "source": "Santé publique France — Océan Indien",
-      "date": "26/06/2026",
-      "period": "cumul 2026 · 20 cas dont 15 importés (5 de Madagascar en juin)",
+      "date": "14/08/2026",
+      "period": "cumul 2026 · 28 cas dont 23 importés de Madagascar et 5 autochtones",
       "rows": [
         {
           "zone": "La Réunion",
-          "conf": 20,
+          "conf": 28,
           "dec": null,
           "susp": null
         }
@@ -840,6 +840,13 @@
       "scope": "Bilans nationaux des foyers actifs",
       "last": "20/06/2026",
       "auto": false
+    },
+    {
+      "name": "ARS La Réunion — page mpox",
+      "url": "https://www.lareunion.ars.sante.fr/variole-b-mpox-situation-la-reunion-vigilance-aux-voyageurs",
+      "scope": "La Réunion · cumul mpox (repli à URL stable si le bulletin SpF change de format)",
+      "last": "14/08/2026",
+      "auto": true
     },
     {
       "name": "ProMED",
