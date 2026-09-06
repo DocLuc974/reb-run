@@ -5,13 +5,8 @@
     "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
   },
   "kpi": {
-    "foyersActifs": 3,
-    "foyersLabel": "RDC · Ouganda · Madagascar",
-    "deces": 2199,
-    "pathogenesEnAlerte": 7,
-    "pathogenesTotal": 12,
-    "niveauMaxLabel": "Urgence",
-    "niveauMaxWhat": "Ebola Bundibugyo · RDC"
+    "_note": "Indicateurs d'accueil dérivés en direct des alertes par le tableau de bord (foyers actifs, décès, pathogènes en alerte, niveau max). Le moteur les recalcule aussi à chaque run — ne rien figer ici à la main.",
+    "pathogenesTotal": 12
   },
   "regional": {
     "ebola_bdb": {
@@ -310,22 +305,22 @@
       "source": "OMS"
     },
     "dengue|La Réunion": {
-      "cas": "306",
+      "cas": "334",
       "dec": null,
-      "date": "26/06/2026",
-      "source": "SpF — Bulletin Océan Indien"
+      "date": "14/08/2026",
+      "source": "SpF Bulletin OI — 14/08/2026"
     },
     "chikv|La Réunion": {
-      "cas": "52",
+      "cas": "55",
       "dec": null,
-      "date": "26/06/2026",
-      "source": "SpF — Bulletin Océan Indien"
+      "date": "14/08/2026",
+      "source": "SpF Bulletin OI — 14/08/2026"
     },
     "lepto|La Réunion": {
-      "cas": "207",
+      "cas": "235",
       "dec": null,
-      "date": "26/06/2026",
-      "source": "SpF — Bulletin Océan Indien"
+      "date": "02/08/2026",
+      "source": "SpF Bulletin OI — 07/08/2026 (cumul arrêté au 02/08)"
     },
     "mpox|La Réunion": {
       "cas": "28",
@@ -359,7 +354,7 @@
       "name": "Mpox (clade Ib)",
       "group": "Orthopoxvirose",
       "lvl": 3,
-      "period": "cumul depuis le début de l’épidémie · arrêté au 26/06/2026",
+      "period": "cumul depuis le début de l’épidémie · arrêté au 14/08/2026",
       "zones": [
         {
           "zone": "Madagascar",
@@ -392,7 +387,7 @@
         {
           "zone": "La Réunion",
           "l": 2,
-          "cas": 306
+          "cas": 334
         },
         {
           "zone": "Mayotte",
@@ -415,7 +410,7 @@
         {
           "zone": "La Réunion",
           "l": 2,
-          "cas": 207
+          "cas": 235
         }
       ]
     },
@@ -441,7 +436,7 @@
         {
           "zone": "La Réunion",
           "l": 1,
-          "cas": 52
+          "cas": 55
         },
         {
           "zone": "Mayotte",
@@ -514,12 +509,12 @@
       "name": "Dengue (La Réunion)",
       "lvl": 2,
       "source": "Santé publique France — Océan Indien",
-      "date": "26/06/2026",
-      "period": "cas autochtones cumulés depuis le 01/01/2026 · hebdo stable",
+      "date": "14/08/2026",
+      "period": "cas autochtones cumulés depuis le 01/01/2026 · circulation hivernale faible",
       "rows": [
         {
           "zone": "La Réunion",
-          "conf": 306,
+          "conf": 334,
           "dec": null,
           "susp": null
         }
@@ -529,12 +524,12 @@
       "name": "Leptospirose (La Réunion)",
       "lvl": 2,
       "source": "Santé publique France — Océan Indien",
-      "date": "26/06/2026",
-      "period": "cas autochtones cumulés · pic en mars, en baisse",
+      "date": "02/08/2026",
+      "period": "cas autochtones cumulés arrêtés au 02/08/2026 · pic en mars, transmission redevenue endémo-sporadique",
       "rows": [
         {
           "zone": "La Réunion",
-          "conf": 207,
+          "conf": 235,
           "dec": null,
           "susp": null
         }
@@ -544,12 +539,12 @@
       "name": "Chikungunya (La Réunion)",
       "lvl": 1,
       "source": "Santé publique France — Océan Indien",
-      "date": "26/06/2026",
+      "date": "14/08/2026",
       "period": "cas autochtones cumulés depuis le 01/01/2026",
       "rows": [
         {
           "zone": "La Réunion",
-          "conf": 52,
+          "conf": 55,
           "dec": null,
           "susp": null
         }
@@ -578,10 +573,10 @@
       "lvl": 4,
       "regions": "Afrique centrale (RDC, Ouganda) + cas importé en France",
       "countries": 3,
-      "cas": "1 353",
-      "dec": "401",
+      "cas": "6 342",
+      "dec": "3 072",
       "trend": "up",
-      "source": "COREB / OMS · 30/06/2026",
+      "source": "ECDC · 02/09/2026",
       "note": "Épidémie unique en cours, centrée sur la RDC. Pas de circulation hors Afrique de l’Est."
     },
     {
@@ -760,7 +755,7 @@
     {
       "name": "CDC — Situation Summary",
       "url": "https://www.cdc.gov/ebola/situation-summary/index.html",
-      "scope": "Ebola Bundibugyo · page unique toujours à jour",
+      "scope": "Ebola Bundibugyo · téléchargement CSV — bloqué par intermittence (HTTP 403), relais assuré par l'ECDC",
       "last": "27/06/2026",
       "auto": true
     },
@@ -775,15 +770,16 @@
       "name": "ECDC — page de suivi Ebola RDC/Ouganda",
       "url": "https://www.ecdc.europa.eu/en/ebola-outbreak-democratic-republic-congo-and-uganda",
       "scope": "Europe & international · MAJ ~2×/semaine",
-      "last": "14/08/2026",
+      "last": "02/09/2026",
       "auto": true
     },
     {
       "name": "Africa CDC",
       "url": "https://africacdc.org",
-      "scope": "Afrique · épidémies continentales",
-      "last": "18/08/2026",
-      "auto": true
+      "scope": "Afrique · épidémies continentales — désactivée : la page de référence à URL fixe est figée au rapport du 18/05, les sitreps récents changent d'adresse à chaque parution",
+      "last": "18/05/2026",
+      "auto": false,
+      "disabled": true
     },
     {
       "name": "ESCMID Epi Alert",
@@ -795,14 +791,14 @@
     {
       "name": "Odissé — Santé publique France (API JSON)",
       "url": "https://odisse.santepubliquefrance.fr/pages/accueil/",
-      "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification",
+      "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification — relevé complété par le bulletin SpF quand celui-ci est plus récent",
       "last": "18/08/2026",
       "auto": true
     },
     {
       "name": "ReliefWeb (API JSON)",
       "url": "https://reliefweb.int",
-      "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname à faire approuver",
+      "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname approuvé, source active",
       "last": "18/08/2026",
       "auto": true
     },
@@ -831,7 +827,7 @@
       "name": "Santé publique France — Bulletin Océan Indien (La Réunion)",
       "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional",
       "scope": "La Réunion · bulletin de surveillance hebdomadaire (dengue, chik, leptospirose, mpox, grippe, bronchiolite)",
-      "last": "16/08/2026",
+      "last": "14/08/2026",
       "auto": true
     },
     {
@@ -857,6 +853,13 @@
     }
   ],
   "updates": [
+    {
+      "date": "06/09 · 21:20",
+      "auto": false,
+      "status": "updated",
+      "what": "Correction manuelle : chiffres Réunion réalignés sur le bulletin SpF (dengue 334, chikungunya 55 au 14/08 ; leptospirose 235 au 02/08), tableau mondial Ebola porté à 6 342 cas / 3 072 décès (ECDC, 02/09), indicateurs d'accueil désormais recalculés en direct.",
+      "src": "Équipe REB RUN (SMIT)"
+    },
     {
       "date": "18/08 · 02:48",
       "auto": true,
