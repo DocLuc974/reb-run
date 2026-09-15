@@ -817,7 +817,7 @@
       "name": "OMS — Disease Outbreak News",
       "url": "https://www.who.int/emergencies/disease-outbreak-news",
       "scope": "Bulletins DON · toutes pathologies REB",
-      "last": "14/09/2026",
+      "last": "15/09/2026",
       "auto": true
     },
     {
@@ -831,7 +831,7 @@
       "name": "Africa CDC",
       "url": "https://africacdc.org",
       "scope": "Afrique · épidémies continentales — désactivée : la page de référence à URL fixe est figée au rapport du 18/05, les sitreps récents changent d'adresse à chaque parution",
-      "last": "14/09/2026",
+      "last": "15/09/2026",
       "auto": true,
       "disabled": true
     },
@@ -846,14 +846,14 @@
       "name": "Odissé — Santé publique France (API JSON)",
       "url": "https://odisse.santepubliquefrance.fr/pages/accueil/",
       "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification — relevé complété par le bulletin SpF quand celui-ci est plus récent",
-      "last": "14/09/2026",
+      "last": "15/09/2026",
       "auto": true
     },
     {
       "name": "ReliefWeb (API JSON)",
       "url": "https://reliefweb.int",
       "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname approuvé, source active",
-      "last": "14/09/2026",
+      "last": "15/09/2026",
       "auto": true
     },
     {
@@ -881,7 +881,7 @@
       "name": "Santé publique France — Bulletin Océan Indien (La Réunion)",
       "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional",
       "scope": "La Réunion · bulletin de surveillance hebdomadaire (dengue, chik, leptospirose, mpox, grippe, bronchiolite)",
-      "last": "14/09/2026",
+      "last": "15/09/2026",
       "auto": true
     },
     {
@@ -907,6 +907,62 @@
     }
   ],
   "updates": [
+    {
+      "date": "15/09 · 06:58",
+      "auto": true,
+      "status": "updated",
+      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
+      "src": "ReliefWeb"
+    },
+    {
+      "date": "15/09 · 06:58",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "15/09 · 06:58",
+      "auto": true,
+      "status": "checked",
+      "what": "Bulletin SpF Océan Indien (11/09/2026) vérifié — aucun chiffre nouveau cette semaine (rubriques qualitatives ou valeurs inchangées).",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "15/09 · 06:58",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "15/09 · 06:58",
+      "auto": true,
+      "status": "checked",
+      "what": "Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "15/09 · 06:58",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec d'extraction sur ECDC (Ebola Bundibugyo) — motif non trouvé.",
+      "src": "ECDC"
+    },
+    {
+      "date": "15/09 · 06:58",
+      "auto": true,
+      "status": "checked",
+      "what": "Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.",
+      "src": "OMS"
+    },
+    {
+      "date": "15/09 · 06:58",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion au CSV CDC (HTTP 403).",
+      "src": "CDC"
+    },
     {
       "date": "14/09 · 07:22",
       "auto": true,
@@ -1060,72 +1116,16 @@
       "status": "updated",
       "what": "Ebola Bundibugyo / RDC mis à jour via ECDC : 6942 cas, 3349 décès (9 September 2026).",
       "src": "ECDC"
-    },
-    {
-      "date": "12/09 · 06:42",
-      "auto": true,
-      "status": "checked",
-      "what": "Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.",
-      "src": "OMS"
-    },
-    {
-      "date": "12/09 · 06:42",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec de connexion au CSV CDC (HTTP 403).",
-      "src": "CDC"
-    },
-    {
-      "date": "11/09 · 06:50",
-      "auto": true,
-      "status": "updated",
-      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
-      "src": "ReliefWeb"
-    },
-    {
-      "date": "11/09 · 06:50",
-      "auto": true,
-      "status": "checked",
-      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
-      "src": "Odissé (SpF)"
-    },
-    {
-      "date": "11/09 · 06:50",
-      "auto": true,
-      "status": "checked",
-      "what": "Bulletin SpF Océan Indien (04/09/2026) vérifié — aucun chiffre nouveau cette semaine (rubriques qualitatives ou valeurs inchangées).",
-      "src": "SpF Océan Indien (bulletin)"
-    },
-    {
-      "date": "11/09 · 06:50",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec d'extraction sur ESCMID Epi Alert (Ebola Bundibugyo) — motif non trouvé.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "11/09 · 06:50",
-      "auto": true,
-      "status": "checked",
-      "what": "Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "11/09 · 06:50",
-      "auto": true,
-      "status": "updated",
-      "what": "Ebola Bundibugyo / RDC mis à jour via ECDC : 6843 cas, 3310 décès (8 September 2026).",
-      "src": "ECDC"
     }
   ],
   "reunionBulletin": {
     "date": "11/09/2026",
     "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-11-septembre-2026",
-    "fetchedAt": "14/09 · 07:22",
+    "fetchedAt": "15/09 · 06:58",
     "extractOk": true
   },
   "reliefweb": {
-    "fetchedAt": "14/09 · 07:22",
+    "fetchedAt": "15/09 · 06:58",
     "alerts": [
       {
         "id": "52586",
@@ -1330,11 +1330,11 @@
     ]
   },
   "_failStreak": {
-    "CDC": 12,
+    "CDC": 13,
     "OMS": 0,
-    "ECDC": 0,
+    "ECDC": 1,
     "Africa CDC": 0,
-    "ESCMID": 8,
+    "ESCMID": 9,
     "SpF Océan Indien (bulletin)": 0,
     "Odissé (SpF)": 0,
     "ReliefWeb": 0,
