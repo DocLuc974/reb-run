@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: 22
 
+      # Lecteur PDF (veille COREB, bulletin SpF). Non bloquant : si l'installation échoue,
+      # le moteur retombe sur son lecteur interne.
+      - name: Installer le lecteur PDF
+        run: npm install --no-save --no-audit --no-fund pdfjs-dist@4 || echo "pdfjs indisponible — repli sur le lecteur interne"
+
       - name: Lancer le moteur d'actualisation
         run: node moteur/update-engine.mjs
 
