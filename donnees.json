@@ -142,7 +142,8 @@
       "Senegal": 1,
       "Sudan": 1,
       "Uganda": 1,
-      "Kazakhstan": 1
+      "Kazakhstan": 1,
+      "Spain": 1
     },
     "rvf": {
       "Kenya": 2,
@@ -242,15 +243,20 @@
         "date": "02/09",
         "cas": 6342,
         "dec": 3072
+      },
+      {
+        "date": "13/09",
+        "cas": 7279,
+        "dec": 3513
       }
     ]
   },
   "cases": {
     "ebola_bdb|Dem. Rep. Congo": {
-      "cas": "6342",
-      "dec": "3072",
-      "date": "02/09/2026",
-      "source": "ECDC (auto) — 2 September 2026"
+      "cas": "7258",
+      "dec": "3510",
+      "date": "13/09/2026",
+      "source": "COREB — Veille du 16 septembre 2026 (RDC, cas confirmés et probables, d'après OMS DON617)"
     },
     "ebola_bdb|Uganda": {
       "cas": "20",
@@ -287,10 +293,10 @@
       "source": "MoH Comores / OMS"
     },
     "lassa|Nigeria": {
-      "cas": "≈ 9 000",
-      "dec": "≈ 170",
-      "date": "saison 2026",
-      "source": "NCDC Nigéria"
+      "cas": "1056",
+      "dec": "253",
+      "date": "23/08/2026",
+      "source": "COREB — Veille du 16 septembre 2026 (Nigéria, cas confirmés, d'après NCDC)"
     },
     "dengue|Brazil": {
       "cas": "≈ 6 M",
@@ -327,6 +333,18 @@
       "dec": null,
       "date": "14/08/2026",
       "source": "SpF Bulletin OI — 14/08/2026 (dont 23 importés de Madagascar, 5 autochtones)"
+    },
+    "cchf|Spain": {
+      "cas": "4",
+      "dec": null,
+      "date": "09/09/2026",
+      "source": "COREB — Veille du 16 septembre 2026 (Espagne, cas autochtones, d'après ECDC)"
+    },
+    "cchf|Iran": {
+      "cas": "7",
+      "dec": "1",
+      "date": "09/09/2026",
+      "source": "COREB — Veille du 16 septembre 2026 (Iran, province de Yazd)"
     }
   },
   "alerts": [
@@ -334,13 +352,13 @@
       "name": "Ebola Bundibugyo",
       "group": "Fièvre hémorragique virale",
       "lvl": 4,
-      "period": "cumul depuis le début de l’épidémie (déclarée 17/05) · arrêté au 02/09/2026",
+      "period": "cumul depuis le début de l’épidémie (déclarée 17/05) · arrêté au 13/09/2026",
       "zones": [
         {
           "zone": "RDC",
           "l": 4,
-          "cas": 6342,
-          "dec": 3072
+          "cas": 7258,
+          "dec": 3510
         },
         {
           "zone": "Ouganda",
@@ -451,13 +469,13 @@
       "name": "Ebola Bundibugyo",
       "lvl": 4,
       "source": "COREB / OMS",
-      "date": "30/06/2026",
+      "date": "13/09/2026",
       "period": "cumul depuis le 17/05/2026",
       "rows": [
         {
           "zone": "RDC",
-          "conf": 6342,
-          "dec": 3072,
+          "conf": 7258,
+          "dec": 3510,
           "susp": null
         },
         {
@@ -753,6 +771,14 @@
   ],
   "sources": [
     {
+      "name": "COREB — Veille épidémiologique REB",
+      "url": "https://www.coreb.infectiologie.com/fr/veille-epidemiologique-reb.html",
+      "scope": "Source prioritaire · sélection bimensuelle d’alertes REB par la mission COREB nationale (FHCC, Lassa, FHV…)",
+      "last": "16/09/2026",
+      "auto": true,
+      "priority": true
+    },
+    {
       "name": "CDC — Situation Summary",
       "url": "https://www.cdc.gov/ebola/situation-summary/index.html",
       "scope": "Ebola Bundibugyo · téléchargement CSV — bloqué par intermittence (HTTP 403), relais assuré par l'ECDC",
@@ -853,6 +879,13 @@
     }
   ],
   "updates": [
+    {
+      "date": "27/09 · 23:50",
+      "auto": false,
+      "status": "updated",
+      "src": "COREB (veille REB)",
+      "what": "Veille COREB du 16/09 intégrée : Ebola RDC 7 258 cas / 3 510 décès au 13/09 ; FHCC Espagne 4 cas autochtones, Iran 7 cas / 1 décès (09/09) ; Lassa Nigéria 1 056 cas / 253 décès (23/08). Autriche : cas importé de Turquie, non reporté sur la carte."
+    },
     {
       "date": "06/09 · 21:20",
       "auto": false,
@@ -1291,5 +1324,139 @@
     "SpF Océan Indien (bulletin)": 3,
     "Odissé (SpF)": 0,
     "ReliefWeb": 0
+  },
+  "corebVeille": {
+    "date": "16/09/2026",
+    "label": "Veille du 16 septembre 2026",
+    "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20260915.pdf",
+    "page": "https://www.coreb.infectiologie.com/fr/veille-epidemiologique-reb.html",
+    "recent": [
+      {
+        "label": "Veille du 16 septembre 2026",
+        "date": "16/09/2026",
+        "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20260915.pdf"
+      },
+      {
+        "label": "Veille du 02 septembre 2026",
+        "date": "02/09/2026",
+        "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20260902.pdf"
+      },
+      {
+        "label": "Veille du 11 août 2026",
+        "date": "11/08/2026",
+        "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-epidemiologique-reb-de-la-coreb-20260811-vf.pdf"
+      }
+    ],
+    "mentions": [
+      "ebola_bdb",
+      "cchf",
+      "lassa"
+    ],
+    "pdfOk": true,
+    "fetchedAt": "27/09 · manuel",
+    "signals": [
+      {
+        "title": "Ebola – RDC / Ouganda",
+        "pid": "ebola_bdb",
+        "countries": [
+          {
+            "fr": "RDC",
+            "en": "Dem. Rep. Congo",
+            "cas": 7258,
+            "dec": 3510,
+            "imported": false,
+            "date": "13/09/2026"
+          },
+          {
+            "fr": "Ouganda",
+            "en": "Uganda",
+            "cas": null,
+            "dec": null,
+            "imported": false,
+            "date": null
+          }
+        ]
+      },
+      {
+        "title": "FHCC – Espagne / Autriche / Iran / Mauritanie",
+        "pid": "cchf",
+        "countries": [
+          {
+            "fr": "Espagne",
+            "en": "Spain",
+            "cas": 4,
+            "dec": null,
+            "imported": false,
+            "date": "09/09/2026"
+          },
+          {
+            "fr": "Autriche",
+            "en": "Austria",
+            "cas": null,
+            "dec": null,
+            "imported": true,
+            "date": null
+          },
+          {
+            "fr": "Iran",
+            "en": "Iran",
+            "cas": 7,
+            "dec": 1,
+            "imported": false,
+            "date": "09/09/2026"
+          },
+          {
+            "fr": "Mauritanie",
+            "en": "Mauritania",
+            "cas": null,
+            "dec": null,
+            "imported": false,
+            "date": null
+          }
+        ]
+      },
+      {
+        "title": "Fièvre de Lassa - Nigéria",
+        "pid": "lassa",
+        "countries": [
+          {
+            "fr": "Nigéria",
+            "en": "Nigeria",
+            "cas": 1056,
+            "dec": 253,
+            "imported": false,
+            "date": "23/08/2026"
+          }
+        ]
+      },
+      {
+        "title": "Hantavirus – Argentine",
+        "pid": null,
+        "countries": [
+          {
+            "fr": "Argentine",
+            "en": "Argentina",
+            "cas": null,
+            "dec": null,
+            "imported": false,
+            "date": null
+          }
+        ]
+      },
+      {
+        "title": "Diphtérie – Sénégal",
+        "pid": null,
+        "countries": [
+          {
+            "fr": "Sénégal",
+            "en": "Senegal",
+            "cas": 57,
+            "dec": 8,
+            "imported": false,
+            "date": "08/09/2026"
+          }
+        ]
+      }
+    ]
   }
 }
