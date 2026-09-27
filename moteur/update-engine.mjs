@@ -281,7 +281,10 @@ async function checkECDC(data) {
 // parution (pas d'URL fixe exploitable automatiquement) — check désactivé plutôt que laissé
 // à échouer pour de mauvaises raisons. Vérification manuelle occasionnelle recommandée.
 async function checkAfricaCDC(data) {
-  return { source: 'Africa CDC', auto: true, status: 'checked', what: `Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.` };
+  // Statut 'disabled' (et non 'checked') : sinon le moteur rafraîchissait sa date de
+  // dernière vérification et l'onglet Sources l'affichait « à jour · rien de neuf »,
+  // alors qu'elle n'est plus interrogée du tout.
+  return { source: 'Africa CDC', auto: true, status: 'disabled', what: `Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.` };
 }
 
 async function _unused_checkAfricaCDC(data) {
@@ -698,12 +701,43 @@ function deriveDashboard(data, checkLogs = []) {
     niveauMaxWhat: maxWhat || '—',
   };
 
+  // Tableau "Mode Mondial" / Fiche pays (data.globalTable) : jusqu'ici jamais resynchronisé,
+  // il gardait des cumuls vieux de plusieurs mois (Ebola resté à 1 353 cas / 401 décès alors
+  // que les relevés étaient à 6 342 / 3 072). On recalcule chaque ligne à partir des relevés
+  // data.cases correspondants (clés "<id>|<pays>").
+  // Garde-fou : on ne recalcule que si TOUS les relevés de ce pathogène sont des nombres
+  // exploitables. Certaines lignes portent volontairement des ordres de grandeur ("≈ 22 000",
+  // "> 9 millions") : additionner ce qui est chiffré en ignorant le reste donnerait un total
+  // massivement sous-estimé — mieux vaut alors laisser la valeur éditoriale en place.
+  const numOf = (v) => {
+    if (v == null) return null;
+    const s = String(v).replace(/[\u00a0\s]/g, '');
+    return /^\d+$/.test(s) ? +s : null;
+  };
+  for (const row of (data.globalTable || [])) {
+    const entries = Object.entries(data.cases || {})
+      .filter(([k, v]) => k.startsWith(row.id + '|') && v && v.cas != null);
+    if (!entries.length) continue;
+    if (entries.some(([, v]) => numOf(v.cas) == null)) continue;
+    const cas = entries.reduce((s, [, v]) => s + numOf(v.cas), 0);
+    const dec = entries.reduce((s, [, v]) => s + (numOf(v.dec) || 0), 0);
+    const latest = entries
+      .map(([, v]) => v.date).filter(d => parseFrDate(d))
+      .sort((a, b) => parseFrDate(b) - parseFrDate(a))[0];
+    row.cas = cas.toLocaleString('fr-FR');
+    if (dec > 0) row.dec = dec.toLocaleString('fr-FR');
+    if (latest) {
+      const srcName = (entries.map(([, v]) => v.source).find(Boolean) || '').split(/\s*[—(]/)[0].trim();
+      row.source = `${srcName || 'relevés automatiques'} · ${latest}`;
+    }
+  }
+
   // Resynchronise la fraîcheur affichée des sources automatiques (data.sources[].last)
   // avec la date du jour, pour chaque check qui a réellement abouti (pas en échec).
   const today = new Date();
   const todayFR = `${String(today.getDate()).padStart(2,'0')}/${String(today.getMonth()+1).padStart(2,'0')}/${today.getFullYear()}`;
   for (const log of checkLogs) {
-    if (!log || log.status === 'failed') continue;
+    if (!log || log.status === 'failed' || log.status === 'disabled') continue;
     const srcName = SOURCE_NAME_MAP[log.source];
     const entry = (data.sources || []).find(s => s.name === srcName);
     if (entry) { entry.last = todayFR; entry.auto = true; }
