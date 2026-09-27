@@ -118,18 +118,21 @@ function pushSeriesPoint(data, pathogenId, dateLabel, totalCas, totalDec) {
   if (series.length > 30) data.epiSeries[pathogenId] = series.slice(series.length - 30);
 }
 
-function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sourceLabel) {
+function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sourceLabel, opts = {}) {
   const current = data.cases[key] || {};
   const currentDate = parseFrDate(current.date);
   const isNewer = !currentDate || (candidateDate && candidateDate > currentDate);
   if (isNewer) {
+    // Une valeur précédente approximative (« ≈ 9 000 », « > 9 millions ») est une estimation
+    // éditoriale (souvent cas suspects), pas un compteur : le garde-fou de ratio ne s'y applique pas.
+    const prevApprox = /[≈~<>]|env|cent|mill/i.test(String(current.cas || ''));
     // Garde-fou anti-valeur aberrante : un cumul de cas ne peut normalement pas RETOMBER
     // (compteur cumulatif) ni être divisé/multiplié par un facteur énorme — signe probable
     // d'un motif mal calé (ex. il a attrapé un sous-total au lieu du total). On rejette et
     // on remonte l'anomalie plutôt que de publier une valeur suspecte.
     const prevCas = +String(current.cas || '').replace(/[^\d]/g, '') || 0;
     const newCas = +String(candidateCas || '').replace(/[^\d]/g, '') || 0;
-    if (prevCas > 0 && newCas > 0) {
+    if (prevCas > 0 && newCas > 0 && !prevApprox) {
       const ratio = newCas / prevCas;
       if (ratio < 0.5 || ratio > 20) {
         data._anomalies = data._anomalies || [];
@@ -148,7 +151,10 @@ function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sour
     // Alimente automatiquement la série temporelle (courbe) du pathogène concerné,
     // en additionnant les autres zones connues (ex. Ouganda, statique pour l'instant).
     const [pathogenId, zone] = key.split('|');
-    if (pathogenId === 'ebola_bdb') {
+    // opts.noSeries : relevé ponctuel d'un pays parmi d'autres (ex. FHCC Iran via la COREB) —
+    // l'injecter dans la courbe du pathogène mélangerait des pays différents d'un point à l'autre.
+    if (opts.noSeries) { /* pas de point de courbe */ }
+    else if (pathogenId === 'ebola_bdb') {
       const ugandaCas = +(data.cases['ebola_bdb|Uganda']?.cas) || 19;
       const ugandaDec = +(data.cases['ebola_bdb|Uganda']?.dec) || 2;
       const casNum = +String(candidateCas).replace(/[^\d]/g, '') || 0;
@@ -396,10 +402,32 @@ function pdfToText(buf) {
     .trim();
 }
 
-async function fetchPdfText(url) {
+// Lecture PDF : pdf.js (installé par le workflow) quand il est disponible — il gère les
+// polices encodées (Word/Identity-H) que le lecteur maison ne sait pas décoder —, sinon
+// repli sur pdfToText. `keepLines` conserve les retours à la ligne (découpage en sections).
+async function pdfjsText(buf) {
+  let pdfjs;
+  try { pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs'); } catch { return null; }
+  const doc = await pdfjs.getDocument({ data: new Uint8Array(buf), isEvalSupported: false, disableFontFace: true, useSystemFonts: false, verbosity: 0 }).promise;
+  const pages = [];
+  for (let p = 1; p <= doc.numPages; p++) {
+    const tc = await (await doc.getPage(p)).getTextContent();
+    pages.push(tc.items.map(i => (i.str || '') + (i.hasEOL ? '\n' : '')).join(''));
+  }
+  return pages.join('\n');
+}
+
+async function fetchPdfText(url, { keepLines = false } = {}) {
   const r = await fetchWithTimeout(url, TIMEOUT_MS);
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return pdfToText(Buffer.from(await r.arrayBuffer()));
+  const buf = Buffer.from(await r.arrayBuffer());
+  let raw = null;
+  try { raw = await pdfjsText(buf); } catch { raw = null; }
+  if (raw && raw.replace(/\s/g, '').length > 200) {
+    raw = raw.replace(/[\u00a0\u2007\u2009\u202f]/g, ' ');
+    return keepLines ? raw.replace(/[ \t]+/g, ' ') : raw.replace(/\s+/g, ' ').trim();
+  }
+  return pdfToText(buf);
 }
 
 // ── Source 6 : Bulletin hebdomadaire SpF Océan Indien (La Réunion) ──────────────
@@ -532,6 +560,212 @@ async function checkBulletinReunion(data) {
 // Prudence assumée : sans date de mise à jour lisible sur la page, on ne publie PAS
 // (une valeur mal datée casse la règle "le bilan le plus récent gagne") — on se contente
 // de tracer le chiffre lu dans le journal, pour vérification humaine.
+// ── Source 8 : COREB — Veille épidémiologique REB (bimensuelle, PDF) ─────────────
+// Source prioritaire : sélection d'alertes REB faite par la mission COREB nationale
+// toutes les 2 semaines. Elle couvre notamment les FHV peu suivies ailleurs (FHCC, Lassa).
+// La page liste les PDF du plus récent au plus ancien, sous la forme
+// « Veille du 16 septembre 2026 ». On en retient les 3 derniers (liens affichés dans
+// l'onglet Sources), puis on lit le texte du plus récent pour repérer les pathogènes
+// qu'il traite — on ne recopie aucun contenu, on signale seulement « abordé dans la veille ».
+// Extraction des « alertes à la une » d'une veille COREB.
+// Structure constante des PDF : un sommaire « Pathogène – Pays / Pays ....... page », puis une
+// section par alerte reprenant ce titre ; quand plusieurs pays, chacun a son sous-titre sur
+// une ligne seule. Dans chaque bloc on cherche « N cas … dont/et M décès » et la première date
+// (« au 23 août », « Le 9 septembre 2026 »). Tout ce qui n'est pas chiffré reste un simple signal.
+const COREB_MOIS = { janvier:1, 'février':2, fevrier:2, mars:3, avril:4, mai:5, juin:6, juillet:7, 'août':8, aout:8, septembre:9, octobre:10, novembre:11, 'décembre':12, decembre:12 };
+const COREB_PATHO = [
+  ['ebola_bdb', /Ebola|Bundibugyo/i], ['marburg', /Marburg/i], ['lassa', /Lassa/i],
+  ['cchf', /FHCC|Crim[ée]e[\s-]*Congo|CCHF/i], ['rvf', /Vall[ée]e du Rift|FVR/i],
+  ['mpox', /Mpox/i], ['cholera', /Chol[ée]ra/i], ['dengue', /Dengue/i], ['chikv', /Chikungunya/i],
+  ['plague', /\bPeste\b/i], ['mers', /MERS/i],
+];
+// Noms français → noms utilisés par les cartes et les relevés (clés « id|Pays »).
+const FR_EN = {
+  'rdc':'Dem. Rep. Congo', 'république démocratique du congo':'Dem. Rep. Congo', 'congo':'Congo', 'ouganda':'Uganda',
+  'nigéria':'Nigeria', 'nigeria':'Nigeria', 'libéria':'Liberia', 'liberia':'Liberia', 'sierra leone':'Sierra Leone',
+  'guinée':'Guinea', 'bénin':'Benin', 'ghana':'Ghana', 'togo':'Togo', 'mali':'Mali', 'sénégal':'Senegal',
+  'mauritanie':'Mauritania', 'iran':'Iran', 'irak':'Iraq', 'turquie':'Turkey', 'afghanistan':'Afghanistan',
+  'pakistan':'Pakistan', 'inde':'India', 'russie':'Russia', 'kazakhstan':'Kazakhstan', 'espagne':'Spain',
+  'autriche':'Austria', 'grèce':'Greece', 'portugal':'Portugal', 'italie':'Italy', 'france':'France',
+  'allemagne':'Germany', 'royaume-uni':'United Kingdom', 'afrique du sud':'South Africa', 'namibie':'Namibia',
+  'soudan':'Sudan', 'soudan du sud':'S. Sudan', 'kenya':'Kenya', 'tanzanie':'Tanzania', 'mozambique':'Mozambique',
+  'madagascar':'Madagascar', 'comores':'Comoros', 'mayotte':'Mayotte', 'rwanda':'Rwanda', 'burundi':'Burundi',
+  'éthiopie':'Ethiopia', 'somalie':'Somalia', 'irak ':'Iraq', 'arabie saoudite':'Saudi Arabia', 'oman':'Oman',
+  'émirats arabes unis':'United Arab Emirates', 'brésil':'Brazil', 'argentine':'Argentina', 'pérou':'Peru',
+  'bolivie':'Bolivia', 'chine':'China', 'bangladesh':'Bangladesh', 'cambodge':'Cambodia', 'vietnam':'Vietnam',
+  'gabon':'Gabon', 'cameroun':'Cameroon', 'angola':'Angola', 'zambie':'Zambia', 'malawi':'Malawi',
+  'zimbabwe':'Zimbabwe', 'haïti':'Haiti', 'yémen':'Yemen', 'syrie':'Syria', 'géorgie':'Georgia',
+};
+function corebNum(s) {
+  if (s == null) return null;
+  const t = String(s).trim().toLowerCase();
+  if (t === 'un' || t === 'une') return 1;
+  const n = +t.replace(/[\s.]/g, '');
+  return Number.isFinite(n) ? n : null;
+}
+function parseCorebSignals(raw, veilleDate) {
+  const lines = raw.split(/\n/).map(l => l.trim()).filter(Boolean);
+  // 1. Sommaire : lignes « Titre ........ 2 »
+  const titles = [];
+  for (const l of lines) {
+    const m = l.match(/^(.+?)\s*\.{4,}\s*\d+$/);
+    if (m && /[–-]/.test(m[1])) titles.push(m[1].trim());
+  }
+  if (!titles.length) return [];
+  const norm = (s) => s.replace(/\s+/g, ' ').replace(/[–—]/g, '-').toLowerCase().trim();
+  // 2. Repère chaque titre dans le corps (après le sommaire) → découpe en sections
+  const tocEnd = lines.findIndex(l => /\.{4,}\s*\d+$/.test(l) && norm(l).startsWith(norm(titles[titles.length - 1])));
+  const bodyStart = tocEnd >= 0 ? tocEnd + 1 : 0;
+  const starts = titles.map(t => {
+    const i = lines.findIndex((l, k) => k >= bodyStart && norm(l) === norm(t));
+    return i;
+  });
+  const endAll = lines.findIndex((l, k) => k >= bodyStart && /^Plus d.actualit/i.test(l));
+  const out = [];
+  titles.forEach((title, ti) => {
+    const s = starts[ti];
+    if (s < 0) return;
+    const nextStarts = starts.filter(x => x > s);
+    const e = nextStarts.length ? Math.min(...nextStarts) : (endAll > s ? endAll : lines.length);
+    const sec = lines.slice(s + 1, e);
+    const [pathoPart, countryPart = ''] = title.split(/\s+[–-]\s+/);
+    const pid = (COREB_PATHO.find(([, re]) => re.test(pathoPart)) || [null])[0];
+    const countriesFr = countryPart.split(/\s*\/\s*/).map(c => c.trim()).filter(Boolean);
+    // Sous-sections par pays : ligne égale au nom du pays
+    const subIdx = countriesFr.map(c => sec.findIndex(l => norm(l) === norm(c)));
+    const hasSubs = countriesFr.length > 1 && subIdx.filter(i => i >= 0).length >= 2;
+    const countries = countriesFr.map((fr, ci) => {
+      let block;
+      if (hasSubs) {
+        const a = subIdx[ci];
+        if (a < 0) return { fr, en: FR_EN[fr.toLowerCase()] || null, cas: null, dec: null, imported: false, date: null };
+        const later = subIdx.filter(x => x > a);
+        block = sec.slice(a + 1, later.length ? Math.min(...later) : sec.length);
+      } else {
+        // Plusieurs pays sans sous-titre (ex. « Ebola – RDC / Ouganda ») : les chiffres de la
+        // section se rapportent au premier pays cité ; les suivants restent des signaux.
+        block = ci === 0 ? sec : [];
+      }
+      const txt = block.filter(l => !/^(Sources?|Ressources?)\s*:/i.test(l) && !/^https?:/i.test(l)).join(' ').replace(/\s+/g, ' ');
+      const NUM = '(\\d{1,3}(?:[ .]\\d{3})+|\\d+|un|une)';
+      const withDec = txt.match(new RegExp(`${NUM}\\s+cas\\b[^.;]{0,90}?\\b(?:dont|et)\\s+${NUM}\\s+d[ée]c[èe]s`, 'i'));
+      const casOnly = txt.match(new RegExp(`${NUM}\\s+cas\\s+(?:confirm[ée]s|autochtones|probables|humains)`, 'i'))
+        || txt.match(new RegExp(`:\\s*${NUM}\\s+cas\\b`, 'i'));
+      const cas = withDec ? corebNum(withDec[1]) : (casOnly ? corebNum(casOnly[1]) : null);
+      const dec = withDec ? corebNum(withDec[2]) : null;
+      const dateRe = /\b(?:au|le|depuis le)\s+(1er|\d{1,2})\s+(janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[ûu]t|septembre|octobre|novembre|d[ée]cembre)(?:\s+(\d{4}))?/gi;
+      // Date retenue : la dernière citée AVANT le chiffre (« Au 13 septembre 2026, un total de
+      // 7258 cas »), pas la première du bloc — qui peut être un autre événement (« fin de
+      // l'épidémie déclarée le 27 août »).
+      const numIdx = withDec ? withDec.index : (casOnly ? casOnly.index : Infinity);
+      const allDates = [...txt.matchAll(dateRe)].filter(d => !/^depuis/i.test(d[0]));
+      const before = allDates.filter(d => d.index < numIdx);
+      const dm = before.length ? before[before.length - 1] : allDates[0];
+      let date = veilleDate;
+      if (dm) {
+        const day = dm[1] === '1er' ? 1 : +dm[1];
+        const mo = COREB_MOIS[dm[2].toLowerCase()];
+        const yr = dm[3] ? +dm[3] : veilleDate.getFullYear();
+        const cand = new Date(yr, mo - 1, day);
+        if (!dm[3] && cand > veilleDate) cand.setFullYear(yr - 1);
+        date = cand;
+      }
+      const imported = /import[ée]|apr[èe]s un s[ée]jour|de retour d|en provenance d/i.test(txt);
+      return { fr, en: FR_EN[fr.toLowerCase()] || null, cas, dec, imported, date };
+    });
+    out.push({ title, pid, countries });
+  });
+  return out;
+}
+
+async function checkCorebVeille(data) {
+  const url = 'https://www.coreb.infectiologie.com/fr/veille-epidemiologique-reb.html';
+  const MOIS = { janvier:1, 'février':2, fevrier:2, mars:3, avril:4, mai:5, juin:6, juillet:7, 'août':8, aout:8, septembre:9, octobre:10, novembre:11, 'décembre':12, decembre:12 };
+  const PATHO_KW = [
+    ['cchf', /Crim[ée]e[\s-]*Congo|\bFHCC\b|\bCCHF/i],
+    ['lassa', /\bLassa\b/i],
+    ['ebola_bdb', /\bEbola\b|Bundibugyo/i],
+    ['marburg', /\bMarburg\b/i],
+    ['rvf', /Vall[ée]e du Rift|\bFVR\b|Rift Valley/i],
+    ['mpox', /\bMpox\b|monkeypox/i],
+    ['cholera', /Chol[ée]ra/i],
+    ['dengue', /\bDengue\b/i],
+    ['chikv', /Chikungunya/i],
+    ['mers', /MERS[\s-]*CoV/i],
+    ['nipah', /\bNipah\b/i],
+    ['h5n1', /H5N1|grippe aviaire|influenza aviaire/i],
+    ['plague', /\bPeste\b/i],
+  ];
+  try {
+    const r = await fetchWithTimeout(url, TIMEOUT_MS);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const html = await r.text();
+    const items = [];
+    for (const m of html.matchAll(/<a[^>]+href="([^"]+\.pdf)"[^>]*>([\s\S]*?)<\/a>/gi)) {
+      const label = stripTags(m[2]);
+      const dm = label.match(/Veille du\s+(\d{1,2})\s+([a-zéûôùàè]+)\s+(\d{4})/i);
+      if (!dm || !MOIS[dm[2].toLowerCase()]) continue;
+      const pdf = new URL(m[1], url).href;
+      if (items.some(i => i.url === pdf)) continue;
+      const d = new Date(+dm[3], MOIS[dm[2].toLowerCase()] - 1, +dm[1]);
+      items.push({ label: `Veille du ${dm[1].padStart(2, '0')} ${dm[2].toLowerCase()} ${dm[3]}`, url: pdf, date: d });
+    }
+    if (!items.length) return { source: 'COREB (veille REB)', auto: true, status: 'failed', what: `Échec d'extraction sur la page Veille REB de la COREB — aucun lien « Veille du … » trouvé.` };
+    items.sort((a, b) => b.date - a.date);
+    const latest = items[0];
+    const fmt = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    const prev = data.corebVeille || {};
+    const isNew = prev.url !== latest.url;
+
+    let mentions = isNew ? [] : (prev.mentions || []);
+    let signals = isNew ? [] : (prev.signals || []);
+    let pdfOk = !isNew && prev.pdfOk;
+    const applied = [];
+    if (isNew) {
+      try {
+        const text = await fetchPdfText(latest.url, { keepLines: true });
+        if (text.replace(/\s/g, '').length > 200) {
+          mentions = PATHO_KW.filter(([, re]) => re.test(text)).map(([id]) => id);
+          pdfOk = true;
+          signals = parseCorebSignals(text, latest.date);
+          const src = `COREB — ${latest.label}`;
+          for (const s of signals) {
+            for (const c of s.countries) {
+              if (!s.pid || !c.en || c.cas == null) continue;
+              // Ebola : le relevé COREB reprend l'OMS — on l'accepte via la même règle
+              // « plus récent gagne », avec courbe. Autres pathogènes : pas de point de courbe.
+              const ok = applyIfNewer(data, `${s.pid}|${c.en}`, c.date, String(c.cas), c.dec != null ? String(c.dec) : null,
+                `${src} (${c.fr}${c.imported ? ', importé' : ''})`, { noSeries: s.pid !== 'ebola_bdb' });
+              if (ok) applied.push(`${s.title.split(/\s+[–-]\s+/)[0]} ${c.fr} ${c.cas}${c.dec != null ? '/' + c.dec : ''}`);
+            }
+            // Pays nouvellement signalé pour ce pathogène : ajouté aux cartes au niveau 1
+            // (cas sporadiques), jamais pour un cas importé — l'Autriche ne « circule » pas.
+            const wm = s.pid && data.world && data.world[s.pid];
+            if (wm) for (const c of s.countries) {
+              if (c.en && !c.imported && wm[c.en] == null) wm[c.en] = 1;
+            }
+          }
+        }
+      } catch { /* PDF illisible : on garde au moins le lien */ }
+    }
+
+    data.corebVeille = {
+      date: fmt(latest.date), label: latest.label, url: latest.url, page: url,
+      recent: items.slice(0, 3).map(i => ({ label: i.label, url: i.url, date: fmt(i.date) })),
+      mentions, pdfOk, fetchedAt: nowStampFR(),
+      signals: signals.map(s => ({ title: s.title, pid: s.pid, countries: s.countries.map(c => ({
+        fr: c.fr, en: c.en, cas: c.cas, dec: c.dec, imported: c.imported, date: c.date ? fmt(c.date) : null })) })),
+    };
+    const mentLabel = applied.length ? ` — chiffres intégrés : ${applied.join(' ; ')}`
+      : (signals.length ? ` — ${signals.length} alertes lues, aucun chiffre plus récent que l'existant` : (pdfOk ? '' : ' (contenu du PDF non lu, lien seul)'));
+    return { source: 'COREB (veille REB)', auto: true, status: isNew ? 'updated' : 'checked', what: isNew
+      ? `Nouvelle veille COREB détectée : ${latest.label}${mentLabel}.`
+      : `COREB vérifiée — dernière veille toujours celle du ${fmt(latest.date)}.` };
+  } catch (err) {
+    return { source: 'COREB (veille REB)', auto: true, status: 'failed', what: `Échec de connexion à la COREB (${err.message || err}).` };
+  }
+}
+
 async function checkArsMpoxReunion(data) {
   const url = 'https://www.lareunion.ars.sante.fr/variole-b-mpox-situation-la-reunion-vigilance-aux-voyageurs';
   const MOIS = { janvier:1, 'février':2, fevrier:2, mars:3, avril:4, mai:5, juin:6, juillet:7, 'août':8, aout:8, septembre:9, octobre:10, novembre:11, 'décembre':12, decembre:12 };
@@ -631,6 +865,8 @@ const SOURCE_NAME_MAP = {
   'Odissé (SpF)': 'Odissé — Santé publique France (API JSON)',
   'ReliefWeb': 'ReliefWeb (API JSON)',
   'SpF Océan Indien (bulletin)': 'Santé publique France — Bulletin Océan Indien (La Réunion)',
+  'ARS La Réunion (mpox)': 'ARS La Réunion — page mpox',
+  'COREB (veille REB)': 'COREB — Veille épidémiologique REB',
 };
 
 function deriveDashboard(data, checkLogs = []) {
@@ -715,6 +951,10 @@ function deriveDashboard(data, checkLogs = []) {
     return /^\d+$/.test(s) ? +s : null;
   };
   for (const row of (data.globalTable || [])) {
+    // Ligne à estimation éditoriale (« ≈ 9 000 », « sporadique ») : on n'y touche pas. Les relevés
+    // par pays (ex. Lassa Nigéria via la COREB) n'en couvrent qu'une partie — les additionner
+    // remplacerait une estimation mondiale par un sous-total.
+    if (/[≈~<>]|cent|mill|spor/i.test(String(row.cas || ''))) continue;
     const entries = Object.entries(data.cases || {})
       .filter(([k, v]) => k.startsWith(row.id + '|') && v && v.cas != null);
     if (!entries.length) continue;
@@ -774,6 +1014,10 @@ async function main() {
   const bullLog = await checkBulletinReunion(data);
   console.log('[REB RUN]', bullLog.what);
 
+  console.log('[REB RUN] Vérification veille COREB…');
+  const corebLog = await checkCorebVeille(data);
+  console.log('[REB RUN]', corebLog.what);
+
   console.log('[REB RUN] Vérification mpox Réunion (ARS, repli)…');
   const arsLog = await checkArsMpoxReunion(data);
   console.log('[REB RUN]', arsLog.what);
@@ -795,6 +1039,7 @@ async function main() {
     { log: escmidLog, src: 'ESCMID' },
     { log: bullLog,   src: 'SpF Océan Indien (bulletin)' },
     { log: arsLog,    src: 'ARS La Réunion (mpox)' },
+    { log: corebLog,  src: 'COREB (veille REB)' },
     { log: arboLog,   src: 'Odissé (SpF)' },
     { log: rwLog,     src: 'ReliefWeb' },
   ];
@@ -829,7 +1074,7 @@ async function main() {
   ].slice(0, 30);
 
   // Propage les chiffres collectés vers tous les onglets + recalcule les KPI d'accueil
-  deriveDashboard(data, [cdcLog, whoLog, ecdcLog, acdcLog, escmidLog, bullLog, arboLog, rwLog]);
+  deriveDashboard(data, checkList.map(c => c.log));
 
   await writeFile(DATA_PATH, JSON.stringify(data, null, 2) + '\n', 'utf8');
   console.log('[REB RUN] donnees.json mis à jour.');
