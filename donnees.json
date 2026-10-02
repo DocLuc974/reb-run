@@ -16,7 +16,7 @@
   "regional": {
     "ebola_bdb": {
       "RDC": 4,
-      "Ouganda": 4,
+      "Ouganda": 1,
       "La Réunion": 2,
       "Mayotte": 2
     },
@@ -59,7 +59,7 @@
   "world": {
     "ebola_bdb": {
       "Dem. Rep. Congo": 4,
-      "Uganda": 2,
+      "Uganda": 1,
       "France": 1,
       "Germany": 1
     },
@@ -300,8 +300,8 @@
     "ebola_bdb|Uganda": {
       "cas": "20",
       "dec": "2",
-      "date": "30/06/2026",
-      "source": "COREB / OMS"
+      "date": "27/08/2026",
+      "source": "OMS — fin d’épidémie déclarée le 27/08/2026 (cumul final, via veille COREB)"
     },
     "ebola_bdb|France": {
       "imported": "1",
@@ -401,9 +401,10 @@
         },
         {
           "zone": "Ouganda",
-          "l": 4,
+          "l": 1,
           "cas": 20,
-          "dec": 2
+          "dec": 2,
+          "note": "épidémie déclarée terminée par l’OMS le 27/08/2026 (cumul final)"
         }
       ]
     },
@@ -411,7 +412,7 @@
       "name": "Mpox (clade Ib)",
       "group": "Orthopoxvirose",
       "lvl": 3,
-      "period": "cumul depuis le début de l’épidémie · arrêté au 25/09/2026",
+      "period": "cumul depuis le début de l’épidémie · arrêté au 12/06/2026",
       "zones": [
         {
           "zone": "Madagascar",
@@ -508,7 +509,7 @@
       "name": "Ebola Bundibugyo",
       "lvl": 4,
       "source": "COREB / OMS",
-      "date": "30/06/2026",
+      "date": "29/09/2026",
       "period": "cumul depuis le 17/05/2026",
       "rows": [
         {
@@ -820,9 +821,10 @@
     {
       "name": "CDC — Situation Summary",
       "url": "https://www.cdc.gov/ebola/situation-summary/index.html",
-      "scope": "Ebola Bundibugyo · téléchargement CSV — bloqué par intermittence (HTTP 403), relais assuré par l'ECDC",
+      "scope": "Ebola Bundibugyo · source complémentaire en consultation manuelle — interrogation automatique désactivée (HTTP 403 continu), chiffres couverts par l’ECDC et l’OMS",
       "last": "27/06/2026",
-      "auto": true
+      "auto": false,
+      "disabled": true
     },
     {
       "name": "OMS — Disease Outbreak News",
@@ -841,7 +843,7 @@
     {
       "name": "Africa CDC",
       "url": "https://africacdc.org",
-      "scope": "Afrique · épidémies continentales — désactivée : la page de référence à URL fixe est figée au rapport du 18/05, les sitreps récents changent d'adresse à chaque parution",
+      "scope": "Afrique · épidémies continentales — source complémentaire en consultation manuelle (sitreps à URL variable, page de référence figée au 18/05)",
       "last": "18/05/2026",
       "auto": false,
       "disabled": true
@@ -849,9 +851,10 @@
     {
       "name": "ESCMID Epi Alert",
       "url": "https://www.escmid.org/science-research/emerging-infections/epi-alert/",
-      "scope": "Bulletin scientifique (ESCMID + Amsterdam UMC)",
+      "scope": "Bulletin scientifique (ESCMID + Amsterdam UMC) · source complémentaire en consultation manuelle — extraction automatique désactivée (phrasé trop variable)",
       "last": "18/08/2026",
-      "auto": true
+      "auto": false,
+      "disabled": true
     },
     {
       "name": "Odissé — Santé publique France (API JSON)",
@@ -1341,11 +1344,11 @@
     ]
   },
   "_failStreak": {
-    "CDC": 9,
+    "CDC": 0,
     "OMS": 1,
     "ECDC": 0,
     "Africa CDC": 0,
-    "ESCMID": 5,
+    "ESCMID": 0,
     "SpF Océan Indien (bulletin)": 0,
     "Odissé (SpF)": 0,
     "ReliefWeb": 0,
