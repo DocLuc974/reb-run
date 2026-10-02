@@ -181,6 +181,12 @@ function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sour
 const CDC_CSV_URL = 'https://www.cdc.gov/wcms/vizdata/EBOLA/ebola_100_days.csv';
 
 async function checkCDC(data) {
+  // DÉSACTIVÉ (02/10/2026) : le CSV renvoie HTTP 403 de façon continue aux serveurs GitHub.
+  // L'ECDC et l'OMS couvrent les mêmes chiffres ; la page CDC reste listée en lien direct.
+  return { source: 'CDC', auto: true, status: 'disabled', what: `CDC désactivé — le fichier CSV refuse les requêtes automatiques (HTTP 403) ; chiffres Ebola couverts par l'ECDC et l'OMS. Page conservée en consultation manuelle.` };
+}
+
+async function _unused_checkCDC(data) {
   try {
     const r = await fetchWithTimeout(CDC_CSV_URL, TIMEOUT_MS);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -329,6 +335,12 @@ async function _unused_checkAfricaCDC(data) {
 // "X confirmed cases and Y deaths reported ... as of DATE" — la date arrive APRÈS
 // les chiffres (contrairement aux autres sources), d'où un motif dédié.
 async function checkESCMID(data) {
+  // DÉSACTIVÉ (02/10/2026) : plus aucun chiffre extrait depuis le 18/08 (reformulations
+  // successives de la page). Bulletin conservé en lien direct pour consultation manuelle.
+  return { source: 'ESCMID', auto: true, status: 'disabled', what: `ESCMID Epi Alert désactivé — phrasé trop variable d'une semaine à l'autre pour une extraction fiable ; bulletin conservé en consultation manuelle.` };
+}
+
+async function _unused_checkESCMID(data) {
   const url = 'https://www.escmid.org/science-research/emerging-infections/epi-alert/';
   try {
     const r = await fetchWithTimeout(url, TIMEOUT_MS);
@@ -701,16 +713,24 @@ async function checkCorebVeille(data) {
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const html = await r.text();
     const items = [];
+    const MOIS_NOM = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
     for (const m of html.matchAll(/<a[^>]+href="([^"]+\.pdf)"[^>]*>([\s\S]*?)<\/a>/gi)) {
       const label = stripTags(m[2]);
+      let d = null;
       const dm = label.match(/Veille du\s+(\d{1,2})\s+([a-zéûôùàè]+)\s+(\d{4})/i);
-      if (!dm || !MOIS[dm[2].toLowerCase()]) continue;
+      if (dm && MOIS[dm[2].toLowerCase()]) d = new Date(+dm[3], MOIS[dm[2].toLowerCase()] - 1, +dm[1]);
+      // Repli : date lue dans le nom du fichier (…-reb-de-la-coreb-20260915.pdf). Le libellé du
+      // lien varie (icône, « Télécharger », date sans « Veille du ») ; le nom de fichier, lui, est stable.
+      if (!d) {
+        const fm = m[1].match(/veille[^"]*?(20\d{2})(\d{2})(\d{2})/i);
+        if (fm) d = new Date(+fm[1], +fm[2] - 1, +fm[3]);
+      }
+      if (!d || isNaN(d)) continue;
       const pdf = new URL(m[1], url).href;
       if (items.some(i => i.url === pdf)) continue;
-      const d = new Date(+dm[3], MOIS[dm[2].toLowerCase()] - 1, +dm[1]);
-      items.push({ label: `Veille du ${dm[1].padStart(2, '0')} ${dm[2].toLowerCase()} ${dm[3]}`, url: pdf, date: d });
+      items.push({ label: `Veille du ${String(d.getDate()).padStart(2, '0')} ${MOIS_NOM[d.getMonth()]} ${d.getFullYear()}`, url: pdf, date: d });
     }
-    if (!items.length) return { source: 'COREB (veille REB)', auto: true, status: 'failed', what: `Échec d'extraction sur la page Veille REB de la COREB — aucun lien « Veille du … » trouvé.` };
+    if (!items.length) return { source: 'COREB (veille REB)', auto: true, status: 'failed', what: `Échec d'extraction sur la page Veille REB de la COREB — aucun lien PDF de veille trouvé (${(html.match(/\.pdf/gi) || []).length} lien(s) PDF sur la page, ${html.length} caractères reçus).` };
     items.sort((a, b) => b.date - a.date);
     const latest = items[0];
     const fmt = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
@@ -888,6 +908,9 @@ function deriveDashboard(data, checkLogs = []) {
     if (al) {
       const z = (al.zones || []).find(z => z.zone === m.zone);
       if (z) { if (cas != null) z.cas = cas; if (dec != null) z.dec = dec; }
+      // Zone absente de l'alerte (ex. mpox Réunion vs alerte « clade Ib » centrée Madagascar) :
+      // on ne touche pas à sa date d'arrêt, sinon elle affiche une date sans rapport avec ses chiffres.
+      if (!z) continue;
       // Resynchronise la date "arrêté au DD/MM/YYYY" affichée dans les KPI (period)
       // avec la date réelle du relevé — sinon elle reste figée même quand les chiffres bougent.
       // ⚠️ Plusieurs zones (ex. RDC + Ouganda) partagent la même alerte/period : on ne
@@ -903,7 +926,9 @@ function deriveDashboard(data, checkLogs = []) {
     if (sy) {
       const r = (sy.rows || []).find(r => r.zone === m.zone);
       if (r) { if (cas != null) r.conf = cas; if (dec != null) r.dec = dec; }
-      if (rec.date) sy.date = rec.date;
+      // Date du bloc = relevé le PLUS RÉCENT de ses zones (avant : la dernière zone traitée
+      // gagnait — l'Ouganda, figé au 30/06, écrasait la date fraîche de la RDC).
+      if (r && rec.date && (!parseFrDate(sy.date) || parseFrDate(rec.date) > parseFrDate(sy.date))) sy.date = rec.date;
     }
   }
   // Recalcule le TOTAL du bloc Ebola (RDC + Ouganda)
@@ -1052,26 +1077,26 @@ async function main() {
   for (const { log, src } of checkList) {
     const failed = log.status === 'failed';
     data._failStreak[src] = failed ? (data._failStreak[src] || 0) + 1 : 0;
-    if (failed && data._failStreak[src] === 3) {
-      staleAlerts.push({ date: stamp, auto: true, status: 'stale', what: `⚠ ${src} échoue depuis 3 relevés consécutifs — le motif d'extraction est probablement cassé (page source modifiée) et doit être révisé.`, src });
+    // Toujours signalé (et plus seulement au 3e échec), avec la cause réelle : l'ancienne
+    // entrée « stale » masquait le message d'erreur et n'apparaissait qu'une fois.
+    if (failed && data._failStreak[src] >= 3) {
+      staleAlerts.push({ date: stamp, auto: true, status: 'stale', what: `⚠ Échec depuis ${data._failStreak[src]} relevés consécutifs — ${log.what}`, src });
     }
   }
   const anomalyEntries = (data._anomalies || []).map(a => ({ date: stamp, auto: true, status: 'anomaly', what: `⚠ Anomalie rejetée — ${a}`, src: 'Garde-fou anti-valeur aberrante' }));
   delete data._anomalies;
 
+  // Une entrée par source de checkList (et non plus une liste codée en dur, qui avait oublié
+  // COREB et ARS : leurs résultats n'étaient jamais journalisés). Une source en échec
+  // prolongé n'a que l'entrée « stale », qui porte déjà la cause.
+  const staleSrc = new Set(staleAlerts.map(s => s.src));
   data.updates = [
     ...staleAlerts,
     ...anomalyEntries,
-    { date: stamp, auto: true, status: rwLog.status, what: rwLog.what, src: 'ReliefWeb' },
-    { date: stamp, auto: true, status: arboLog.status, what: arboLog.what, src: 'Odissé (SpF)' },
-    { date: stamp, auto: true, status: bullLog.status, what: bullLog.what, src: 'SpF Océan Indien (bulletin)' },
-    { date: stamp, auto: true, status: escmidLog.status, what: escmidLog.what, src: 'ESCMID' },
-    { date: stamp, auto: true, status: acdcLog.status, what: acdcLog.what, src: 'Africa CDC' },
-    { date: stamp, auto: true, status: ecdcLog.status, what: ecdcLog.what, src: 'ECDC' },
-    { date: stamp, auto: true, status: whoLog.status, what: whoLog.what, src: 'OMS' },
-    { date: stamp, auto: true, status: cdcLog.status, what: cdcLog.what, src: 'CDC' },
+    ...checkList.filter(({ src }) => !staleSrc.has(src))
+      .map(({ log, src }) => ({ date: stamp, auto: true, status: log.status, what: log.what, src })),
     ...data.updates,
-  ].slice(0, 30);
+  ].slice(0, 60);
 
   // Propage les chiffres collectés vers tous les onglets + recalcule les KPI d'accueil
   deriveDashboard(data, checkList.map(c => c.log));
