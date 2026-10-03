@@ -5,8 +5,8 @@
     "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
   },
   "kpi": {
-    "foyersActifs": 3,
-    "foyersLabel": "RDC · Ouganda · Madagascar",
+    "foyersActifs": 2,
+    "foyersLabel": "RDC · Madagascar",
     "deces": 3997,
     "pathogenesEnAlerte": 7,
     "pathogenesTotal": 12,
@@ -280,11 +280,21 @@
         "date": "25/09",
         "cas": 246,
         "dec": 0
+      },
+      {
+        "date": "02/10",
+        "cas": 246,
+        "dec": 0
       }
     ],
     "mpox": [
       {
         "date": "25/09",
+        "cas": 29,
+        "dec": 0
+      },
+      {
+        "date": "02/10",
         "cas": 29,
         "dec": 0
       }
@@ -364,14 +374,14 @@
     "lepto|La Réunion": {
       "cas": "246",
       "dec": null,
-      "date": "25/09/2026",
-      "source": "SpF Bulletin OI (auto) — 25/09/2026"
+      "date": "02/10/2026",
+      "source": "SpF Bulletin OI (auto) — 02/10/2026"
     },
     "mpox|La Réunion": {
       "cas": "29",
       "dec": null,
-      "date": "25/09/2026",
-      "source": "SpF Bulletin OI (auto) — 25/09/2026 (dont 24 importés, 5 autochtones)"
+      "date": "02/10/2026",
+      "source": "SpF Bulletin OI (auto) — 02/10/2026 (dont 24 importés, 5 autochtones)"
     },
     "cchf|Spain": {
       "cas": "4",
@@ -582,7 +592,7 @@
       "name": "Leptospirose (La Réunion)",
       "lvl": 2,
       "source": "Santé publique France — Océan Indien",
-      "date": "25/09/2026",
+      "date": "02/10/2026",
       "period": "cas autochtones cumulés arrêtés au 02/08/2026 · pic en mars, transmission redevenue endémo-sporadique",
       "rows": [
         {
@@ -830,14 +840,14 @@
       "name": "OMS — Disease Outbreak News",
       "url": "https://www.who.int/emergencies/disease-outbreak-news",
       "scope": "Bulletins DON · toutes pathologies REB",
-      "last": "01/10/2026",
+      "last": "03/10/2026",
       "auto": true
     },
     {
       "name": "ECDC — page de suivi Ebola RDC/Ouganda",
       "url": "https://www.ecdc.europa.eu/en/ebola-outbreak-democratic-republic-congo-and-uganda",
       "scope": "Europe & international · MAJ ~2×/semaine",
-      "last": "02/10/2026",
+      "last": "03/10/2026",
       "auto": true
     },
     {
@@ -860,14 +870,14 @@
       "name": "Odissé — Santé publique France (API JSON)",
       "url": "https://odisse.santepubliquefrance.fr/pages/accueil/",
       "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification — relevé complété par le bulletin SpF quand celui-ci est plus récent",
-      "last": "02/10/2026",
+      "last": "03/10/2026",
       "auto": true
     },
     {
       "name": "ReliefWeb (API JSON)",
       "url": "https://reliefweb.int",
       "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname approuvé, source active",
-      "last": "02/10/2026",
+      "last": "03/10/2026",
       "auto": true
     },
     {
@@ -895,7 +905,7 @@
       "name": "Santé publique France — Bulletin Océan Indien (La Réunion)",
       "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional",
       "scope": "La Réunion · bulletin de surveillance hebdomadaire (dengue, chik, leptospirose, mpox, grippe, bronchiolite)",
-      "last": "02/10/2026",
+      "last": "03/10/2026",
       "auto": true
     },
     {
@@ -909,7 +919,7 @@
       "name": "ARS La Réunion — page mpox",
       "url": "https://www.lareunion.ars.sante.fr/variole-b-mpox-situation-la-reunion-vigilance-aux-voyageurs",
       "scope": "La Réunion · cumul mpox (repli à URL stable si le bulletin SpF change de format)",
-      "last": "02/10/2026",
+      "last": "03/10/2026",
       "auto": true
     },
     {
@@ -921,6 +931,76 @@
     }
   ],
   "updates": [
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "stale",
+      "what": "⚠ Échec depuis 6 relevés consécutifs — Échec de connexion à la COREB (d.getDate is not a function).",
+      "src": "COREB (veille REB)"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "disabled",
+      "what": "CDC désactivé — le fichier CSV refuse les requêtes automatiques (HTTP 403) ; chiffres Ebola couverts par l'ECDC et l'OMS. Page conservée en consultation manuelle.",
+      "src": "CDC"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "checked",
+      "what": "Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.",
+      "src": "OMS"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "checked",
+      "what": "ECDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "ECDC"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "disabled",
+      "what": "Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "disabled",
+      "what": "ESCMID Epi Alert désactivé — phrasé trop variable d'une semaine à l'autre pour une extraction fiable ; bulletin conservé en consultation manuelle.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "updated",
+      "what": "Bulletin SpF Océan Indien (02/10/2026) — indicateurs mis à jour : leptospirose 246 cas, mpox 29 cas (dont 24 importés, 5 autochtones).",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "checked",
+      "what": "ARS La Réunion : 29 cas de mpox lus sur la page, mais aucune date de mise à jour lisible — chiffre non publié (vérification manuelle).",
+      "src": "ARS La Réunion (mpox)"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "03/10 · 07:19",
+      "auto": true,
+      "status": "updated",
+      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
+      "src": "ReliefWeb"
+    },
     {
       "date": "02/10 · 07:45",
       "auto": true,
@@ -1133,13 +1213,13 @@
     }
   ],
   "reunionBulletin": {
-    "date": "25/09/2026",
-    "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-25-septembre-2026",
-    "fetchedAt": "02/10 · 07:45",
+    "date": "02/10/2026",
+    "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-2-octobre-2026",
+    "fetchedAt": "03/10 · 07:19",
     "extractOk": true
   },
   "reliefweb": {
-    "fetchedAt": "02/10 · 07:45",
+    "fetchedAt": "03/10 · 07:19",
     "alerts": [
       {
         "id": "52586",
@@ -1345,7 +1425,7 @@
   },
   "_failStreak": {
     "CDC": 0,
-    "OMS": 1,
+    "OMS": 0,
     "ECDC": 0,
     "Africa CDC": 0,
     "ESCMID": 0,
@@ -1353,7 +1433,7 @@
     "Odissé (SpF)": 0,
     "ReliefWeb": 0,
     "ARS La Réunion (mpox)": 0,
-    "COREB (veille REB)": 5
+    "COREB (veille REB)": 6
   },
   "corebVeille": {
     "date": "16/09/2026",
