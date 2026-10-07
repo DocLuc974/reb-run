@@ -889,6 +889,126 @@ const SOURCE_NAME_MAP = {
   'COREB (veille REB)': 'COREB — Veille épidémiologique REB',
 };
 
+// ── Niveaux de gravité automatiques (cartes, alertes, foyers actifs) ─────────────
+// Règles validées par l'équipe REB RUN (07/10/2026), appliquées UNIQUEMENT aux couples
+// pathogène/pays qui ont un relevé chiffré dans data.cases. Les autres niveaux (postures de
+// vigilance sans cas, ex. Ebola à La Réunion ; estimations « ≈ 22 000 ») restent éditoriaux.
+//   4 Urgence      : nouveaux décès dans les 30 derniers jours
+//   3 Alerte       : nouveaux cas autochtones dans les 30 derniers jours
+//   2 Vigilance    : dernier mouvement il y a 31 à 60 jours
+//   1 Surveillance : épidémie déclarée terminée, cas importés seulement, ou rien depuis > 60 j
+// Un niveau ne baisse donc qu'après 30 jours sans évolution des chiffres. L'état (dernières
+// valeurs vues, date du dernier mouvement) est conservé dans data._levelState.
+const LEVEL_LBL = ['Aucun signal', 'Surveillance', 'Vigilance', 'Alerte', 'Urgence'];
+const EN_TO_REGIONAL = {
+  'Dem. Rep. Congo': 'RDC', 'Uganda': 'Ouganda', 'Comoros': 'Comores', 'Tanzania': 'Tanzanie',
+  'Mauritius': 'Maurice', 'Madagascar': 'Madagascar', 'La Réunion': 'La Réunion', 'Mayotte': 'Mayotte',
+  'Mozambique': 'Mozambique', 'Seychelles': 'Seychelles',
+};
+function autoLevels(data, stamp) {
+  const today = new Date();
+  const days = (d) => d ? Math.floor((today - d) / 864e5) : Infinity;
+  const isNum = (v) => v != null && /^\d+$/.test(String(v).replace(/[\s\u00a0]/g, ''));
+  const n = (v) => isNum(v) ? +String(v).replace(/[\s\u00a0]/g, '') : null;
+  const st = data._levelState = data._levelState || {};
+  const changes = [];
+
+  for (const [key, rec] of Object.entries(data.cases || {})) {
+    if (!rec || !isNum(rec.cas)) continue;
+    const [pid, en] = key.split('|');
+    const cas = n(rec.cas), dec = n(rec.dec) || 0;
+    const recDate = parseFrDate(rec.date);
+    const ended = /termin[ée]e|fin d.[ée]pid[ée]mie/i.test(rec.source || '');
+    const importedOnly = /import[ée]/i.test(rec.source || '') && !/autochtone/i.test(rec.source || '');
+
+    let s = st[key];
+    if (!s) {
+      // Première fois : la série (si elle existe) dit si les décès montaient dans les 30 j
+      // précédant le relevé ; sinon on considère le relevé lui-même comme le dernier mouvement.
+      let decRiseAt = null;
+      const ser = (data.epiSeries || {})[pid];
+      if (Array.isArray(ser) && ser.length > 1) {
+        const yr = recDate ? recDate.getFullYear() : today.getFullYear();
+        const pts = ser.map(p => ({ d: parseFrDate(`${p.date}/${yr}`), dec: p.dec })).filter(p => p.d);
+        const last = pts[pts.length - 1];
+        const ref = pts.filter(p => last && (last.d - p.d) / 864e5 >= 30).pop() || pts[0];
+        if (last && ref && last.dec > ref.dec) decRiseAt = rec.date;
+      }
+      s = st[key] = { cas, dec, casRiseAt: rec.date, decRiseAt };
+    } else {
+      if (cas > s.cas) s.casRiseAt = rec.date;
+      if (dec > s.dec) s.decRiseAt = rec.date;
+      s.cas = cas; s.dec = dec;
+    }
+
+    // Historique court des relevés (pour mesurer une hausse sur 30 jours)
+    const autM = (rec.source || '').match(/(\d+)\s+(?:cas\s+)?autochtones/i);
+    const aut = autM ? +autM[1] : null;
+    s.hist = s.hist || [];
+    const lastH = s.hist[s.hist.length - 1];
+    if (!lastH || lastH.date !== rec.date) s.hist.push({ date: rec.date, cas, aut });
+    if (s.hist.length > 12) s.hist = s.hist.slice(-12);
+
+    const dCas = days(parseFrDate(s.casRiseAt)), dDec = days(parseFrDate(s.decRiseAt));
+    let lvl, why;
+    // La Réunion / Mayotte : les bulletins publient des CUMULS annuels, qui montent toute l'année
+    // pour une maladie endémique. On juge donc l'ampleur de la hausse sur 30 jours :
+    //   Alerte si ≥ 15 % du cumul OU ≥ 20 cas ; Vigilance si hausse plus faible ; sinon Surveillance.
+    // Mpox : seuls les cas autochtones comptent (les cas importés ne témoignent pas d'une circulation).
+    const isReunionCumul = en === 'La Réunion' || en === 'Mayotte';
+    if (isReunionCumul && !ended) {
+      const val = (h) => pid === 'mpox' ? h.aut : h.cas;
+      const pts = s.hist.filter(h => val(h) != null && parseFrDate(h.date));
+      const cur = pts[pts.length - 1];
+      const limit = new Date(today - 30 * 864e5);
+      const base = pts.filter(h => parseFrDate(h.date) <= limit).pop() || pts[0];
+      const inc = (cur && base) ? val(cur) - val(base) : 0;
+      const ref = cur ? val(cur) : 0;
+      const label = pid === 'mpox' ? 'cas autochtones' : 'cas';
+      if (inc > 0 && (inc >= 20 || (ref > 0 && inc / ref >= 0.15))) { lvl = 3; why = `+${inc} ${label} sur 30 j (${Math.round(inc / (ref || 1) * 100)} % du cumul)`; }
+      else if (inc > 0) { lvl = 2; why = `+${inc} ${label} sur 30 j, hausse modérée`; }
+      else { lvl = 1; why = `pas de nouveau ${pid === 'mpox' ? 'cas autochtone' : 'cas'} sur 30 j`; }
+    }
+    else if (ended)         { lvl = 1; why = 'épidémie déclarée terminée'; }
+    else if (importedOnly)  { lvl = 1; why = 'cas importés uniquement'; }
+    else if (dDec <= 30)    { lvl = 4; why = `nouveaux décès il y a ${dDec} j`; }
+    else if (dCas <= 30)    { lvl = 3; why = `nouveaux cas il y a ${dCas} j`; }
+    else if (dCas <= 60)    { lvl = 2; why = `dernier mouvement il y a ${dCas} j`; }
+    else                    { lvl = 1; why = `aucune évolution depuis ${dCas === Infinity ? 'longtemps' : dCas + ' j'}`; }
+
+    // Application : carte mondiale, carte régionale, zones d'alerte
+    const fr = EN_TO_REGIONAL[en];
+    const targets = [];
+    if (data.world && data.world[pid]) targets.push([data.world[pid], en]);
+    if (fr && data.regional && data.regional[pid]) targets.push([data.regional[pid], fr]);
+    let before = null;
+    for (const [map, k] of targets) {
+      if (before == null && map[k] != null) before = map[k];
+      map[k] = lvl;
+    }
+    for (const al of (data.alerts || [])) {
+      if ((PATHO_OF_ALERT(al)) !== pid) continue;
+      const z = (al.zones || []).find(z => z.zone === fr || z.zone === en);
+      if (z) { if (before == null) before = z.l; z.l = lvl; }
+    }
+    if (before != null && before !== lvl) {
+      changes.push({ date: stamp, auto: true, status: 'updated', src: 'Niveaux automatiques',
+        what: `${pid} · ${fr || en} : ${LEVEL_LBL[before]} → ${LEVEL_LBL[lvl]} (${why}).` });
+    }
+  }
+  // Niveau d'une alerte = niveau de sa zone la plus touchée
+  for (const al of (data.alerts || [])) {
+    if (al.zones && al.zones.length) al.lvl = Math.max(...al.zones.map(z => z.l || 0));
+  }
+  return changes;
+}
+const ALERT_PID = [
+  ['ebola_bdb', /Ebola/i], ['mpox', /Mpox/i], ['cholera', /Chol[ée]ra/i], ['dengue', /Dengue/i],
+  ['chikv', /Chikungunya/i], ['lepto', /Leptospirose/i], ['plague', /Peste/i], ['lassa', /Lassa/i],
+  ['cchf', /FHCC|Crim[ée]e/i], ['rvf', /Rift/i], ['marburg', /Marburg/i], ['mers', /MERS/i],
+];
+function PATHO_OF_ALERT(al) { return al.id || (ALERT_PID.find(([, re]) => re.test(al.name || '')) || [null])[0]; }
+
 function deriveDashboard(data, checkLogs = []) {
   const num = (v) => v == null ? null : (+String(v).replace(/[^\d]/g, '') || 0);
   // caseKey (pathogen|zoneEN) -> ligne à mettre à jour dans alerts et synth
@@ -1097,6 +1217,10 @@ async function main() {
       .map(({ log, src }) => ({ date: stamp, auto: true, status: log.status, what: log.what, src })),
     ...data.updates,
   ].slice(0, 60);
+
+  // Niveaux de gravité des cartes recalculés à partir des relevés (avant les KPI, qui en dépendent)
+  const levelChanges = autoLevels(data, stamp);
+  if (levelChanges.length) data.updates = [...levelChanges, ...data.updates].slice(0, 60);
 
   // Propage les chiffres collectés vers tous les onglets + recalcule les KPI d'accueil
   deriveDashboard(data, checkList.map(c => c.log));
