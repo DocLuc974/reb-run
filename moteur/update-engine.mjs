@@ -255,6 +255,66 @@ async function checkWHO(data) {
   }
 }
 
+// ── Niveaux de risque OMS publiés dans les DON ────────────────────────────────────────
+// Chaque DON se termine par une évaluation du risque (« WHO assesses the risk as high at the
+// national level, moderate at the regional level and low at the global level »). On relève, pour
+// chaque DON récent, le niveau NATIONAL (à défaut régional) et on l'associe au pathogène et au(x)
+// pays du titre. Correspondance : very high → 4, high → 3, moderate → 2, low → 1.
+const WHO_RISK_LVL = { 'very high': 4, 'high': 3, 'moderate': 2, 'low': 1 };
+const WHO_RISK_FR = { 'very high': 'très élevé', 'high': 'élevé', 'moderate': 'modéré', 'low': 'faible' };
+const WHO_COUNTRY = {
+  'democratic republic of the congo': 'Dem. Rep. Congo', 'united republic of tanzania': 'Tanzania',
+  'iran (islamic republic of)': 'Iran', 'iran': 'Iran', 'türkiye': 'Turkey', 'turkey': 'Turkey',
+  'syrian arab republic': 'Syria', 'russian federation': 'Russia', 'viet nam': 'Vietnam',
+  'united kingdom of great britain and northern ireland': 'United Kingdom', 'south sudan': 'S. Sudan',
+  "côte d'ivoire": "Côte d'Ivoire", 'bolivia (plurinational state of)': 'Bolivia', 'comoros': 'Comoros',
+};
+function whoCountryEN(s) { const k = s.trim().toLowerCase(); return WHO_COUNTRY[k] || s.trim(); }
+async function checkWHORisk(data) {
+  const apiUrl = 'https://www.who.int/api/news/outbreaks?%24orderby=PublicationDate%20desc&%24top=40&%24format=json';
+  try {
+    const r = await fetchWithTimeout(apiUrl, TIMEOUT_MS);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const payload = await r.json();
+    const items = Array.isArray(payload) ? payload : (payload && payload.value) || [];
+    const found = [];
+    data.whoRisk = data.whoRisk || {};
+    for (const it of items) {
+      const title = it.Title || '';
+      const pid = (ALERT_PID.find(([, re]) => re.test(title)) || [null])[0];
+      if (!pid) continue;
+      const pub = it.PublicationDate ? new Date(it.PublicationDate) : null;
+      if (!pub) continue;
+      const text = stripTags(Object.values(it).filter(v => typeof v === 'string').join(' . '));
+      const lv = '(very high|high|moderate|low)';
+      let scope = null, label = null;
+      for (const sc of ['national', 'regional']) {
+        const m = text.match(new RegExp(`${lv}\\s+at\\s+the\\s+${sc}(?:\\s*(?:,|and)\\s+(?:regional|global))*\\s+levels?`, 'i'))
+          || text.match(new RegExp(`${sc}\\s+level[^.]{0,40}?(?:is|as|remains)\\s+(?:assessed\\s+as\\s+|considered\\s+)?${lv}`, 'i'));
+        if (m) { scope = sc; label = m[1].toLowerCase(); break; }
+      }
+      if (!label) continue;
+      const countriesPart = title.split(/\s+[–-]\s+/).slice(1).join(' - ');
+      if (!countriesPart) continue;
+      const countries = countriesPart.split(/,|\s+and\s+/).map(whoCountryEN).filter(Boolean);
+      const dd = `${String(pub.getDate()).padStart(2, '0')}/${String(pub.getMonth() + 1).padStart(2, '0')}/${pub.getFullYear()}`;
+      const don = it.DonId || it.UrlName || 'DON';
+      for (const en of countries) {
+        const key = `${pid}|${en}`;
+        const prev = data.whoRisk[key];
+        if (prev && parseFrDate(prev.date) >= pub) continue;
+        data.whoRisk[key] = { lvl: WHO_RISK_LVL[label], label: WHO_RISK_FR[label], scope: scope === 'national' ? 'national' : 'régional', don, date: dd };
+        found.push(`${pid} ${en} : ${WHO_RISK_FR[label]} (${scope})`);
+      }
+    }
+    return { source: 'OMS (risque)', auto: true, status: found.length ? 'updated' : 'checked', what: found.length
+      ? `Niveaux de risque OMS relevés dans les DON : ${found.join(' ; ')}.`
+      : `Aucune nouvelle évaluation de risque OMS dans les 40 derniers DON.` };
+  } catch (err) {
+    return { source: 'OMS (risque)', auto: true, status: 'failed', what: `API OMS inaccessible pour les évaluations de risque (${err.message || err}).` };
+  }
+}
+
 // ── Source 3 : ECDC — page de suivi dédiée, mise à jour hebdomadaire (~chaque mardi/jeudi)
 // Pas bloquée par CORS ici : ce script tourne côté serveur (Node), pas dans un navigateur.
 async function checkECDC(data) {
@@ -511,6 +571,27 @@ async function checkBulletinReunion(data) {
           // format vu jusqu'à juillet 2026. Depuis août 2026 la section peut être purement
           // qualitative ("Période inter-saisonnière, niveau de transmission bas") SANS chiffre
           // cette semaine-là : l'absence de motif n'est alors PAS un échec d'extraction.
+          // Phase du dispositif ORSEC arboviroses (ARS) citée dans le bulletin, par pathogène.
+          // Formulations attendues : « niveau 2A du plan ORSEC », « phase inter-épidémique »,
+          // « phase épidémique ». Recherchée dans les 300 caractères qui suivent le nom de la maladie.
+          // Correspondance (à valider avec SpF/ARS) : niveau 1 / inter-épidémique / veille → 1 ;
+          // niveau 2 / alerte / pré-épidémique → 2 ; niveau 3 / épidémique → 3 ; niveau ≥ 4 → 4.
+          for (const [pid, re] of [['dengue', /Dengue/gi], ['chikv', /Chikungunya/gi]]) {
+            for (const mm of btext.matchAll(re)) {
+              const win = btext.slice(mm.index, mm.index + 300);
+              const nv = win.match(/niveau\s+([1-5])\s*([AB])?\b[^.]{0,40}?(?:ORSEC|plan|dispositif)?/i);
+              const ph = win.match(/phase\s+(inter[\s-]?[ée]pid[ée]mique|pr[ée][\s-]?[ée]pid[ée]mique|[ée]pid[ée]mique|de\s+veille|d.alerte)/i);
+              let lvlO = null, raw = null;
+              if (nv && /ORSEC|plan|dispositif|niveau\s+[1-5]\s*[AB]/i.test(win)) { const k = +nv[1]; lvlO = k >= 4 ? 4 : k; raw = `niveau ${nv[1]}${nv[2] || ''}`; }
+              else if (ph) {
+                const p = ph[1].toLowerCase();
+                lvlO = /inter|veille/.test(p) ? 1 : (/pr|alerte/.test(p) ? 2 : 3);
+                raw = `phase ${ph[1]}`;
+              }
+              if (lvlO) { (data.orsecPhase = data.orsecPhase || {})[pid] = { lvl: lvlO, raw, date: dateFR }; break; }
+            }
+          }
+
           const lepM = btext.match(/Leptospirose\s*\(\s*n\s*=\s*(\d{1,5})\s*\)/i)
             || btext.match(/Leptospirose[\s\S]{0,20}?(\d{1,5})\s+cas\s+autochtones?\s+(?:ont\s+été\s+|ont\s+ete\s+)?d[ée]clar[ée]s/i)
             // Formulation PDF (août 2026) : "A ce jour, 235 cas autochtones ont été déclarés
@@ -956,7 +1037,20 @@ function autoLevels(data, stamp) {
     //   Alerte si ≥ 15 % du cumul OU ≥ 20 cas ; Vigilance si hausse plus faible ; sinon Surveillance.
     // Mpox : seuls les cas autochtones comptent (les cas importés ne témoignent pas d'une circulation).
     const isReunionCumul = en === 'La Réunion' || en === 'Mayotte';
-    if (isReunionCumul && !ended) {
+    // Ordre de priorité des référentiels (validé 07/10/2026) :
+    //   1. épidémie déclarée terminée → Surveillance
+    //   2. La Réunion, dengue/chik : phase ORSEC arboviroses citée dans le bulletin SpF (≤ 60 j)
+    //   3. ailleurs : niveau de risque NATIONAL du dernier DON OMS sur ce pays (≤ 90 j)
+    //   4. à défaut : règle temporelle REB RUN ci-dessous
+    const orsec = isReunionCumul && (pid === 'dengue' || pid === 'chikv') && data.orsecPhase && data.orsecPhase[pid];
+    const orsecOk = orsec && orsec.lvl && days(parseFrDate(orsec.date)) <= 60;
+    const who = !isReunionCumul && data.whoRisk && data.whoRisk[key];
+    const whoOk = who && who.lvl && days(parseFrDate(who.date)) <= 90;
+    let basis = 'Règle REB RUN';
+    if (ended) { lvl = 1; why = 'épidémie déclarée terminée'; }
+    else if (orsecOk) { lvl = orsec.lvl; why = `phase ORSEC « ${orsec.raw} », bulletin SpF du ${orsec.date}`; basis = 'Phase ORSEC (ARS)'; }
+    else if (whoOk) { lvl = who.lvl; why = `risque ${who.scope} « ${who.label} » selon l'OMS, ${who.don} du ${who.date}`; basis = 'Risque OMS'; }
+    else if (isReunionCumul) {
       const val = (h) => pid === 'mpox' ? h.aut : h.cas;
       const pts = s.hist.filter(h => val(h) != null && parseFrDate(h.date));
       const cur = pts[pts.length - 1];
@@ -976,7 +1070,21 @@ function autoLevels(data, stamp) {
     else if (dCas <= 60)    { lvl = 2; why = `dernier mouvement il y a ${dCas} j`; }
     else                    { lvl = 1; why = `aucune évolution depuis ${dCas === Infinity ? 'longtemps' : dCas + ' j'}`; }
 
-    // Application : carte mondiale, carte régionale, zones d'alerte
+    applyLvl(pid, en, lvl, why, basis);
+  }
+
+  // Pays couverts par un DON OMS récent mais sans relevé chiffré (ex. FHCC Irak) : le niveau OMS
+  // s'applique seul, à condition que le pays figure déjà sur la carte de ce pathogène.
+  for (const [key, w] of Object.entries(data.whoRisk || {})) {
+    const rec = (data.cases || {})[key];
+    if (rec && isNum(rec.cas)) continue;
+    if (!w.lvl || days(parseFrDate(w.date)) > 90) continue;
+    const [pid, en] = key.split('|');
+    if (!(data.world && data.world[pid] && data.world[pid][en] != null)) continue;
+    applyLvl(pid, en, w.lvl, `risque ${w.scope} « ${w.label} » selon l'OMS, ${w.don} du ${w.date}`, 'Risque OMS');
+  }
+
+  function applyLvl(pid, en, lvl, why, basis) {
     const fr = EN_TO_REGIONAL[en];
     const targets = [];
     if (data.world && data.world[pid]) targets.push([data.world[pid], en]);
@@ -989,11 +1097,12 @@ function autoLevels(data, stamp) {
     for (const al of (data.alerts || [])) {
       if ((PATHO_OF_ALERT(al)) !== pid) continue;
       const z = (al.zones || []).find(z => z.zone === fr || z.zone === en);
-      if (z) { if (before == null) before = z.l; z.l = lvl; }
+      if (z) { if (before == null) before = z.l; z.l = lvl; z.basis = basis; z.basisWhy = why; }
     }
+    (data._levelBasis = data._levelBasis || {})[`${pid}|${en}`] = { basis, why };
     if (before != null && before !== lvl) {
       changes.push({ date: stamp, auto: true, status: 'updated', src: 'Niveaux automatiques',
-        what: `${pid} · ${fr || en} : ${LEVEL_LBL[before]} → ${LEVEL_LBL[lvl]} (${why}).` });
+        what: `${pid} · ${fr || en} : ${LEVEL_LBL[before]} → ${LEVEL_LBL[lvl]} — ${basis} (${why}).` });
     }
   }
   // Niveau d'une alerte = niveau de sa zone la plus touchée
@@ -1159,6 +1268,10 @@ async function main() {
   const bullLog = await checkBulletinReunion(data);
   console.log('[REB RUN]', bullLog.what);
 
+  console.log('[REB RUN] Relevé des niveaux de risque OMS…');
+  const whoRiskLog = await checkWHORisk(data);
+  console.log('[REB RUN]', whoRiskLog.what);
+
   console.log('[REB RUN] Vérification veille COREB…');
   const corebLog = await checkCorebVeille(data);
   console.log('[REB RUN]', corebLog.what);
@@ -1185,6 +1298,7 @@ async function main() {
     { log: bullLog,   src: 'SpF Océan Indien (bulletin)' },
     { log: arsLog,    src: 'ARS La Réunion (mpox)' },
     { log: corebLog,  src: 'COREB (veille REB)' },
+    { log: whoRiskLog, src: 'OMS (risque)' },
     { log: arboLog,   src: 'Odissé (SpF)' },
     { log: rwLog,     src: 'ReliefWeb' },
   ];
