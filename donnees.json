@@ -418,7 +418,7 @@
           "cas": 8603,
           "dec": 4148,
           "basis": "Règle REB RUN",
-          "basisWhy": "nouveaux décès il y a 3 j"
+          "basisWhy": "nouveaux décès il y a 4 j"
         },
         {
           "zone": "Ouganda",
@@ -443,7 +443,7 @@
           "cas": 2049,
           "dec": 7,
           "basis": "Règle REB RUN",
-          "basisWhy": "aucune évolution depuis 117 j"
+          "basisWhy": "aucune évolution depuis 118 j"
         }
       ]
     },
@@ -459,7 +459,7 @@
           "cas": 105,
           "dec": 6,
           "basis": "Règle REB RUN",
-          "basisWhy": "aucune évolution depuis 228 j"
+          "basisWhy": "aucune évolution depuis 229 j"
         }
       ]
     },
@@ -863,14 +863,14 @@
       "name": "OMS — Disease Outbreak News",
       "url": "https://www.who.int/emergencies/disease-outbreak-news",
       "scope": "Bulletins DON · toutes pathologies REB",
-      "last": "07/10/2026",
+      "last": "08/10/2026",
       "auto": true
     },
     {
       "name": "ECDC — page de suivi Ebola RDC/Ouganda",
       "url": "https://www.ecdc.europa.eu/en/ebola-outbreak-democratic-republic-congo-and-uganda",
       "scope": "Europe & international · MAJ ~2×/semaine",
-      "last": "07/10/2026",
+      "last": "08/10/2026",
       "auto": true
     },
     {
@@ -893,14 +893,14 @@
       "name": "Odissé — Santé publique France (API JSON)",
       "url": "https://odisse.santepubliquefrance.fr/pages/accueil/",
       "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification — relevé complété par le bulletin SpF quand celui-ci est plus récent",
-      "last": "07/10/2026",
+      "last": "08/10/2026",
       "auto": true
     },
     {
       "name": "ReliefWeb (API JSON)",
       "url": "https://reliefweb.int",
       "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname approuvé, source active",
-      "last": "07/10/2026",
+      "last": "08/10/2026",
       "auto": true
     },
     {
@@ -928,7 +928,7 @@
       "name": "Santé publique France — Bulletin Océan Indien (La Réunion)",
       "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional",
       "scope": "La Réunion · bulletin de surveillance hebdomadaire (dengue, chik, leptospirose, mpox, grippe, bronchiolite)",
-      "last": "07/10/2026",
+      "last": "08/10/2026",
       "auto": true
     },
     {
@@ -942,7 +942,7 @@
       "name": "ARS La Réunion — page mpox",
       "url": "https://www.lareunion.ars.sante.fr/variole-b-mpox-situation-la-reunion-vigilance-aux-voyageurs",
       "scope": "La Réunion · cumul mpox (repli à URL stable si le bulletin SpF change de format)",
-      "last": "07/10/2026",
+      "last": "08/10/2026",
       "auto": true
     },
     {
@@ -954,6 +954,83 @@
     }
   ],
   "updates": [
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "disabled",
+      "what": "CDC désactivé — le fichier CSV refuse les requêtes automatiques (HTTP 403) ; chiffres Ebola couverts par l'ECDC et l'OMS. Page conservée en consultation manuelle.",
+      "src": "CDC"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "checked",
+      "what": "Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.",
+      "src": "OMS"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "checked",
+      "what": "ECDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "ECDC"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "disabled",
+      "what": "Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "disabled",
+      "what": "ESCMID Epi Alert désactivé — phrasé trop variable d'une semaine à l'autre pour une extraction fiable ; bulletin conservé en consultation manuelle.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "checked",
+      "what": "Bulletin SpF Océan Indien (02/10/2026) vérifié — aucun chiffre nouveau cette semaine (rubriques qualitatives ou valeurs inchangées).",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "checked",
+      "what": "ARS La Réunion : 29 cas de mpox lus sur la page, mais aucune date de mise à jour lisible — chiffre non publié (vérification manuelle).",
+      "src": "ARS La Réunion (mpox)"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "failed",
+      "what": "Échec de connexion à la COREB (d.getDate is not a function).",
+      "src": "COREB (veille REB)"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "checked",
+      "what": "Aucune nouvelle évaluation de risque OMS dans les 40 derniers DON.",
+      "src": "OMS (risque)"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "08/10 · 08:11",
+      "auto": true,
+      "status": "updated",
+      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
+      "src": "ReliefWeb"
+    },
     {
       "date": "07/10 · 10:45",
       "auto": true,
@@ -1287,11 +1364,11 @@
   "reunionBulletin": {
     "date": "02/10/2026",
     "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-2-octobre-2026",
-    "fetchedAt": "07/10 · 10:45",
+    "fetchedAt": "08/10 · 08:11",
     "extractOk": true
   },
   "reliefweb": {
-    "fetchedAt": "07/10 · 10:45",
+    "fetchedAt": "08/10 · 08:11",
     "alerts": [
       {
         "id": "52586",
@@ -1484,14 +1561,14 @@
         "url": "https://reliefweb.int/taxonomy/term/51290"
       },
       {
-        "id": "51154",
-        "name": "DR Congo: Ebola Outbreak - Apr 2022",
-        "country": "Democratic Republic of the Congo",
-        "iso3": "cod",
+        "id": "51177",
+        "name": "Tanzania: Cholera Outbreak - Apr 2022",
+        "country": "United Republic of Tanzania",
+        "iso3": "tza",
         "type": "Epidemic",
         "status": "past",
         "date": "2022-04-23T00:00:00+00:00",
-        "url": "https://reliefweb.int/taxonomy/term/51154"
+        "url": "https://reliefweb.int/taxonomy/term/51177"
       }
     ]
   },
@@ -1505,7 +1582,7 @@
     "Odissé (SpF)": 0,
     "ReliefWeb": 0,
     "ARS La Réunion (mpox)": 0,
-    "COREB (veille REB)": 0,
+    "COREB (veille REB)": 1,
     "OMS (risque)": 0
   },
   "corebVeille": {
@@ -1812,7 +1889,7 @@
   "_levelBasis": {
     "ebola_bdb|Dem. Rep. Congo": {
       "basis": "Règle REB RUN",
-      "why": "nouveaux décès il y a 3 j"
+      "why": "nouveaux décès il y a 4 j"
     },
     "ebola_bdb|Uganda": {
       "basis": "Règle REB RUN",
@@ -1820,15 +1897,15 @@
     },
     "mpox|Madagascar": {
       "basis": "Règle REB RUN",
-      "why": "aucune évolution depuis 117 j"
+      "why": "aucune évolution depuis 118 j"
     },
     "cholera|Comoros": {
       "basis": "Règle REB RUN",
-      "why": "aucune évolution depuis 228 j"
+      "why": "aucune évolution depuis 229 j"
     },
     "lassa|Nigeria": {
       "basis": "Règle REB RUN",
-      "why": "dernier mouvement il y a 31 j"
+      "why": "dernier mouvement il y a 32 j"
     },
     "dengue|La Réunion": {
       "basis": "Règle REB RUN",
@@ -1848,11 +1925,11 @@
     },
     "cchf|Spain": {
       "basis": "Règle REB RUN",
-      "why": "nouveaux cas il y a 28 j"
+      "why": "nouveaux cas il y a 29 j"
     },
     "cchf|Iran": {
       "basis": "Règle REB RUN",
-      "why": "nouveaux cas il y a 28 j"
+      "why": "nouveaux cas il y a 29 j"
     }
   }
 }
