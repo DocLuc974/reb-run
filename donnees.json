@@ -5,17 +5,17 @@
     "_note": "who_last_don = dernier numéro de bulletin OMS (DON) sondé par le moteur. Le moteur repart de ce numéro à chaque exécution et avance automatiquement — ne pas modifier à la main sauf besoin de resonder depuis un autre point."
   },
   "kpi": {
-    "foyersActifs": 1,
-    "foyersLabel": "RDC",
+    "foyersActifs": 0,
+    "foyersLabel": "—",
     "deces": 4351,
     "pathogenesEnAlerte": 7,
     "pathogenesTotal": 12,
-    "niveauMaxLabel": "Urgence",
-    "niveauMaxWhat": "Ebola Bundibugyo · RDC"
+    "niveauMaxLabel": "Veille renforcée",
+    "niveauMaxWhat": "Dengue · La Réunion"
   },
   "regional": {
     "ebola_bdb": {
-      "RDC": 4,
+      "RDC": 1,
       "Ouganda": 1,
       "La Réunion": 2,
       "Mayotte": 2
@@ -58,7 +58,7 @@
   },
   "world": {
     "ebola_bdb": {
-      "Dem. Rep. Congo": 4,
+      "Dem. Rep. Congo": 1,
       "Uganda": 1,
       "France": 1,
       "Germany": 1
@@ -292,6 +292,11 @@
         "date": "10/10",
         "cas": 8998,
         "dec": 4338
+      },
+      {
+        "date": "11/10",
+        "cas": 8998,
+        "dec": 4338
       }
     ],
     "lepto": [
@@ -333,8 +338,8 @@
     "ebola_bdb|Dem. Rep. Congo": {
       "cas": "8978",
       "dec": "4336",
-      "date": "10/10/2026",
-      "source": "ECDC (auto) — \"10 October 2026\""
+      "date": "11/10/2026",
+      "source": "COREB — Veille du 13 octobre 2026 (RDC, importé)"
     },
     "ebola_bdb|Uganda": {
       "cas": "20",
@@ -429,16 +434,16 @@
     {
       "name": "Ebola Bundibugyo",
       "group": "Fièvre hémorragique virale",
-      "lvl": 4,
-      "period": "cumul depuis le début de l’épidémie (déclarée 17/05) · arrêté au 10/10/2026",
+      "lvl": 1,
+      "period": "cumul depuis le début de l’épidémie (déclarée 17/05) · arrêté au 11/10/2026",
       "zones": [
         {
           "zone": "RDC",
-          "l": 4,
+          "l": 1,
           "cas": 8978,
           "dec": 4336,
           "basis": "Règle REB RUN",
-          "basisWhy": "nouveaux décès il y a 3 j"
+          "basisWhy": "cas importés uniquement"
         },
         {
           "zone": "Ouganda",
@@ -463,7 +468,7 @@
           "cas": 2049,
           "dec": 7,
           "basis": "Règle REB RUN",
-          "basisWhy": "aucune évolution depuis 123 j"
+          "basisWhy": "aucune évolution depuis 124 j"
         }
       ]
     },
@@ -479,7 +484,7 @@
           "cas": 105,
           "dec": 6,
           "basis": "Règle REB RUN",
-          "basisWhy": "aucune évolution depuis 234 j"
+          "basisWhy": "aucune évolution depuis 235 j"
         }
       ]
     },
@@ -562,7 +567,7 @@
       "name": "Ebola Bundibugyo",
       "lvl": 4,
       "source": "COREB / OMS",
-      "date": "10/10/2026",
+      "date": "11/10/2026",
       "period": "cumul depuis le 17/05/2026",
       "rows": [
         {
@@ -687,7 +692,7 @@
       "cas": "8 998",
       "dec": "4 338",
       "trend": "up",
-      "source": "ECDC · 10/10/2026",
+      "source": "COREB · 11/10/2026",
       "note": "Épidémie unique en cours, centrée sur la RDC. Pas de circulation hors Afrique de l’Est."
     },
     {
@@ -867,7 +872,7 @@
       "name": "COREB — Veille épidémiologique REB",
       "url": "https://www.coreb.infectiologie.com/fr/veille-epidemiologique-reb.html",
       "scope": "Source prioritaire · sélection bimensuelle d’alertes REB par la mission COREB nationale (FHCC, Lassa, FHV…)",
-      "last": "07/10/2026",
+      "last": "14/10/2026",
       "auto": true,
       "priority": true
     },
@@ -883,14 +888,14 @@
       "name": "OMS — Disease Outbreak News",
       "url": "https://www.who.int/emergencies/disease-outbreak-news",
       "scope": "Bulletins DON · toutes pathologies REB",
-      "last": "13/10/2026",
+      "last": "14/10/2026",
       "auto": true
     },
     {
       "name": "ECDC — page de suivi Ebola RDC/Ouganda",
       "url": "https://www.ecdc.europa.eu/en/ebola-outbreak-democratic-republic-congo-and-uganda",
       "scope": "Europe & international · MAJ ~2×/semaine",
-      "last": "13/10/2026",
+      "last": "14/10/2026",
       "auto": true
     },
     {
@@ -913,14 +918,14 @@
       "name": "Odissé — Santé publique France (API JSON)",
       "url": "https://odisse.santepubliquefrance.fr/pages/accueil/",
       "scope": "La Réunion · arboviroses en déclaration obligatoire (dengue, chik) · sans authentification — relevé complété par le bulletin SpF quand celui-ci est plus récent",
-      "last": "13/10/2026",
+      "last": "14/10/2026",
       "auto": true
     },
     {
       "name": "ReliefWeb (API JSON)",
       "url": "https://reliefweb.int",
       "scope": "OI & Afrique de l'Est · alertes épidémies (signal précoce) · appname approuvé, source active",
-      "last": "13/10/2026",
+      "last": "14/10/2026",
       "auto": true
     },
     {
@@ -948,7 +953,7 @@
       "name": "Santé publique France — Bulletin Océan Indien (La Réunion)",
       "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional",
       "scope": "La Réunion · bulletin de surveillance hebdomadaire (dengue, chik, leptospirose, mpox, grippe, bronchiolite)",
-      "last": "13/10/2026",
+      "last": "14/10/2026",
       "auto": true
     },
     {
@@ -962,7 +967,7 @@
       "name": "ARS La Réunion — page mpox",
       "url": "https://www.lareunion.ars.sante.fr/variole-b-mpox-situation-la-reunion-vigilance-aux-voyageurs",
       "scope": "La Réunion · cumul mpox (repli à URL stable si le bulletin SpF change de format)",
-      "last": "13/10/2026",
+      "last": "14/10/2026",
       "auto": true
     },
     {
@@ -974,6 +979,90 @@
     }
   ],
   "updates": [
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "updated",
+      "src": "Niveaux automatiques",
+      "what": "ebola_bdb · RDC : Urgence → Surveillance — Règle REB RUN (cas importés uniquement)."
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "disabled",
+      "what": "CDC désactivé — le fichier CSV refuse les requêtes automatiques (HTTP 403) ; chiffres Ebola couverts par l'ECDC et l'OMS. Page conservée en consultation manuelle.",
+      "src": "CDC"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "checked",
+      "what": "Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.",
+      "src": "OMS"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "checked",
+      "what": "ECDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
+      "src": "ECDC"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "disabled",
+      "what": "Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.",
+      "src": "Africa CDC"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "disabled",
+      "what": "ESCMID Epi Alert désactivé — phrasé trop variable d'une semaine à l'autre pour une extraction fiable ; bulletin conservé en consultation manuelle.",
+      "src": "ESCMID"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "checked",
+      "what": "Bulletin SpF Océan Indien (09/10/2026) vérifié — aucun chiffre nouveau cette semaine (rubriques qualitatives ou valeurs inchangées).",
+      "src": "SpF Océan Indien (bulletin)"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "checked",
+      "what": "ARS La Réunion : 29 cas de mpox lus sur la page, mais aucune date de mise à jour lisible — chiffre non publié (vérification manuelle).",
+      "src": "ARS La Réunion (mpox)"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "updated",
+      "what": "Nouvelle veille COREB détectée : Veille du 13 octobre 2026 — chiffres intégrés : Ebola RDC 8978/4336.",
+      "src": "COREB (veille REB)"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "checked",
+      "what": "Aucune nouvelle évaluation de risque OMS dans les 40 derniers DON.",
+      "src": "OMS (risque)"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "checked",
+      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
+      "src": "Odissé (SpF)"
+    },
+    {
+      "date": "14/10 · 06:54",
+      "auto": true,
+      "status": "updated",
+      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
+      "src": "ReliefWeb"
+    },
     {
       "date": "13/10 · 08:43",
       "auto": true,
@@ -1309,100 +1398,16 @@
       "status": "checked",
       "what": "Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.",
       "src": "OMS"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "updated",
-      "what": "Ebola Bundibugyo / RDC mis à jour via ECDC : 8728 cas, 4205 décès (6 October 2026).",
-      "src": "ECDC"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "disabled",
-      "what": "Africa CDC désactivé — leur page de référence fixe n'est plus mise à jour (reste bloquée sur le rapport du 18/05) ; les rapports récents changent d'URL à chaque parution.",
-      "src": "Africa CDC"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "disabled",
-      "what": "ESCMID Epi Alert désactivé — phrasé trop variable d'une semaine à l'autre pour une extraction fiable ; bulletin conservé en consultation manuelle.",
-      "src": "ESCMID"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "checked",
-      "what": "Bulletin SpF Océan Indien (02/10/2026) vérifié — aucun chiffre nouveau cette semaine (rubriques qualitatives ou valeurs inchangées).",
-      "src": "SpF Océan Indien (bulletin)"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "checked",
-      "what": "ARS La Réunion : 29 cas de mpox lus sur la page, mais aucune date de mise à jour lisible — chiffre non publié (vérification manuelle).",
-      "src": "ARS La Réunion (mpox)"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "failed",
-      "what": "Échec de connexion à la COREB (d.getDate is not a function).",
-      "src": "COREB (veille REB)"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "checked",
-      "what": "Aucune nouvelle évaluation de risque OMS dans les 40 derniers DON.",
-      "src": "OMS (risque)"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "checked",
-      "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
-      "src": "Odissé (SpF)"
-    },
-    {
-      "date": "09/10 · 08:11",
-      "auto": true,
-      "status": "updated",
-      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
-      "src": "ReliefWeb"
-    },
-    {
-      "date": "08/10 · 08:11",
-      "auto": true,
-      "status": "disabled",
-      "what": "CDC désactivé — le fichier CSV refuse les requêtes automatiques (HTTP 403) ; chiffres Ebola couverts par l'ECDC et l'OMS. Page conservée en consultation manuelle.",
-      "src": "CDC"
-    },
-    {
-      "date": "08/10 · 08:11",
-      "auto": true,
-      "status": "checked",
-      "what": "Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.",
-      "src": "OMS"
-    },
-    {
-      "date": "08/10 · 08:11",
-      "auto": true,
-      "status": "checked",
-      "what": "ECDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.",
-      "src": "ECDC"
     }
   ],
   "reunionBulletin": {
     "date": "09/10/2026",
     "url": "https://www.santepubliquefrance.fr/regions-et-territoires/ocean-indien/bulletin-regional/surveillance-sanitaire-a-la-reunion-bulletin-du-9-octobre-2026",
-    "fetchedAt": "13/10 · 08:43",
+    "fetchedAt": "14/10 · 06:54",
     "extractOk": true
   },
   "reliefweb": {
-    "fetchedAt": "13/10 · 08:43",
+    "fetchedAt": "14/10 · 06:54",
     "alerts": [
       {
         "id": "52586",
@@ -1616,15 +1621,20 @@
     "Odissé (SpF)": 0,
     "ReliefWeb": 0,
     "ARS La Réunion (mpox)": 0,
-    "COREB (veille REB)": 6,
+    "COREB (veille REB)": 0,
     "OMS (risque)": 0
   },
   "corebVeille": {
-    "date": "30/09/2026",
-    "label": "Veille du 30 septembre 2026",
-    "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20260930.pdf",
+    "date": "13/10/2026",
+    "label": "Veille du 13 octobre 2026",
+    "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20261013.pdf",
     "page": "https://www.coreb.infectiologie.com/fr/veille-epidemiologique-reb.html",
     "recent": [
+      {
+        "label": "Veille du 13 octobre 2026",
+        "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20261013.pdf",
+        "date": "13/10/2026"
+      },
       {
         "label": "Veille du 30 septembre 2026",
         "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20260930.pdf",
@@ -1634,21 +1644,17 @@
         "label": "Veille du 16 septembre 2026",
         "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20260915.pdf",
         "date": "16/09/2026"
-      },
-      {
-        "label": "Veille du 02 septembre 2026",
-        "url": "https://www.coreb.infectiologie.com/UserFiles/File/veille-reb/veille-epidemiologique-reb-de-la-coreb-20260902.pdf",
-        "date": "02/09/2026"
       }
     ],
     "mentions": [
       "lassa",
       "ebola_bdb",
       "mpox",
-      "h5n1"
+      "h5n1",
+      "plague"
     ],
     "pdfOk": true,
-    "fetchedAt": "07/10 · 10:45",
+    "fetchedAt": "14/10 · 06:54",
     "signals": [
       {
         "title": "Ebola – RDC",
@@ -1657,10 +1663,10 @@
           {
             "fr": "RDC",
             "en": "Dem. Rep. Congo",
-            "cas": 8116,
-            "dec": 3924,
-            "imported": false,
-            "date": "27/09/2026"
+            "cas": 8978,
+            "dec": 4336,
+            "imported": true,
+            "date": "11/10/2026"
           }
         ]
       },
@@ -1671,15 +1677,15 @@
           {
             "fr": "Nigéria",
             "en": "Nigeria",
-            "cas": 1086,
-            "dec": 259,
+            "cas": 1138,
+            "dec": 268,
             "imported": false,
             "date": "06/09/2026"
           }
         ]
       },
       {
-        "title": "Diphtérie – France / Australie / Sénégal",
+        "title": "Diphtérie – France / Sénégal",
         "pid": null,
         "countries": [
           {
@@ -1688,37 +1694,43 @@
             "cas": null,
             "dec": null,
             "imported": false,
-            "date": "11/09/2026"
-          },
-          {
-            "fr": "Australie",
-            "en": null,
-            "cas": null,
-            "dec": null,
-            "imported": false,
-            "date": "24/09/2026"
+            "date": "07/10/2026"
           },
           {
             "fr": "Sénégal",
             "en": "Senegal",
-            "cas": 114,
-            "dec": null,
+            "cas": 248,
+            "dec": 11,
             "imported": false,
-            "date": "20/09/2026"
+            "date": "04/10/2026"
           }
         ]
       },
       {
-        "title": "Grippe aviaire A(H5N1) – Cambodge",
+        "title": "Grippe aviaire A(H9N2) – Chine",
         "pid": null,
         "countries": [
           {
-            "fr": "Cambodge",
-            "en": "Cambodia",
+            "fr": "Chine",
+            "en": "China",
+            "cas": 183,
+            "dec": 2,
+            "imported": false,
+            "date": "30/08/2026"
+          }
+        ]
+      },
+      {
+        "title": "Pneumonie d’étiologie non identifiée – Russie",
+        "pid": null,
+        "countries": [
+          {
+            "fr": "Russie",
+            "en": "Russia",
             "cas": null,
             "dec": null,
             "imported": false,
-            "date": "23/09/2026"
+            "date": "29/09/2026"
           }
         ]
       }
@@ -1748,6 +1760,11 @@
         },
         {
           "date": "10/10/2026",
+          "cas": 8978,
+          "aut": null
+        },
+        {
+          "date": "11/10/2026",
           "cas": 8978,
           "aut": null
         }
@@ -1943,7 +1960,7 @@
   "_levelBasis": {
     "ebola_bdb|Dem. Rep. Congo": {
       "basis": "Règle REB RUN",
-      "why": "nouveaux décès il y a 3 j"
+      "why": "cas importés uniquement"
     },
     "ebola_bdb|Uganda": {
       "basis": "Règle REB RUN",
@@ -1951,15 +1968,15 @@
     },
     "mpox|Madagascar": {
       "basis": "Règle REB RUN",
-      "why": "aucune évolution depuis 123 j"
+      "why": "aucune évolution depuis 124 j"
     },
     "cholera|Comoros": {
       "basis": "Règle REB RUN",
-      "why": "aucune évolution depuis 234 j"
+      "why": "aucune évolution depuis 235 j"
     },
     "lassa|Nigeria": {
       "basis": "Règle REB RUN",
-      "why": "dernier mouvement il y a 37 j"
+      "why": "dernier mouvement il y a 38 j"
     },
     "dengue|La Réunion": {
       "basis": "Règle REB RUN",
@@ -1979,11 +1996,11 @@
     },
     "cchf|Spain": {
       "basis": "Règle REB RUN",
-      "why": "dernier mouvement il y a 34 j"
+      "why": "dernier mouvement il y a 35 j"
     },
     "cchf|Iran": {
       "basis": "Règle REB RUN",
-      "why": "dernier mouvement il y a 34 j"
+      "why": "dernier mouvement il y a 35 j"
     }
   }
 }
