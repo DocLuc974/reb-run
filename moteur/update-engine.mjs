@@ -147,6 +147,8 @@ function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sour
       dec: candidateDec ?? current.dec ?? null,
       date: `${dd}/${mm}/${candidateDate.getFullYear()}`,
       source: sourceLabel,
+      // Relevé précédent du même pays : sert à calculer la tendance PAR PAYS (fiche carte).
+      ...(current.cas != null && current.date ? { prevCas: current.cas, prevDec: current.dec ?? null, prevDate: current.date } : {}),
     };
     // Alimente automatiquement la série temporelle (courbe) du pathogène concerné,
     // en additionnant les autres zones connues (ex. Ouganda, statique pour l'instant).
@@ -1141,7 +1143,8 @@ const ZONE_FR = { 'Dem. Rep. Congo': 'RDC', 'Uganda': 'Ouganda', 'Kenya': 'Kenya
 const EN_TO_REGIONAL = {
   'Dem. Rep. Congo': 'RDC', 'Uganda': 'Ouganda', 'Comoros': 'Comores', 'Tanzania': 'Tanzanie',
   'Mauritius': 'Maurice', 'Madagascar': 'Madagascar', 'La Réunion': 'La Réunion', 'Mayotte': 'Mayotte',
-  'Mozambique': 'Mozambique', 'Seychelles': 'Seychelles',
+  'Mozambique': 'Mozambique', 'Seychelles': 'Seychelles', 'Kenya': 'Kenya', 'Rwanda': 'Rwanda', 'Burundi': 'Burundi',
+  'Malawi': 'Malawi', 'Zambia': 'Zambie', 'Zimbabwe': 'Zimbabwe', 'South Africa': 'Afrique du Sud',
 };
 function autoLevels(data, stamp) {
   const today = new Date();
@@ -1294,7 +1297,10 @@ function deriveDashboard(data, checkLogs = []) {
     const [pid, en] = key.split('|');
     if (en === 'La Réunion' || en === 'Mayotte') continue;
     const al = (data.alerts || []).find(a => PATHO_OF_ALERT(a) === pid);
-    if (!al || num(data.cases[key].cas) == null) continue;
+    // Uniquement un relevé chiffré exact (pas « ≈ 6 M », « centaines/an ») : sinon la Dengue
+    // Brésil (« ≈ 6 M » lu comme 6) entrait dans l'alerte régionale et ses 3 000 décès dans le KPI.
+    const strict = (v) => /^\d+$/.test(String(v ?? '').replace(/[\u00a0\s]/g, ''));
+    if (!al || !strict(data.cases[key].cas)) continue;
     const zone = ZONE_FR[en] || en;
     MAP[key] = { alert: al.name, synth: al.name, zone };
     if (!(al.zones || []).some(z => z.zone === zone)) (al.zones = al.zones || []).push({ zone, l: 1, cas: null, dec: null });
@@ -1314,7 +1320,8 @@ function deriveDashboard(data, checkLogs = []) {
       if (z) { if (cas != null) z.cas = cas; if (dec != null) z.dec = dec; }
       // Zone absente de l'alerte (ex. mpox Réunion vs alerte « clade Ib » centrée Madagascar) :
       // on ne touche pas à sa date d'arrêt, sinon elle affiche une date sans rapport avec ses chiffres.
-      if (!z) continue;
+      // (avant : « continue » sautait aussi la mise à jour de la synthèse → Mpox Réunion figé à 29)
+      if (z) {
       // Resynchronise la date "arrêté au DD/MM/YYYY" affichée dans les KPI (period)
       // avec la date réelle du relevé — sinon elle reste figée même quand les chiffres bougent.
       // ⚠️ Plusieurs zones (ex. RDC + Ouganda) partagent la même alerte/period : on ne
@@ -1324,6 +1331,7 @@ function deriveDashboard(data, checkLogs = []) {
       const periodDate = periodM ? new Date(+periodM[3], +periodM[2] - 1, +periodM[1]) : null;
       if (rec.date && periodM && (!periodDate || parseFrDate(rec.date) > periodDate)) {
         al.period = al.period.replace(/arrêté au\s+\d{1,2}\/\d{1,2}\/\d{2,4}/, `arrêté au ${rec.date}`);
+      }
       }
     }
     const sy = (data.synth || []).find(s => s.name === m.synth);
@@ -1389,6 +1397,20 @@ function deriveDashboard(data, checkLogs = []) {
     if (!entries.length) continue;
     if (entries.some(([, v]) => numOf(v.cas) == null)) continue;
     const cas = entries.reduce((s, [, v]) => s + numOf(v.cas), 0);
+    // Pays et zones recalculés aussi (le texte restait « RDC, Ouganda + cas importé en France »
+    // alors que le Kenya et le Nigéria étaient touchés).
+    const allRecs = Object.entries(data.cases || {}).filter(([k]) => k.startsWith(row.id + '|'));
+    const nm = (k) => ZONE_FR[k.split('|')[1]] || k.split('|')[1];
+    const isEnded = (v) => /termin|fin d.[ée]pid/i.test(v.source || '');
+    const isImp = (v) => v.imported || (/import/i.test(v.source || '') && !/secondaire|locale|autochtone/i.test(v.source || ''));
+    const local = allRecs.filter(([, v]) => !isImp(v) && !isEnded(v) && numOf(v.cas)).map(([k]) => nm(k));
+    const ended = allRecs.filter(([, v]) => isEnded(v)).map(([k]) => nm(k));
+    const imp = allRecs.filter(([, v]) => isImp(v)).map(([k]) => nm(k));
+    if (local.length) {
+      row.countries = allRecs.length;
+      row.regions = [local.join(', '), ended.length ? `${ended.join(', ')} (épidémie terminée)` : '', imp.length ? `cas importés : ${imp.join(', ')}` : '']
+        .filter(Boolean).join(' · ');
+    }
     const dec = entries.reduce((s, [, v]) => s + (numOf(v.dec) || 0), 0);
     const latest = entries
       .map(([, v]) => v.date).filter(d => parseFrDate(d))

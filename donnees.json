@@ -7,7 +7,7 @@
   "kpi": {
     "foyersActifs": 1,
     "foyersLabel": "RDC",
-    "deces": 8404,
+    "deces": 5404,
     "pathogenesEnAlerte": 7,
     "pathogenesTotal": 12,
     "niveauMaxLabel": "Urgence",
@@ -18,19 +18,25 @@
       "RDC": 4,
       "Ouganda": 1,
       "La Réunion": 2,
-      "Mayotte": 2
+      "Mayotte": 2,
+      "Kenya": 1
     },
     "mpox": {
       "RDC": 3,
       "Ouganda": 2,
       "Madagascar": 1,
-      "La Réunion": 1
+      "La Réunion": 1,
+      "Rwanda": 1,
+      "Burundi": 2
     },
     "cholera": {
       "Comores": 1,
       "Mozambique": 2,
       "Tanzanie": 1,
-      "Madagascar": 1
+      "Madagascar": 1,
+      "Malawi": 2,
+      "Zambie": 1,
+      "Zimbabwe": 2
     },
     "dengue": {
       "La Réunion": 1,
@@ -41,7 +47,8 @@
     },
     "chikv": {
       "La Réunion": 1,
-      "Mayotte": 1
+      "Mayotte": 1,
+      "Kenya": 1
     },
     "lepto": {
       "La Réunion": 1,
@@ -53,7 +60,8 @@
     },
     "rvf": {
       "Mozambique": 1,
-      "Tanzanie": 1
+      "Tanzanie": 1,
+      "Kenya": 2
     }
   },
   "world": {
@@ -591,12 +599,6 @@
           "zone": "Madagascar",
           "l": 2,
           "cas": null
-        },
-        {
-          "zone": "Brazil",
-          "l": 1,
-          "cas": 6,
-          "dec": 3000
         }
       ]
     },
@@ -773,12 +775,12 @@
       "name": "Mpox (La Réunion)",
       "lvl": 1,
       "source": "Santé publique France — Océan Indien",
-      "date": "25/09/2026",
+      "date": "23/10/2026",
       "period": "cumul 2026 · 28 cas dont 23 importés de Madagascar et 5 autochtones",
       "rows": [
         {
           "zone": "La Réunion",
-          "conf": 29,
+          "conf": 31,
           "dec": null,
           "susp": null
         }
@@ -790,8 +792,8 @@
       "id": "ebola_bdb",
       "name": "Ebola Bundibugyo",
       "lvl": 4,
-      "regions": "Afrique centrale (RDC, Ouganda) + cas importé en France",
-      "countries": 3,
+      "regions": "RDC, Kenya · Ouganda (épidémie terminée) · cas importés : France, Allemagne, Nigéria",
+      "countries": 6,
       "cas": "9 734",
       "dec": "4 691",
       "trend": "up",
@@ -921,6 +923,20 @@
   ],
   "journal": [
     {
+      "date": "25/10",
+      "l": 1,
+      "path": "Ebola Bundibugyo",
+      "src": "ECDC",
+      "text": "Kenya : 9 cas confirmés dont 2 décès (au 25/10), tous liés au premier cas importé de RDC via l’Ouganda. Risque OMS « faible » pour le reste de la région africaine (DON622)."
+    },
+    {
+      "date": "20/10",
+      "l": 1,
+      "path": "Ebola Bundibugyo",
+      "src": "OMS DON622",
+      "text": "Nigéria : 1 cas importé confirmé à Abuja (voyageur en provenance d’Ouganda), 53 contacts suivis."
+    },
+    {
       "date": "12/08",
       "l": 4,
       "path": "Ebola Bundibugyo",
@@ -995,8 +1011,8 @@
       "auto": true
     },
     {
-      "name": "ECDC — page de suivi Ebola RDC/Ouganda",
-      "url": "https://www.ecdc.europa.eu/en/ebola-outbreak-democratic-republic-congo-and-uganda",
+      "name": "ECDC — Ebola multi-pays (RDC, Kenya, Nigéria)",
+      "url": "https://www.ecdc.europa.eu/en/ebola-disease-multi-country-outbreak-2026",
       "scope": "Europe & international · MAJ ~2×/semaine",
       "last": "26/10/2026",
       "auto": true
