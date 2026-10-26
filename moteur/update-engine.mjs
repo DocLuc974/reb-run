@@ -153,7 +153,8 @@ function applyIfNewer(data, key, candidateDate, candidateCas, candidateDec, sour
     const [pathogenId, zone] = key.split('|');
     // opts.noSeries : relevé ponctuel d'un pays parmi d'autres (ex. FHCC Iran via la COREB) —
     // l'injecter dans la courbe du pathogène mélangerait des pays différents d'un point à l'autre.
-    if (opts.noSeries) { /* pas de point de courbe */ }
+    // La courbe Ebola est celle de la RDC : un relevé Kenya/Nigéria n'y entre jamais.
+    if (opts.noSeries || (pathogenId === 'ebola_bdb' && zone !== 'Dem. Rep. Congo')) { /* pas de point de courbe */ }
     else if (pathogenId === 'ebola_bdb') {
       const ugandaCas = +(data.cases['ebola_bdb|Uganda']?.cas) || 19;
       const ugandaDec = +(data.cases['ebola_bdb|Uganda']?.dec) || 2;
@@ -234,8 +235,12 @@ async function checkWHO(data) {
     if (!items) throw new Error('réponse API inattendue (pas de champ "value" exploitable)');
 
     const hit = items.find(it => /ebola/i.test(it.Title || '') && /(bundibugyo|congo|drc|uganda)/i.test(`${it.Title} ${it.Summary}`));
+    // L'API outbreaks a du retard sur le site (le DON622 du 23/10 n'y figurait pas le 26/10) :
+    // on sonde aussi les pages DON numérotées après le dernier numéro connu.
+    const probe = await probeWhoDon(data);
+    if (probe) return probe;
     if (!hit) {
-      return { source: 'OMS', auto: true, status: 'checked', what: `Aucun bulletin OMS récent (API) sur Ebola Bundibugyo parmi les 20 derniers outbreaks publiés.` };
+      return { source: 'OMS', auto: true, status: 'checked', what: `Aucun bulletin OMS récent sur Ebola Bundibugyo (API et pages DON sondées après le DON${data.meta.who_last_don}).` };
     }
     const summary = `${hit.Title || ''}. ${hit.Summary || ''}. ${hit.Highlight || ''}`;
     const m = summary.match(/([\d,]{2,8})\s+confirmed cases[^.]{0,80}?(?:including\s+)?([\d,]{2,8})?\s*(?:related\s+)?deaths?/i);
@@ -253,6 +258,64 @@ async function checkWHO(data) {
   } catch (err) {
     return { source: 'OMS', auto: true, status: 'failed', what: `API OMS inaccessible (${err.message || err}).` };
   }
+}
+
+// Sondage des pages DON (2026-DON616, 617…) : lecture du texte complet, chiffres RDC + autres
+// pays + niveau de risque. Avance meta.who_last_don au dernier numéro existant.
+async function probeWhoDon(data) {
+  const start = (data.meta && +data.meta.who_last_don) || 600;
+  const year = new Date().getFullYear();
+  let lastFound = start, ebola = null, misses = 0;
+  for (let n = start + 1; n <= start + WHO_DON_PROBE_AHEAD && misses < 4; n++) {
+    let html = null;
+    try { const r = await fetchWithTimeout(`https://www.who.int/emergencies/disease-outbreak-news/item/${year}-DON${n}`, TIMEOUT_MS); if (r.ok) html = await r.text(); } catch {}
+    if (!html) { misses++; continue; }
+    misses = 0; lastFound = n;
+    const title = stripTags((html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || [, ''])[1]) || stripTags((html.match(/<title>([\s\S]*?)<\/title>/i) || [, ''])[1]);
+    if (/ebola/i.test(title)) ebola = { n, title, text: stripTags(html) };
+  }
+  data.meta.who_last_don = lastFound;
+  if (!ebola) return null;
+  const t = ebola.text;
+  const pdm = t.match(/(\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/);
+  const pub = pdm ? parseEnDate(pdm[1]) : new Date();
+  const done = [];
+  const m = t.match(/As of\s+(\d{1,2}\s+[A-Za-z]+\s+\d{4}),?\s+a\s+total\s+of\s+([\d,\s]{3,12})\s+confirmed\s+cases,?\s+including\s+([\d,\s]{2,10})\s+deaths/i);
+  if (m) {
+    const d = parseEnDate(m[1]);
+    if (d && applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, m[2].replace(/\D/g, ''), m[3].replace(/\D/g, ''), `OMS DON${ebola.n} (auto) — ${m[1]}`)) done.push(`RDC ${m[2].trim()}/${m[3].trim()}`);
+  }
+  done.push(...applyCountryFigures(data, 'ebola_bdb', t, pub, `OMS DON${ebola.n} (auto)`));
+  // Niveau de risque du DON, pour chaque pays du titre.
+  // Deux formulations : « … high at the national level » (classique) ou, pour Ebola 2026, par groupe
+  // de pays : « risk in the DRC was assessed as very high, the risk for countries sharing land
+  // borders with the DRC … as high, and the risks for the rest of the African region and at the
+  // global level … as low ». On attribue à chaque pays le niveau de SON groupe.
+  const LV = '(very high|high|moderate|low)';
+  const pick = (re) => { const x = t.match(re); return x ? x[1].toLowerCase() : null; };
+  const rNat = pick(new RegExp(`${LV}\\s+at\\s+the\\s+national(?:\\s*(?:,|and)\\s+(?:regional|global))*\\s+levels?`, 'i'));
+  const rDrc = pick(new RegExp(`risk\\s+in\\s+the\\s+Democratic Republic of the Congo\\s+(?:was|is|remains)\\s+(?:again\\s+)?(?:assessed|considered)\\s+(?:as\\s+)?${LV}`, 'i'));
+  const rBorder = pick(new RegExp(`countries\\s+sharing\\s+(?:land\\s+)?borders?\\s+with\\s+the\\s+Democratic Republic of the Congo\\s+(?:was|is|remains)\\s+(?:again\\s+)?(?:assessed|considered)\\s+(?:as\\s+)?${LV}`, 'i'));
+  const rAfrica = pick(new RegExp(`rest\\s+of\\s+the\\s+African\\s+region[^.]{0,80}?(?:assessed|considered)\\s+(?:as\\s+)?${LV}`, 'i'));
+  const rGlobal = pick(new RegExp(`(?:at\\s+the\\s+)?global\\s+level[^.]{0,60}?(?:assessed|considered)\\s+(?:as\\s+)?${LV}`, 'i'))
+    || pick(new RegExp(`${LV}\\s+at\\s+the\\s+(?:regional\\s+and\\s+)?global\\s+levels?`, 'i'));
+  const DRC_BORDER = ['Uganda', 'Rwanda', 'Burundi', 'Tanzania', 'Zambia', 'Angola', 'Central African Rep.', 'S. Sudan', 'Congo'];
+  const AFRICA = ['Kenya', 'Nigeria', 'Ethiopia', 'Ghana', 'Cameroon', 'Gabon', 'South Africa', 'Mozambique', 'Malawi', 'Madagascar', 'Comoros', 'Sudan', 'Somalia', 'Senegal', 'Guinea', 'Liberia', 'Sierra Leone', "Côte d'Ivoire", 'Mali', 'Niger', 'Chad', 'Benin', 'Togo', 'Zimbabwe', 'Botswana', 'Namibia', 'Egypt', 'Mauritius', 'Seychelles'];
+  const pubFR = `${String(pub.getDate()).padStart(2, '0')}/${String(pub.getMonth() + 1).padStart(2, '0')}/${pub.getFullYear()}`;
+  const countries = ebola.title.split(/\s+[–-]\s+/).slice(1).join(' - ').split(/,|\s+and\s+/).map(whoCountryEN).filter(Boolean);
+  data.whoRisk = data.whoRisk || {};
+  for (const en of countries) {
+    let lab = null, scope = 'national';
+    if (en === 'Dem. Rep. Congo' && rDrc) lab = rDrc;
+    else if (DRC_BORDER.includes(en) && rBorder) { lab = rBorder; scope = 'pays frontaliers de la RDC'; }
+    else if (AFRICA.includes(en) && rAfrica) { lab = rAfrica; scope = 'reste de la région africaine'; }
+    else if (rNat) lab = rNat;
+    else if (rGlobal) { lab = rGlobal; scope = 'mondial'; }
+    if (lab) data.whoRisk[`ebola_bdb|${en}`] = { lvl: WHO_RISK_LVL[lab], label: WHO_RISK_FR[lab], scope, don: `DON${ebola.n}`, date: pubFR };
+  }
+  return { source: 'OMS', auto: true, status: done.length ? 'updated' : 'checked', what: done.length
+    ? `Ebola Bundibugyo mis à jour via l'OMS DON${ebola.n} (« ${ebola.title} ») : ${done.join(', ')}.`
+    : `OMS DON${ebola.n} lu (« ${ebola.title} ») — valeurs déjà publiées toujours les plus récentes.` };
 }
 
 // ── Niveaux de risque OMS publiés dans les DON ────────────────────────────────────────
@@ -317,12 +380,93 @@ async function checkWHORisk(data) {
 
 // ── Source 3 : ECDC — page de suivi dédiée, mise à jour hebdomadaire (~chaque mardi/jeudi)
 // Pas bloquée par CORS ici : ce script tourne côté serveur (Node), pas dans un navigateur.
+// ── Chiffres par pays dans un texte (DON OMS, page ECDC) ──────────────────────────────────
+// Jusqu'ici seuls les chiffres RDC étaient extraits : un nouveau pays touché (Kenya, Nigéria
+// en octobre 2026) n'apparaissait nulle part. On lit phrase par phrase ; une phrase qui cite
+// UN seul pays et un nombre de cas (éventuellement de décès) donne un relevé pour ce pays.
+// Nombres en chiffres ou en toutes lettres (« nine confirmed cases, including two deaths »).
+const EN_NUM = { one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10, eleven:11, twelve:12,
+  thirteen:13, fourteen:14, fifteen:15, sixteen:16, seventeen:17, eighteen:18, nineteen:19, twenty:20, thirty:30, forty:40, fifty:50 };
+const EXTRACT_COUNTRIES = [
+  [/\bKenya\b/, 'Kenya'], [/\bNigeria\b/, 'Nigeria'], [/\bUganda\b/, 'Uganda'], [/\bRwanda\b/, 'Rwanda'],
+  [/\bBurundi\b/, 'Burundi'], [/\bTanzania\b/, 'Tanzania'], [/\bSouth Sudan\b/, 'S. Sudan'], [/\bZambia\b/, 'Zambia'],
+  [/\bAngola\b/, 'Angola'], [/\bEthiopia\b/, 'Ethiopia'], [/\bCentral African Republic\b/, 'Central African Rep.'],
+  [/\bRepublic of (?:the )?Congo\b(?! \(DRC\))/, 'Congo'], [/\bGhana\b/, 'Ghana'], [/\bCameroon\b/, 'Cameroon'],
+  [/\bGabon\b/, 'Gabon'], [/\bSouth Africa\b/, 'South Africa'], [/\bMozambique\b/, 'Mozambique'], [/\bMalawi\b/, 'Malawi'],
+  [/\bFrance\b/, 'France'], [/\bGermany\b/, 'Germany'], [/\bBelgium\b/, 'Belgium'], [/\bItaly\b/, 'Italy'],
+  [/\bSpain\b/, 'Spain'], [/\bUnited Kingdom\b/, 'United Kingdom'], [/\bUnited States\b/, 'United States of America'],
+];
+const EN_MONTH = { january:1, february:2, march:3, april:4, may:5, june:6, july:7, august:8, september:9, october:10, november:11, december:12 };
+function extractCountryFigures(text, pubDate) {
+  const N = '(\\d{1,3}(?:[ ,]\\d{3})+|\\d+|' + Object.keys(EN_NUM).join('|') + ')';
+  const toN = (s) => { const k = String(s).toLowerCase(); return EN_NUM[k] ?? (+k.replace(/[ ,]/g, '') || null); };
+  const reCasDec = new RegExp(`${N}\\s+(?:laboratory[- ]confirmed\\s+|confirmed\\s+)?(?:BVD\\s+|Ebola\\s+)?cases?\\b[^.;]{0,70}?\\b(?:including|with|and)\\s+${N}\\s+(?:related\\s+)?deaths?`, 'i');
+  const reCas = new RegExp(`(?:total of|reported)\\s+${N}\\s+(?:laboratory[- ]confirmed\\s+|confirmed\\s+)?(?:BVD\\s+|Ebola\\s+)?cases?\\b`, 'i');
+  const reFirst = /confirm(?:ed|s)\s+(?:its\s+|an?\s+|the\s+)?(?:first\s+)?(?:laboratory[- ]confirmed\s+)?(?:imported\s+)?(?:Ebola\s+)?case|\b(?:an?|one)\s+(?:imported\s+)?(?:confirmed\s+)?(?:Ebola\s+|BVD\s+)?case\s+(?:was|has been)\s+(?:reported|confirmed)|reported\s+(?:the\s+|its\s+)?first\s+(?:laboratory[- ]confirmed\s+)?(?:imported\s+)?case/i;
+  // Pays cités comme simple étape de voyage (« travelled from Uganda », « via Uganda ») : ignorés.
+  const travelOnly = (s, re) => {
+    const g = new RegExp(re.source, 'g'); let m, any = false;
+    while ((m = g.exec(s))) { any = true; if (!/(?:from|via|to|through|history to|travel(?:led)? to)\s+(?:the\s+)?$/i.test(s.slice(Math.max(0, m.index - 30), m.index))) return false; }
+    return any;
+  };
+  const out = {};
+  const sentences = text.replace(/\s+/g, ' ').split(/(?<=[.;])\s+(?=[A-Z])/);
+  const ctx = {}; // contexte par pays : importé / transmission secondaire
+  let lastEn = null; // une phrase sans pays se rapporte au dernier pays cité
+  for (const s of sentences) {
+    const hits = EXTRACT_COUNTRIES.filter(([re]) => re.test(s) && !travelOnly(s, re));
+    const scope = hits.length ? hits.map(h => h[1]) : (lastEn ? [lastEn] : []);
+    for (const en of scope) {
+      ctx[en] = ctx[en] || { imported: false, local: false };
+      if (/import|travel history|travell?ed (?:from|to)|returned from/i.test(s)) ctx[en].imported = true;
+      if (/secondary|contacts? of the (?:first|index)|linked to the (?:first|index) case|additional cases|local transmission|community transmission/i.test(s) && !/no evidence of (?:wider )?community/i.test(s)) ctx[en].local = true;
+    }
+    if (hits.length === 1) lastEn = hits[0][1];
+    if (hits.length !== 1) continue;
+    const en = hits[0][1];
+    let cas = null, dec = null;
+    const m1 = s.match(reCasDec), m2 = s.match(reCas);
+    if (m1) { cas = toN(m1[1]); dec = toN(m1[2]); }
+    else if (m2) cas = toN(m2[1]);
+    else if (reFirst.test(s)) cas = 1;
+    if (!cas) continue;
+    const dm = s.match(/(?:As of|On|Since)\s+(\d{1,2})\s+(January|February|March|April|May|June|July|August|September|October|November|December)(?:\s+(\d{4}))?/i);
+    let d = pubDate;
+    if (dm && !/^since/i.test(dm[0])) {
+      const yr = dm[3] ? +dm[3] : pubDate.getFullYear();
+      d = new Date(yr, EN_MONTH[dm[2].toLowerCase()] - 1, +dm[1]);
+      if (d > pubDate) d = pubDate;
+    }
+    const prev = out[en];
+    if (!prev || d > prev.date || (+d === +prev.date && cas > prev.cas)) out[en] = { en, cas, dec, date: d };
+  }
+  return Object.values(out).map(r => ({ ...r, imported: !!(ctx[r.en] && ctx[r.en].imported && !ctx[r.en].local), local: !!(ctx[r.en] && ctx[r.en].local) }));
+}
+// Applique les relevés par pays (hors RDC, déjà couverte par le motif dédié de chaque source).
+function applyCountryFigures(data, pid, text, pubDate, srcLabel) {
+  const done = [];
+  for (const r of extractCountryFigures(text, pubDate)) {
+    const tag = r.imported ? 'cas importé' : (r.local ? 'cas secondaires autour d’un cas importé (transmission locale)' : 'cas confirmés');
+    const ok = applyIfNewer(data, `${pid}|${r.en}`, r.date, String(r.cas), r.dec != null ? String(r.dec) : null,
+      `${srcLabel} (${r.en} — ${tag})`, { noSeries: true });
+    if (ok) done.push(`${r.en} ${r.cas}${r.dec != null ? '/' + r.dec : ''}`);
+  }
+  return done;
+}
+
 async function checkECDC(data) {
-  const url = 'https://www.ecdc.europa.eu/en/ebola-outbreak-democratic-republic-congo-and-uganda';
+  // La page ECDC a été renommée en « multi-country outbreak » (oct. 2026) ; on garde l'ancienne
+  // adresse en repli.
+  const urls = ['https://www.ecdc.europa.eu/en/ebola-disease-multi-country-outbreak-2026',
+    'https://www.ecdc.europa.eu/en/ebola-outbreak-democratic-republic-congo-and-uganda'];
   try {
-    const r = await fetchWithTimeout(url, TIMEOUT_MS);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const text = stripTags(await r.text());
+    let text = null, lastErr = null;
+    for (const u of urls) {
+      try { const r = await fetchWithTimeout(u, TIMEOUT_MS); if (r.ok) { text = stripTags(await r.text()); break; } lastErr = new Error(`HTTP ${r.status}`); }
+      catch (e) { lastErr = e; }
+    }
+    if (!text) throw lastErr || new Error('page indisponible');
+    const others = applyCountryFigures(data, 'ebola_bdb', text, new Date(), 'ECDC (auto)');
     // Formulation ECDC (août 2026) : "On <date>, the Democratic Republic of the Congo (DRC)
     // reported a total of <cas> confirmed cases, including <décès> related deaths (from data
     // up until <date des chiffres>)." La date "up until" (sans année) qualifie les CHIFFRES ;
@@ -338,9 +482,10 @@ async function checkECDC(data) {
     const dateRaw = m[4] ? `${m[4]} ${pubYear}` : m[1];
     const d = parseEnDate(dateRaw);
     const applied = d ? applyIfNewer(data, 'ebola_bdb|Dem. Rep. Congo', d, cas, dec, `ECDC (auto) — "${dateRaw}"`) : false;
-    return { source: 'ECDC', auto: true, status: applied ? 'updated' : 'checked', what: applied
-      ? `Ebola Bundibugyo / RDC mis à jour via ECDC : ${cas} cas, ${dec} décès (${dateRaw}).`
-      : `ECDC vérifié pour Ebola Bundibugyo — valeur déjà publiée toujours la plus récente.` };
+    const extra = others.length ? ` Autres pays : ${others.join(', ')}.` : '';
+    return { source: 'ECDC', auto: true, status: (applied || others.length) ? 'updated' : 'checked', what: applied
+      ? `Ebola Bundibugyo / RDC mis à jour via ECDC : ${cas} cas, ${dec} décès (${dateRaw}).${extra}`
+      : `ECDC vérifié pour Ebola Bundibugyo — RDC déjà à jour.${extra}` };
   } catch (err) {
     return { source: 'ECDC', auto: true, status: 'failed', what: `Échec de connexion à ECDC (${err.message || err}).` };
   }
@@ -814,7 +959,12 @@ async function checkCorebVeille(data) {
     if (!items.length) return { source: 'COREB (veille REB)', auto: true, status: 'failed', what: `Échec d'extraction sur la page Veille REB de la COREB — aucun lien PDF de veille trouvé (${(html.match(/\.pdf/gi) || []).length} lien(s) PDF sur la page, ${html.length} caractères reçus).` };
     items.sort((a, b) => b.date - a.date);
     const latest = items[0];
-    const fmt = (d) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    // Accepte une Date OU une chaîne déjà formatée : quand la veille n'est pas nouvelle, les
+    // signaux sont relus depuis donnees.json avec des dates en texte — l'ancien fmt plantait
+    // (« d.getDate is not a function »), ce qui bloquait la COREB depuis le 13/10.
+    const fmt = (d) => (d instanceof Date && !isNaN(d))
+      ? `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`
+      : (typeof d === 'string' ? d : null);
     const prev = data.corebVeille || {};
     const isNew = prev.url !== latest.url;
 
@@ -981,6 +1131,13 @@ const SOURCE_NAME_MAP = {
 // Un niveau ne baisse donc qu'après 30 jours sans évolution des chiffres. L'état (dernières
 // valeurs vues, date du dernier mouvement) est conservé dans data._levelState.
 const LEVEL_LBL = ['Aucun signal', 'Surveillance', 'Vigilance', 'Alerte', 'Urgence'];
+// Nom affiché des zones dans les fiches d'alerte et la synthèse
+const ZONE_FR = { 'Dem. Rep. Congo': 'RDC', 'Uganda': 'Ouganda', 'Kenya': 'Kenya', 'Nigeria': 'Nigéria', 'Tanzania': 'Tanzanie',
+  'Rwanda': 'Rwanda', 'Burundi': 'Burundi', 'S. Sudan': 'Soudan du Sud', 'Zambia': 'Zambie', 'Ethiopia': 'Éthiopie',
+  'Central African Rep.': 'Centrafrique', 'Congo': 'Congo', 'Cameroon': 'Cameroun', 'South Africa': 'Afrique du Sud',
+  'France': 'France', 'Germany': 'Allemagne', 'Belgium': 'Belgique', 'Italy': 'Italie', 'Spain': 'Espagne',
+  'United Kingdom': 'Royaume-Uni', 'United States of America': 'États-Unis', 'Comoros': 'Comores', 'Madagascar': 'Madagascar',
+  'Mozambique': 'Mozambique', 'Iran': 'Iran', 'Turkey': 'Turquie', 'Austria': 'Autriche' };
 const EN_TO_REGIONAL = {
   'Dem. Rep. Congo': 'RDC', 'Uganda': 'Ouganda', 'Comoros': 'Comores', 'Tanzania': 'Tanzanie',
   'Mauritius': 'Maurice', 'Madagascar': 'Madagascar', 'La Réunion': 'La Réunion', 'Mayotte': 'Mayotte',
@@ -1000,7 +1157,7 @@ function autoLevels(data, stamp) {
     const cas = n(rec.cas), dec = n(rec.dec) || 0;
     const recDate = parseFrDate(rec.date);
     const ended = /termin[ée]e|fin d.[ée]pid[ée]mie/i.test(rec.source || '');
-    const importedOnly = /import[ée]/i.test(rec.source || '') && !/autochtone/i.test(rec.source || '');
+    const importedOnly = /import[ée]/i.test(rec.source || '') && !/autochtone|secondaire|transmission locale/i.test(rec.source || '');
 
     let s = st[key];
     if (!s) {
@@ -1096,7 +1253,7 @@ function autoLevels(data, stamp) {
     }
     for (const al of (data.alerts || [])) {
       if ((PATHO_OF_ALERT(al)) !== pid) continue;
-      const z = (al.zones || []).find(z => z.zone === fr || z.zone === en);
+      const z = (al.zones || []).find(z => z.zone === fr || z.zone === en || z.zone === ZONE_FR[en]);
       if (z) { if (before == null) before = z.l; z.l = lvl; z.basis = basis; z.basisWhy = why; }
     }
     (data._levelBasis = data._levelBasis || {})[`${pid}|${en}`] = { basis, why };
@@ -1129,6 +1286,24 @@ function deriveDashboard(data, checkLogs = []) {
     'lepto|La Réunion':          { alert: 'Leptospirose',     synth: 'Leptospirose (La Réunion)', zone: 'La Réunion' },
     'mpox|La Réunion':           { alert: 'Mpox (clade Ib)',  synth: 'Mpox (La Réunion)', zone: 'La Réunion' },
   };
+  // Nouveaux pays : tout relevé chiffré « pathogène|pays » dont le pathogène a une fiche d'alerte
+  // y est ajouté automatiquement (zone + ligne de synthèse). Avant, la liste était figée à
+  // RDC/Ouganda : le Kenya et le Nigéria (octobre 2026) n'apparaissaient nulle part.
+  for (const key of Object.keys(data.cases || {})) {
+    if (MAP[key]) continue;
+    const [pid, en] = key.split('|');
+    if (en === 'La Réunion' || en === 'Mayotte') continue;
+    const al = (data.alerts || []).find(a => PATHO_OF_ALERT(a) === pid);
+    if (!al || num(data.cases[key].cas) == null) continue;
+    const zone = ZONE_FR[en] || en;
+    MAP[key] = { alert: al.name, synth: al.name, zone };
+    if (!(al.zones || []).some(z => z.zone === zone)) (al.zones = al.zones || []).push({ zone, l: 1, cas: null, dec: null });
+    const sy = (data.synth || []).find(s => s.name === al.name);
+    if (sy && !(sy.rows || []).some(r => r.zone === zone)) {
+      const ti = sy.rows.findIndex(r => r.total);
+      sy.rows.splice(ti < 0 ? sy.rows.length : ti, 0, { zone, conf: null, dec: null });
+    }
+  }
   for (const [key, m] of Object.entries(MAP)) {
     const rec = data.cases && data.cases[key];
     if (!rec) continue;
@@ -1160,7 +1335,7 @@ function deriveDashboard(data, checkLogs = []) {
       if (r && rec.date && (!parseFrDate(sy.date) || parseFrDate(rec.date) > parseFrDate(sy.date))) sy.date = rec.date;
     }
   }
-  // Recalcule le TOTAL du bloc Ebola (RDC + Ouganda)
+  // Recalcule le TOTAL du bloc Ebola (tous pays)
   const eb = (data.synth || []).find(s => s.name === 'Ebola Bundibugyo');
   if (eb) {
     const rows = eb.rows.filter(r => !r.total);
@@ -1332,6 +1507,9 @@ async function main() {
     ...data.updates,
   ].slice(0, 60);
 
+  // 1er passage : crée les zones des nouveaux pays et y reporte les chiffres, pour que les niveaux
+  // s'y appliquent dès ce run ; 2e passage après les niveaux : KPI et foyers actifs à jour.
+  deriveDashboard(data, checkList.map(c => c.log));
   // Niveaux de gravité des cartes recalculés à partir des relevés (avant les KPI, qui en dépendent)
   const levelChanges = autoLevels(data, stamp);
   if (levelChanges.length) data.updates = [...levelChanges, ...data.updates].slice(0, 60);
