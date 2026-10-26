@@ -1146,6 +1146,33 @@ const EN_TO_REGIONAL = {
   'Mozambique': 'Mozambique', 'Seychelles': 'Seychelles', 'Kenya': 'Kenya', 'Rwanda': 'Rwanda', 'Burundi': 'Burundi',
   'Malawi': 'Malawi', 'Zambia': 'Zambie', 'Zimbabwe': 'Zimbabwe', 'South Africa': 'Afrique du Sud',
 };
+// Une seule valeur par pays et pathogène : la carte régionale (zones OI / Afrique de l'Est) fait
+// référence ; la carte mondiale et les fiches d'alerte s'y alignent. Une zone absente de la carte
+// régionale reprend la valeur mondiale. Avant, la peste à Madagascar était à 2 en régional et à 3
+// en mondial, le mpox RDC à 1 sur la fiche et à 3 sur les cartes.
+function syncLevels(data) {
+  const R = data.regional || {}, W = data.world || {};
+  const pids = new Set([...Object.keys(R), ...Object.keys(W)]);
+  for (const pid of pids) {
+    for (const [en, fr] of Object.entries(EN_TO_REGIONAL)) {
+      const r = R[pid] && R[pid][fr], w = W[pid] && W[pid][en];
+      if (r != null) { if (w !== r && (W[pid] || r > 0)) (W[pid] = W[pid] || {})[en] = r; }
+      else if (w != null) (R[pid] = R[pid] || {})[fr] = w;
+    }
+  }
+  const FR_TO_EN = Object.fromEntries(Object.entries(EN_TO_REGIONAL).map(([en, fr]) => [fr, en]));
+  for (const al of (data.alerts || [])) {
+    const pid = PATHO_OF_ALERT(al);
+    if (!pid) continue;
+    for (const z of (al.zones || [])) {
+      const en = FR_TO_EN[z.zone] || Object.keys(ZONE_FR).find(k => ZONE_FR[k] === z.zone) || z.zone;
+      const fr = EN_TO_REGIONAL[en];
+      const lv = fr && R[pid] && R[pid][fr] != null ? R[pid][fr] : (W[pid] && W[pid][en]);
+      if (lv != null) z.l = lv;
+    }
+    if ((al.zones || []).length) al.lvl = Math.max(...al.zones.map(z => z.l || 0));
+  }
+}
 function autoLevels(data, stamp) {
   const today = new Date();
   const days = (d) => d ? Math.floor((today - d) / 864e5) : Infinity;
@@ -1534,6 +1561,7 @@ async function main() {
   deriveDashboard(data, checkList.map(c => c.log));
   // Niveaux de gravité des cartes recalculés à partir des relevés (avant les KPI, qui en dépendent)
   const levelChanges = autoLevels(data, stamp);
+  syncLevels(data);
   if (levelChanges.length) data.updates = [...levelChanges, ...data.updates].slice(0, 60);
 
   // Propage les chiffres collectés vers tous les onglets + recalcule les KPI d'accueil

@@ -17,8 +17,8 @@
     "ebola_bdb": {
       "RDC": 4,
       "Ouganda": 1,
-      "La Réunion": 2,
-      "Mayotte": 2,
+      "La Réunion": 1,
+      "Mayotte": 1,
       "Kenya": 1
     },
     "mpox": {
@@ -36,19 +36,21 @@
       "Madagascar": 1,
       "Malawi": 2,
       "Zambie": 1,
-      "Zimbabwe": 2
+      "Zimbabwe": 2,
+      "RDC": 2
     },
     "dengue": {
       "La Réunion": 1,
-      "Mayotte": 2,
-      "Madagascar": 2,
+      "Mayotte": 1,
+      "Madagascar": 1,
       "Comores": 1,
       "Maurice": 1
     },
     "chikv": {
       "La Réunion": 1,
       "Mayotte": 1,
-      "Kenya": 1
+      "Kenya": 1,
+      "Madagascar": 1
     },
     "lepto": {
       "La Réunion": 1,
@@ -56,12 +58,18 @@
       "Madagascar": 1
     },
     "plague": {
-      "Madagascar": 2
+      "Madagascar": 2,
+      "RDC": 2
     },
     "rvf": {
       "Mozambique": 1,
       "Tanzanie": 1,
-      "Kenya": 2
+      "Kenya": 2,
+      "Ouganda": 1
+    },
+    "cchf": {
+      "Ouganda": 1,
+      "Afrique du Sud": 1
     }
   },
   "world": {
@@ -71,7 +79,9 @@
       "France": 1,
       "Germany": 1,
       "Kenya": 1,
-      "Nigeria": 1
+      "Nigeria": 1,
+      "La Réunion": 1,
+      "Mayotte": 1
     },
     "mpox": {
       "Dem. Rep. Congo": 3,
@@ -102,7 +112,8 @@
       "Haiti": 2,
       "Tanzania": 1,
       "Syria": 2,
-      "Comoros": 1
+      "Comoros": 1,
+      "Madagascar": 1
     },
     "dengue": {
       "Brazil": 3,
@@ -123,7 +134,10 @@
       "Madagascar": 1,
       "Nigeria": 1,
       "Australia": 1,
-      "La Réunion": 1
+      "La Réunion": 1,
+      "Comoros": 1,
+      "Mauritius": 1,
+      "Mayotte": 1
     },
     "chikv": {
       "India": 2,
@@ -135,7 +149,8 @@
       "Pakistan": 1,
       "Paraguay": 2,
       "Argentina": 1,
-      "La Réunion": 1
+      "La Réunion": 1,
+      "Mayotte": 1
     },
     "marburg": {},
     "lassa": {
@@ -173,7 +188,7 @@
       "Uganda": 1
     },
     "plague": {
-      "Madagascar": 3,
+      "Madagascar": 2,
       "Dem. Rep. Congo": 2,
       "Peru": 1,
       "United States of America": 1
@@ -184,6 +199,11 @@
       "Oman": 1,
       "Qatar": 1,
       "Jordan": 1
+    },
+    "lepto": {
+      "Madagascar": 1,
+      "La Réunion": 1,
+      "Mayotte": 1
     }
   },
   "epiSeries": {
@@ -542,7 +562,7 @@
     {
       "name": "Mpox (clade Ib)",
       "group": "Orthopoxvirose",
-      "lvl": 1,
+      "lvl": 3,
       "period": "cumul depuis le début de l’épidémie · arrêté au 12/06/2026",
       "zones": [
         {
@@ -555,7 +575,7 @@
         },
         {
           "zone": "RDC",
-          "l": 1,
+          "l": 3,
           "cas": 22000,
           "dec": 700
         }
@@ -580,7 +600,7 @@
     {
       "name": "Dengue",
       "group": "Arbovirose",
-      "lvl": 2,
+      "lvl": 1,
       "period": "saison 2026 · circulation en cours (pas de comptage cumulé)",
       "zones": [
         {
@@ -592,13 +612,17 @@
         },
         {
           "zone": "Mayotte",
-          "l": 2,
-          "cas": null
+          "l": 1,
+          "cas": null,
+          "basis": "Règle REB RUN",
+          "basisWhy": "aucun relevé chiffré daté — niveau par défaut (Surveillance)"
         },
         {
           "zone": "Madagascar",
-          "l": 2,
-          "cas": null
+          "l": 1,
+          "cas": null,
+          "basis": "Règle REB RUN",
+          "basisWhy": "aucun relevé chiffré daté — niveau par défaut (Surveillance)"
         }
       ]
     },
@@ -1099,6 +1123,20 @@
   ],
   "updates": [
     {
+      "date": "26/10 · 21:30",
+      "auto": false,
+      "status": "updated",
+      "src": "Niveaux",
+      "what": "Harmonisation des niveaux entre carte régionale, carte mondiale et fiches d’alerte (la carte régionale fait référence) : peste Madagascar 3→2 sur la carte mondiale ; mpox RDC 1→3 sur la fiche d’alerte ; zones manquantes complétées sur l’une ou l’autre carte."
+    },
+    {
+      "date": "26/10 · 21:00",
+      "auto": false,
+      "status": "updated",
+      "src": "Niveaux",
+      "what": "Territoires sans cas ni référentiel sourcé ramenés en Surveillance : Ebola La Réunion et Mayotte (cohérence avec le risque OMS « faible » au niveau mondial, DON622), dengue Mayotte et Madagascar (aucun relevé daté). La posture de préparation reste décrite dans la fiche pays."
+    },
+    {
       "date": "26/10 · 19:30",
       "auto": false,
       "status": "updated",
@@ -1503,20 +1541,6 @@
       "status": "checked",
       "what": "Odissé/SpF interrogé — cas arboviroses Réunion inchangés depuis le dernier relevé.",
       "src": "Odissé (SpF)"
-    },
-    {
-      "date": "22/10 · 06:50",
-      "auto": true,
-      "status": "updated",
-      "what": "30 alerte(s) épidémie active(s) recensée(s) dans la zone (ReliefWeb).",
-      "src": "ReliefWeb"
-    },
-    {
-      "date": "21/10 · 06:48",
-      "auto": true,
-      "status": "stale",
-      "what": "⚠ Échec depuis 7 relevés consécutifs — Échec de connexion à la COREB (d.getDate is not a function).",
-      "src": "COREB (veille REB)"
     }
   ],
   "reunionBulletin": {
